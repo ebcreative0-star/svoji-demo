@@ -80,10 +80,12 @@ Plans:
   3. The navigation bar changes appearance on scroll and collapses to a mobile menu on small screens
   4. The footer renders with consistent brand styling matching the rest of the page
   5. The page passes a visual check on iOS Safari mobile without layout breaks or animation jank
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 04-01: TBD
+- [ ] 04-01-PLAN.md -- Export buttonVariants, create LandingNav + Hero (animated chat + grain texture) + LandingFooter, refactor page.tsx to component composition
+- [ ] 04-02-PLAN.md -- Create Features + SocialProof + HowItWorks + FinalCTA sections, finalize page.tsx with all 7 components
+- [ ] 04-03-PLAN.md -- Visual QA checkpoint: verify landing page on desktop and mobile
 
 ### Phase 5: Auth Pages
 **Goal**: Login, register, and onboarding feel like premium product surfaces, not prototype forms
