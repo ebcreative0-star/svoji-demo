@@ -72,9 +72,11 @@ skipped: 2
   reason: "User reported: efekt je téměř neviditelný"
   severity: cosmetic
   test: 3
-  root_cause: ""
-  artifacts: []
-  missing: []
+  root_cause: "Spring config (stiffness: 400, damping: 20) is too stiff -- the animation snaps to target in ~30ms, making y: -1.5 and scale: 1.03 imperceptible even though the values are correct"
+  artifacts:
+    - "src/components/ui/Button.tsx:72 -- transition: { type: 'spring', stiffness: 400, damping: 20 }"
+  missing:
+    - "Reduce stiffness (e.g. 300) and damping (e.g. 15) so the spring has more travel time, OR switch to duration-based tween (e.g. duration: 0.15) to guarantee visible motion"
   debug_session: ""
 
 - truth: "Pressing a button scales it down with visible tactile feedback"
@@ -82,9 +84,11 @@ skipped: 2
   reason: "User reported: téměr neviditelné"
   severity: cosmetic
   test: 4
-  root_cause: ""
-  artifacts: []
-  missing: []
+  root_cause: "Same spring config as Issue 3 -- stiffness: 400 / damping: 20 makes the whileTap scale: 0.975 snap instantly and snap back before it registers visually"
+  artifacts:
+    - "src/components/ui/Button.tsx:72 -- shared transition config applies to both whileHover and whileTap"
+  missing:
+    - "Use a separate, slower transition for whileTap (e.g. duration: 0.08 tween) so the press-down is perceptible before release"
   debug_session: ""
 
 - truth: "Input focus shows neutral soft gray glow ring, not brand colored"
@@ -92,17 +96,21 @@ skipped: 2
   reason: "User reported: pole dostane hnedy obrys"
   severity: major
   test: 6
-  root_cause: ""
-  artifacts: []
-  missing: []
+  root_cause: "Global CSS in globals.css applies 'outline: 2px solid var(--color-primary)' to input:focus-visible, overriding Tailwind's focus:ring-gray-300/70 -- --color-primary is oklch(55% 0.045 55) which renders as warm brown"
+  artifacts:
+    - "src/app/globals.css:109-116 -- blanket focus-visible rule sets outline to var(--color-primary) for all inputs"
+    - "src/components/ui/Input.tsx:31 -- focus:ring-gray-300/70 is correct but the global outline sits on top"
+  missing:
+    - "Remove 'input:focus-visible' from the global focus rule in globals.css (keep it only for a, button, select, textarea), or add 'focus-visible:outline-none' to the Input className to suppress the global override"
   debug_session: ""
 
 - truth: "Page transition crossfade is smooth and noticeable (~400ms), not instant"
   status: failed
   reason: "User reported: je hodně rychlý, skoro okamžitý"
   severity: minor
-  test: 7
-  root_cause: ""
-  artifacts: []
-  missing: []
+  root_cause: "AnimatePresence lives INSIDE template.tsx which Next.js App Router replaces on every navigation -- the old template instance (and its AnimatePresence) is destroyed before it can coordinate the exit animation, so only the entry fade-in plays and the old page snaps away instantly"
+  artifacts:
+    - "src/app/(public)/template.tsx:11-22 -- AnimatePresence is inside the component that gets replaced, not in a persistent parent layout"
+  missing:
+    - "Move AnimatePresence up into the public layout (src/app/(public)/layout.tsx) so it persists across template replacements and can coordinate both exit and enter animations"
   debug_session: ""
