@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/client';
 import { Send, Loader2, Bot, User } from 'lucide-react';
 import { format } from 'date-fns';
 import { cs } from 'date-fns/locale';
+import { Button, Input } from '@/components/ui';
 
 interface Message {
   id: string;
@@ -141,13 +142,15 @@ export function ChatInterface({ couple, initialMessages }: ChatInterfaceProps) {
             </p>
             <div className="flex flex-wrap justify-center gap-2">
               {suggestedQuestions.map((q) => (
-                <button
+                <Button
                   key={q}
+                  variant="ghost"
+                  size="sm"
                   onClick={() => setInput(q)}
-                  className="px-3 py-1.5 text-sm bg-[var(--color-secondary)] rounded-full hover:bg-gray-200 transition-colors"
+                  className="bg-[var(--color-secondary)] rounded-full hover:bg-gray-200"
                 >
                   {q}
-                </button>
+                </Button>
               ))}
             </div>
           </div>
@@ -174,21 +177,22 @@ export function ChatInterface({ couple, initialMessages }: ChatInterfaceProps) {
       {/* Input */}
       <form onSubmit={sendMessage} className="px-6 py-4 border-t">
         <div className="flex gap-3">
-          <input
+          <Input
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="Napište svůj dotaz..."
-            className="flex-1 px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent"
             disabled={isLoading}
+            className="flex-1"
           />
-          <button
+          <Button
             type="submit"
+            variant="primary"
+            isLoading={isLoading}
             disabled={isLoading || !input.trim()}
-            className="px-4 py-3 bg-[var(--color-primary)] text-white rounded-lg hover:bg-[var(--color-primary-light)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <Send className="w-5 h-5" />
-          </button>
+            aria-label="Odeslat zprávu"
+            leadingIcon={<Send className="w-5 h-5" />}
+          />
         </div>
       </form>
     </div>

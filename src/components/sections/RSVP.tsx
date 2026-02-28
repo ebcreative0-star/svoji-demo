@@ -105,38 +105,24 @@ export function RSVP({ deadline, contactEmail, websiteId }: RSVPProps) {
           className="max-w-lg mx-auto space-y-6"
         >
           {/* Jméno */}
-          <div>
-            <label htmlFor="name" className="block text-sm font-medium mb-2">
-              Vaše jméno a příjmení *
-            </label>
-            <input
-              type="text"
-              id="name"
-              {...register("name")}
-              className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent"
-              placeholder="Jan Novák"
-            />
-            {errors.name && (
-              <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>
-            )}
-          </div>
+          <Input
+            type="text"
+            label="Vaše jméno a příjmení *"
+            id="name"
+            {...register("name")}
+            placeholder="Jan Novák"
+            error={errors.name?.message}
+          />
 
           {/* Email */}
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium mb-2">
-              Email *
-            </label>
-            <input
-              type="email"
-              id="email"
-              {...register("email")}
-              className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent"
-              placeholder="jan@email.cz"
-            />
-            {errors.email && (
-              <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
-            )}
-          </div>
+          <Input
+            type="email"
+            label="Email *"
+            id="email"
+            {...register("email")}
+            placeholder="jan@email.cz"
+            error={errors.email?.message}
+          />
 
           {/* Účast */}
           <div>
@@ -168,52 +154,38 @@ export function RSVP({ deadline, contactEmail, websiteId }: RSVPProps) {
           {/* Počet hostů - pouze pokud přijde */}
           {attending === "yes" && (
             <>
-              <div>
-                <label htmlFor="guestCount" className="block text-sm font-medium mb-2">
-                  Počet osob (včetně vás)
-                </label>
-                <select
-                  id="guestCount"
-                  {...register("guestCount", { valueAsNumber: true })}
-                  className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent"
-                >
-                  {[1, 2, 3, 4, 5].map((num) => (
-                    <option key={num} value={num}>
-                      {num} {num === 1 ? "osoba" : num < 5 ? "osoby" : "osob"}
-                    </option>
-                  ))}
-                </select>
-              </div>
+              <Select
+                label="Počet osob (včetně vás)"
+                id="guestCount"
+                {...register("guestCount", { valueAsNumber: true })}
+              >
+                {[1, 2, 3, 4, 5].map((num) => (
+                  <option key={num} value={num}>
+                    {num} {num === 1 ? "osoba" : num < 5 ? "osoby" : "osob"}
+                  </option>
+                ))}
+              </Select>
 
               {/* Stravování */}
-              <div>
-                <label htmlFor="dietary" className="block text-sm font-medium mb-2">
-                  Dietní omezení nebo alergie
-                </label>
-                <input
-                  type="text"
-                  id="dietary"
-                  {...register("dietary")}
-                  className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent"
-                  placeholder="Vegetarián, bezlepková dieta..."
-                />
-              </div>
+              <Input
+                type="text"
+                label="Dietní omezení nebo alergie"
+                id="dietary"
+                {...register("dietary")}
+                placeholder="Vegetarián, bezlepková dieta..."
+              />
             </>
           )}
 
           {/* Poznámka */}
-          <div>
-            <label htmlFor="notes" className="block text-sm font-medium mb-2">
-              Vzkaz pro novomanžele
-            </label>
-            <textarea
-              id="notes"
-              {...register("notes")}
-              rows={3}
-              className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent resize-none"
-              placeholder="Máte pro nás nějaký vzkaz?"
-            />
-          </div>
+          <Textarea
+            label="Vzkaz pro novomanžele"
+            id="notes"
+            {...register("notes")}
+            rows={3}
+            placeholder="Máte pro nás nějaký vzkaz?"
+            className="resize-none"
+          />
 
           {/* Submit */}
           <Button

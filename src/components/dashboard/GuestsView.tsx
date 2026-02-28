@@ -14,6 +14,13 @@ import {
   Download,
   Search,
 } from 'lucide-react';
+import { Button, Card, Badge } from '@/components/ui';
+
+const RSVP_INTENT: Record<string, 'success' | 'warning' | 'danger'> = {
+  confirmed: 'success',
+  pending: 'warning',
+  declined: 'danger',
+};
 
 interface Guest {
   id: string;
@@ -145,57 +152,69 @@ export function GuestsView({ guests: initialGuests, coupleId }: GuestsViewProps)
     <div>
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
-        <div className="bg-white p-4 rounded-lg shadow-sm">
-          <div className="flex items-center gap-2 text-sm text-[var(--color-text-light)] mb-1">
-            <Users className="w-4 h-4" />
-            Celkem
-          </div>
-          <div className="text-2xl font-medium">{stats.total}</div>
-        </div>
-        <div className="bg-white p-4 rounded-lg shadow-sm">
-          <div className="flex items-center gap-2 text-sm text-green-600 mb-1">
-            <UserCheck className="w-4 h-4" />
-            Potvrzeno
-          </div>
-          <div className="text-2xl font-medium text-green-600">{stats.confirmed}</div>
-        </div>
-        <div className="bg-white p-4 rounded-lg shadow-sm">
-          <div className="flex items-center gap-2 text-sm text-red-600 mb-1">
-            <UserX className="w-4 h-4" />
-            Odmítnuto
-          </div>
-          <div className="text-2xl font-medium text-red-600">{stats.declined}</div>
-        </div>
-        <div className="bg-white p-4 rounded-lg shadow-sm">
-          <div className="flex items-center gap-2 text-sm text-amber-600 mb-1">
-            <Clock className="w-4 h-4" />
-            Čeká
-          </div>
-          <div className="text-2xl font-medium text-amber-600">{stats.pending}</div>
-        </div>
-        <div className="bg-white p-4 rounded-lg shadow-sm border-l-4 border-[var(--color-primary)]">
-          <div className="text-sm text-[var(--color-text-light)] mb-1">Přijde celkem</div>
-          <div className="text-2xl font-medium">{totalAttending}</div>
-        </div>
+        <Card>
+          <Card.Body>
+            <div className="flex items-center gap-2 text-sm text-[var(--color-text-light)] mb-1">
+              <Users className="w-4 h-4" />
+              Celkem
+            </div>
+            <div className="text-2xl font-medium">{stats.total}</div>
+          </Card.Body>
+        </Card>
+        <Card>
+          <Card.Body>
+            <div className="flex items-center gap-2 text-sm text-green-600 mb-1">
+              <UserCheck className="w-4 h-4" />
+              Potvrzeno
+            </div>
+            <div className="text-2xl font-medium text-green-600">{stats.confirmed}</div>
+          </Card.Body>
+        </Card>
+        <Card>
+          <Card.Body>
+            <div className="flex items-center gap-2 text-sm text-red-600 mb-1">
+              <UserX className="w-4 h-4" />
+              Odmítnuto
+            </div>
+            <div className="text-2xl font-medium text-red-600">{stats.declined}</div>
+          </Card.Body>
+        </Card>
+        <Card>
+          <Card.Body>
+            <div className="flex items-center gap-2 text-sm text-amber-600 mb-1">
+              <Clock className="w-4 h-4" />
+              Čeká
+            </div>
+            <div className="text-2xl font-medium text-amber-600">{stats.pending}</div>
+          </Card.Body>
+        </Card>
+        <Card className="border-l-4 border-[var(--color-primary)]">
+          <Card.Body>
+            <div className="text-sm text-[var(--color-text-light)] mb-1">Přijde celkem</div>
+            <div className="text-2xl font-medium">{totalAttending}</div>
+          </Card.Body>
+        </Card>
       </div>
 
       {/* Actions */}
       <div className="flex flex-wrap gap-4 mb-6">
-        <button
+        <Button
+          variant="primary"
+          size="sm"
           onClick={() => setShowAddForm(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-[var(--color-primary)] text-white rounded-lg hover:bg-[var(--color-primary-light)] transition-colors"
+          leadingIcon={<Plus className="w-4 h-4" />}
         >
-          <Plus className="w-4 h-4" />
           Přidat hosta
-        </button>
+        </Button>
 
-        <button
+        <Button
+          variant="secondary"
+          size="sm"
           onClick={exportToCsv}
-          className="flex items-center gap-2 px-4 py-2 border rounded-lg hover:bg-gray-50 transition-colors"
+          leadingIcon={<Download className="w-4 h-4" />}
         >
-          <Download className="w-4 h-4" />
           Export CSV
-        </button>
+        </Button>
 
         <div className="flex-1 min-w-[200px]">
           <div className="relative">
@@ -224,83 +243,91 @@ export function GuestsView({ guests: initialGuests, coupleId }: GuestsViewProps)
 
       {/* Add form */}
       {showAddForm && (
-        <div className="bg-white p-4 rounded-lg shadow-sm mb-6">
-          <h3 className="font-medium mb-4">Nový host</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-            <input
-              type="text"
-              placeholder="Jméno *"
-              value={newGuest.name}
-              onChange={(e) => setNewGuest({ ...newGuest, name: e.target.value })}
-              className="px-3 py-2 border rounded-lg"
-            />
-            <input
-              type="email"
-              placeholder="Email"
-              value={newGuest.email}
-              onChange={(e) => setNewGuest({ ...newGuest, email: e.target.value })}
-              className="px-3 py-2 border rounded-lg"
-            />
-            <input
-              type="tel"
-              placeholder="Telefon"
-              value={newGuest.phone}
-              onChange={(e) => setNewGuest({ ...newGuest, phone: e.target.value })}
-              className="px-3 py-2 border rounded-lg"
-            />
-            <input
-              type="text"
-              placeholder="Skupina (např. Rodina nevěsty)"
-              value={newGuest.group_name}
-              onChange={(e) => setNewGuest({ ...newGuest, group_name: e.target.value })}
-              className="px-3 py-2 border rounded-lg"
-            />
-            <input
-              type="text"
-              placeholder="Dietní požadavky"
-              value={newGuest.dietary_requirements}
-              onChange={(e) => setNewGuest({ ...newGuest, dietary_requirements: e.target.value })}
-              className="px-3 py-2 border rounded-lg"
-            />
-            <label className="flex items-center gap-2 px-3 py-2">
+        <Card className="mb-6">
+          <Card.Body>
+            <h3 className="font-medium mb-4">Nový host</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
               <input
-                type="checkbox"
-                checked={newGuest.plus_one}
-                onChange={(e) => setNewGuest({ ...newGuest, plus_one: e.target.checked })}
-                className="w-4 h-4"
+                type="text"
+                placeholder="Jméno *"
+                value={newGuest.name}
+                onChange={(e) => setNewGuest({ ...newGuest, name: e.target.value })}
+                className="px-3 py-2 border rounded-lg"
               />
-              <span>S doprovodem (+1)</span>
-            </label>
-          </div>
-          <div className="flex gap-2">
-            <button
-              onClick={addGuest}
-              className="flex items-center gap-2 px-4 py-2 bg-[var(--color-primary)] text-white rounded-lg"
-            >
-              <Check className="w-4 h-4" />
-              Přidat
-            </button>
-            <button
-              onClick={() => setShowAddForm(false)}
-              className="flex items-center gap-2 px-4 py-2 border rounded-lg"
-            >
-              <X className="w-4 h-4" />
-              Zrušit
-            </button>
-          </div>
-        </div>
+              <input
+                type="email"
+                placeholder="Email"
+                value={newGuest.email}
+                onChange={(e) => setNewGuest({ ...newGuest, email: e.target.value })}
+                className="px-3 py-2 border rounded-lg"
+              />
+              <input
+                type="tel"
+                placeholder="Telefon"
+                value={newGuest.phone}
+                onChange={(e) => setNewGuest({ ...newGuest, phone: e.target.value })}
+                className="px-3 py-2 border rounded-lg"
+              />
+              <input
+                type="text"
+                placeholder="Skupina (např. Rodina nevěsty)"
+                value={newGuest.group_name}
+                onChange={(e) => setNewGuest({ ...newGuest, group_name: e.target.value })}
+                className="px-3 py-2 border rounded-lg"
+              />
+              <input
+                type="text"
+                placeholder="Dietní požadavky"
+                value={newGuest.dietary_requirements}
+                onChange={(e) => setNewGuest({ ...newGuest, dietary_requirements: e.target.value })}
+                className="px-3 py-2 border rounded-lg"
+              />
+              <label className="flex items-center gap-2 px-3 py-2">
+                <input
+                  type="checkbox"
+                  checked={newGuest.plus_one}
+                  onChange={(e) => setNewGuest({ ...newGuest, plus_one: e.target.checked })}
+                  className="w-4 h-4"
+                />
+                <span>S doprovodem (+1)</span>
+              </label>
+            </div>
+            <div className="flex gap-2">
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={addGuest}
+                leadingIcon={<Check className="w-4 h-4" />}
+              >
+                Přidat
+              </Button>
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => setShowAddForm(false)}
+                leadingIcon={<X className="w-4 h-4" />}
+              >
+                Zrušit
+              </Button>
+            </div>
+          </Card.Body>
+        </Card>
       )}
 
       {/* Guest list */}
       {filteredGuests.length === 0 ? (
-        <div className="text-center py-12 bg-white rounded-lg shadow-sm">
-          <Users className="w-12 h-12 mx-auto mb-4 text-[var(--color-text-light)] opacity-50" />
-          <p className="text-[var(--color-text-light)]">
-            {guests.length === 0 ? 'Zatím nemáte žádné hosty' : 'Žádní hosté nenalezeni'}
-          </p>
-        </div>
+        <Card>
+          <Card.Body>
+            <div className="text-center py-8">
+              <Users className="w-12 h-12 mx-auto mb-4 text-[var(--color-text-light)] opacity-50" />
+              <p className="text-[var(--color-text-light)]">
+                {guests.length === 0 ? 'Zatím nemáte žádné hosty' : 'Žádní hosté nenalezeni'}
+              </p>
+            </div>
+          </Card.Body>
+        </Card>
       ) : (
-        <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+        <Card className="overflow-hidden">
           <table className="w-full">
             <thead className="bg-[var(--color-secondary)]">
               <tr>
@@ -315,7 +342,12 @@ export function GuestsView({ guests: initialGuests, coupleId }: GuestsViewProps)
               {filteredGuests.map((guest) => (
                 <tr key={guest.id} className="hover:bg-gray-50">
                   <td className="px-4 py-3">
-                    <div className="font-medium">{guest.name}</div>
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium">{guest.name}</span>
+                      <Badge intent={RSVP_INTENT[guest.rsvp_status]} dot size="sm">
+                        {guest.rsvp_status === 'confirmed' ? 'Potvrzeno' : guest.rsvp_status === 'declined' ? 'Odmítnuto' : 'Čeká'}
+                      </Badge>
+                    </div>
                     {guest.plus_one && (
                       <span className="text-xs text-[var(--color-text-light)]">+1</span>
                     )}
@@ -332,54 +364,47 @@ export function GuestsView({ guests: initialGuests, coupleId }: GuestsViewProps)
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex justify-center gap-1">
-                      <button
+                      <Button
+                        variant="ghost"
+                        size="sm"
                         onClick={() => updateRsvpStatus(guest.id, 'confirmed')}
-                        className={`p-1.5 rounded ${
-                          guest.rsvp_status === 'confirmed'
-                            ? 'bg-green-100 text-green-600'
-                            : 'text-gray-400 hover:bg-gray-100'
-                        }`}
-                        title="Potvrzeno"
-                      >
-                        <UserCheck className="w-4 h-4" />
-                      </button>
-                      <button
+                        aria-label="Potvrzeno"
+                        leadingIcon={<UserCheck className="w-4 h-4" />}
+                        className={guest.rsvp_status === 'confirmed' ? 'bg-green-100 text-green-600 hover:bg-green-100' : 'text-gray-400'}
+                      />
+                      <Button
+                        variant="ghost"
+                        size="sm"
                         onClick={() => updateRsvpStatus(guest.id, 'pending')}
-                        className={`p-1.5 rounded ${
-                          guest.rsvp_status === 'pending'
-                            ? 'bg-amber-100 text-amber-600'
-                            : 'text-gray-400 hover:bg-gray-100'
-                        }`}
-                        title="Čeká"
-                      >
-                        <Clock className="w-4 h-4" />
-                      </button>
-                      <button
+                        aria-label="Čeká"
+                        leadingIcon={<Clock className="w-4 h-4" />}
+                        className={guest.rsvp_status === 'pending' ? 'bg-amber-100 text-amber-600 hover:bg-amber-100' : 'text-gray-400'}
+                      />
+                      <Button
+                        variant="ghost"
+                        size="sm"
                         onClick={() => updateRsvpStatus(guest.id, 'declined')}
-                        className={`p-1.5 rounded ${
-                          guest.rsvp_status === 'declined'
-                            ? 'bg-red-100 text-red-600'
-                            : 'text-gray-400 hover:bg-gray-100'
-                        }`}
-                        title="Odmítnuto"
-                      >
-                        <UserX className="w-4 h-4" />
-                      </button>
+                        aria-label="Odmítnuto"
+                        leadingIcon={<UserX className="w-4 h-4" />}
+                        className={guest.rsvp_status === 'declined' ? 'bg-red-100 text-red-600 hover:bg-red-100' : 'text-gray-400'}
+                      />
                     </div>
                   </td>
                   <td className="px-4 py-3 text-right">
-                    <button
+                    <Button
+                      variant="ghost"
+                      size="sm"
                       onClick={() => deleteGuest(guest.id)}
+                      aria-label="Smazat hosta"
+                      leadingIcon={<Trash2 className="w-4 h-4" />}
                       className="text-gray-400 hover:text-red-500"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
+                    />
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
-        </div>
+        </Card>
       )}
     </div>
   );

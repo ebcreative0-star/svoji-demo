@@ -15,10 +15,20 @@ import {
 } from 'lucide-react';
 import {
   CATEGORY_LABELS,
-  CATEGORY_COLORS,
   type TaskCategory,
   type TaskPriority,
 } from '@/lib/checklist-generator';
+import { Button, Card, Badge } from '@/components/ui';
+
+const CATEGORY_INTENT: Record<TaskCategory, 'success' | 'warning' | 'danger' | 'info' | 'neutral'> = {
+  venue: 'info',
+  attire: 'neutral',
+  vendors: 'warning',
+  guests: 'success',
+  decor: 'info',
+  admin: 'neutral',
+  ceremony: 'danger',
+};
 
 interface ChecklistItem {
   id: string;
@@ -131,24 +141,24 @@ export function ChecklistView({ items: initialItems, weddingDate }: ChecklistVie
 
       {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-4 sm:mb-6">
-        <div className="flex bg-white rounded-lg p-1 shadow-sm overflow-x-auto">
-          {(['pending', 'all', 'completed', 'overdue'] as FilterType[]).map((f) => (
-            <button
-              key={f}
-              onClick={() => setFilter(f)}
-              className={`px-3 py-2 sm:py-1.5 text-xs sm:text-sm rounded-md transition-colors whitespace-nowrap min-h-[44px] sm:min-h-0 ${
-                filter === f
-                  ? 'bg-[var(--color-primary)] text-white'
-                  : 'text-[var(--color-text-light)] hover:bg-gray-100'
-              }`}
-            >
-              {f === 'pending' && 'Nesplněné'}
-              {f === 'all' && 'Vše'}
-              {f === 'completed' && 'Hotové'}
-              {f === 'overdue' && 'Po termínu'}
-            </button>
-          ))}
-        </div>
+        <Card className="p-1">
+          <div className="flex overflow-x-auto">
+            {(['pending', 'all', 'completed', 'overdue'] as FilterType[]).map((f) => (
+              <Button
+                key={f}
+                variant={filter === f ? 'primary' : 'ghost'}
+                size="sm"
+                onClick={() => setFilter(f)}
+                className="whitespace-nowrap rounded-md"
+              >
+                {f === 'pending' && 'Nesplněné'}
+                {f === 'all' && 'Vše'}
+                {f === 'completed' && 'Hotové'}
+                {f === 'overdue' && 'Po termínu'}
+              </Button>
+            ))}
+          </div>
+        </Card>
 
         <div className="flex items-center gap-2 text-sm text-[var(--color-text-light)]">
           <Filter className="w-4 h-4" />
@@ -167,7 +177,7 @@ export function ChecklistView({ items: initialItems, weddingDate }: ChecklistVie
       {/* Grouped items */}
       <div className="space-y-4">
         {Object.entries(groupedItems).map(([groupId, group]) => (
-          <div key={groupId} className="bg-white rounded-lg shadow-sm overflow-hidden">
+          <Card key={groupId} className="overflow-hidden">
             <button
               onClick={() => toggleGroup(groupId)}
               className="w-full flex items-center justify-between px-4 py-3 hover:bg-gray-50 transition-colors"
@@ -197,7 +207,7 @@ export function ChecklistView({ items: initialItems, weddingDate }: ChecklistVie
                 ))}
               </div>
             )}
-          </div>
+          </Card>
         ))}
       </div>
 
@@ -224,19 +234,21 @@ function StatCard({
   alert?: boolean;
 }) {
   return (
-    <div className={`bg-white p-4 rounded-lg shadow-sm ${alert ? 'border-l-4 border-red-500' : ''}`}>
-      <div className="text-sm text-[var(--color-text-light)] mb-1">{label}</div>
-      <div className={`text-2xl font-medium ${alert ? 'text-red-600' : ''}`}>{value}</div>
-      {subtitle && <div className="text-xs text-[var(--color-text-light)] mt-1">{subtitle}</div>}
-      {progress !== undefined && (
-        <div className="mt-2 h-1.5 bg-gray-100 rounded-full overflow-hidden">
-          <div
-            className="h-full bg-[var(--color-primary)] rounded-full transition-all"
-            style={{ width: `${progress}%` }}
-          />
-        </div>
-      )}
-    </div>
+    <Card className={alert ? 'border-l-4 border-red-500' : ''}>
+      <Card.Body>
+        <div className="text-sm text-[var(--color-text-light)] mb-1">{label}</div>
+        <div className={`text-2xl font-medium ${alert ? 'text-red-600' : ''}`}>{value}</div>
+        {subtitle && <div className="text-xs text-[var(--color-text-light)] mt-1">{subtitle}</div>}
+        {progress !== undefined && (
+          <div className="mt-2 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-[var(--color-primary)] rounded-full transition-all"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+        )}
+      </Card.Body>
+    </Card>
   );
 }
 
@@ -281,9 +293,7 @@ function ChecklistItemRow({
             {item.title}
           </span>
           {priority === 'urgent' && !item.completed && (
-            <span className="px-1.5 py-0.5 text-xs bg-red-100 text-red-700 rounded">
-              Urgentní
-            </span>
+            <Badge intent="danger" size="sm">Urgentní</Badge>
           )}
         </div>
 
@@ -292,15 +302,9 @@ function ChecklistItemRow({
         )}
 
         <div className="flex items-center gap-3 mt-2 text-xs text-[var(--color-text-light)]">
-          <span
-            className="px-2 py-0.5 rounded-full"
-            style={{
-              backgroundColor: `${CATEGORY_COLORS[category]}20`,
-              color: CATEGORY_COLORS[category],
-            }}
-          >
+          <Badge intent={CATEGORY_INTENT[category] ?? 'neutral'} size="sm">
             {CATEGORY_LABELS[category]}
-          </span>
+          </Badge>
 
           <span className={`flex items-center gap-1 ${isOverdue ? 'text-red-600' : isDueToday ? 'text-amber-600' : ''}`}>
             {isOverdue && <AlertTriangle className="w-3 h-3" />}

@@ -15,6 +15,7 @@ import {
   X,
 } from 'lucide-react';
 import { useState } from 'react';
+import { Button } from '@/components/ui';
 
 interface DashboardNavProps {
   partner1: string;
@@ -86,25 +87,25 @@ export function DashboardNav({ partner1, partner2 }: DashboardNavProps) {
               <span>Web pro hosty</span>
             </Link>
 
-            <button
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={handleLogout}
-              className="flex items-center gap-2 px-3 py-2 text-sm text-[var(--color-text-light)] hover:text-red-600 transition-colors"
-            >
-              <LogOut className="w-4 h-4" />
-            </button>
+              aria-label="Odhlásit se"
+              leadingIcon={<LogOut className="w-4 h-4" />}
+              className="text-[var(--color-text-light)] hover:text-red-600"
+            />
           </div>
 
           {/* Mobile menu button */}
-          <button
+          <Button
+            variant="ghost"
+            size="sm"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden p-2"
-          >
-            {mobileMenuOpen ? (
-              <X className="w-6 h-6" />
-            ) : (
-              <Menu className="w-6 h-6" />
-            )}
-          </button>
+            aria-label={mobileMenuOpen ? 'Zavřít menu' : 'Otevřít menu'}
+            leadingIcon={mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            className="md:hidden"
+          />
         </div>
       </div>
 
@@ -144,13 +145,14 @@ export function DashboardNav({ partner1, partner2 }: DashboardNavProps) {
               <span>Web pro hosty</span>
             </Link>
 
-            <button
+            <Button
+              variant="ghost"
               onClick={handleLogout}
-              className="flex items-center gap-3 px-3 py-3 text-red-600 w-full"
+              leadingIcon={<LogOut className="w-5 h-5" />}
+              className="w-full justify-start px-3 py-3 text-red-600 hover:text-red-600"
             >
-              <LogOut className="w-5 h-5" />
-              <span>Odhlásit se</span>
-            </button>
+              Odhlásit se
+            </Button>
           </div>
         </div>
       )}
