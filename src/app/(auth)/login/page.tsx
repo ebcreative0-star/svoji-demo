@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 import { Loader2 } from 'lucide-react';
+import { isDemoMode } from '@/lib/demo-data';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -18,6 +19,12 @@ export default function LoginPage() {
     e.preventDefault();
     setLoading(true);
     setError('');
+
+    // Demo mode bypass
+    if (isDemoMode()) {
+      router.push('/checklist');
+      return;
+    }
 
     const { error } = await supabase.auth.signInWithPassword({
       email,
