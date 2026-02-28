@@ -15,7 +15,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [ ] **Phase 1: Design System Foundation** - Establish OKLCH color tokens, typography swap, and spacing scale that propagate to all 196+ CSS variable references
 - [x] **Phase 2: UI Primitives** - Build typed Button, Card, Input, and Badge components that all surface redesigns depend on (completed 2026-02-28)
 - [x] **Phase 3: Animation Layer** - Wire Lenis smooth scroll, Framer Motion scroll-triggered reveals, micro-interactions, page transitions, and reduced-motion support (completed 2026-02-28)
-- [ ] **Phase 4: Landing Page** - Redesign all landing page sections with new tokens, primitives, and scroll animations
+- [x] **Phase 4: Landing Page** - Redesign all landing page sections with new tokens, primitives, and scroll animations (completed 2026-02-28)
 - [ ] **Phase 5: Auth Pages** - Restyle login, register, and onboarding with polished form interactions and branded aesthetic
 - [ ] **Phase 6: Dashboard** - Restyle all dashboard views with skeleton screens, empty states, and performance-gated micro-interactions
 - [ ] **Phase 7: Public Wedding Web** - Redesign guest-facing wedding pages and RSVP form to editorial premium quality
@@ -138,7 +138,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 | 1. Design System Foundation | 0/2 | Planned | - |
 | 2. UI Primitives | 2/2 | Complete   | 2026-02-28 |
 | 3. Animation Layer | 4/4 | Complete   | 2026-02-28 |
-| 4. Landing Page | 2/3 | In Progress|  |
+| 4. Landing Page | 3/3 | Complete   | 2026-02-28 |
 | 5. Auth Pages | 0/? | Not started | - |
 | 6. Dashboard | 0/? | Not started | - |
 | 7. Public Wedding Web | 0/? | Not started | - |
