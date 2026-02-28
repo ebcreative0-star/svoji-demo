@@ -42,18 +42,18 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[var(--color-secondary)] px-4">
-      <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <Link href="/" className="text-3xl font-serif">Svoji</Link>
-          <p className="text-[var(--color-text-light)] mt-2">
+    <div className="min-h-screen flex items-center justify-center bg-white px-4">
+      <div className="w-full max-w-sm">
+        <div className="text-center mb-10">
+          <Link href="/" className="text-3xl font-serif text-[var(--color-primary)]">Svoji</Link>
+          <p className="text-[var(--color-text-light)] mt-3 text-sm">
             Přihlaste se ke svému účtu
           </p>
         </div>
 
-        <form onSubmit={handleLogin} className="bg-white p-8 rounded-lg shadow-sm space-y-6">
+        <form onSubmit={handleLogin} className="space-y-5">
           {error && (
-            <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm">
+            <div className="bg-red-50 text-red-600 p-3 rounded-xl text-sm">
               {error}
             </div>
           )}
@@ -67,7 +67,7 @@ export default function LoginPage() {
               id="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent"
+              className="w-full px-4 py-3.5 border border-[var(--color-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent bg-[var(--color-secondary)]"
               placeholder="vas@email.cz"
               required
             />
@@ -82,7 +82,7 @@ export default function LoginPage() {
               id="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent"
+              className="w-full px-4 py-3.5 border border-[var(--color-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent bg-[var(--color-secondary)]"
               placeholder="••••••••"
               required
             />
@@ -91,7 +91,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full btn-primary flex items-center justify-center gap-2"
+            className="w-full btn-primary !py-4 flex items-center justify-center gap-2 mt-6"
           >
             {loading ? (
               <>
@@ -103,9 +103,9 @@ export default function LoginPage() {
             )}
           </button>
 
-          <p className="text-center text-sm text-[var(--color-text-light)]">
+          <p className="text-center text-sm text-[var(--color-text-light)] mt-6">
             Nemáte účet?{' '}
-            <Link href="/register" className="text-[var(--color-primary)] hover:underline">
+            <Link href="/register" className="text-[var(--color-primary)] hover:underline font-medium">
               Zaregistrujte se
             </Link>
           </p>
