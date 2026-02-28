@@ -1,0 +1,93 @@
+# Svoji - AI Svatební Asistent
+
+## What This Is
+
+AI-powered wedding planning assistant for Czech couples. Combines a conversational chatbot, adaptive checklist, budget tracker, guest management, and a public wedding website for guests - all in one SaaS product.
+
+## Core Value
+
+Couples can plan their entire wedding from one place with AI guidance, without needing to juggle multiple tools or spreadsheets.
+
+## Requirements
+
+### Validated
+
+<!-- Shipped and confirmed working from existing codebase. -->
+
+- ✓ Landing page with marketing content and CTAs — v0
+- ✓ Auth flow (email/password registration, login) — v0
+- ✓ 3-step onboarding (names, date, budget) — v0
+- ✓ Adaptive checklist with deadline compression — v0
+- ✓ AI chatbot (Claude API, Czech wedding context, chat history) — v0
+- ✓ Budget tracker with categories — v0
+- ✓ Guest list with RSVP management — v0
+- ✓ Public wedding web for guests (/w/[slug]) — v0
+- ✓ RSVP form on public web — v0
+- ✓ Dashboard with navigation — v0
+- ✓ Demo mode for offline development — v0
+
+### Active
+
+<!-- Current milestone scope -->
+
+- [ ] Full visual redesign - modern 2026 SaaS aesthetic
+- [ ] Fresh color palette (warm premium, not rustic)
+- [ ] Modern typography (replace Playfair Display)
+- [ ] Scroll-triggered animations and micro-interactions
+- [ ] Landing page redesign with polished sections
+- [ ] Auth pages redesign (login, register, onboarding)
+- [ ] Dashboard redesign (all views)
+- [ ] Public wedding web visual refresh
+
+### Out of Scope
+
+- Vendor database — deferred to future milestone
+- Multi-language support — deferred
+- QR codes for invitations — deferred
+- Seating arrangement — deferred
+- Real-time chat/WebSocket — high complexity, not core
+- Mobile native app — web-first
+- Payment integration — no monetization yet
+
+## Context
+
+- Existing Next.js 16 + Tailwind 4 + Supabase codebase
+- Framer Motion v12 already installed but underused
+- Current palette: mocha brown (#8B7355), sage, rose - feels dated/rustic
+- Current heading font: Playfair Display - overused in wedding space
+- Body font: Inter - fine to keep
+- Czech language throughout UI
+- Target market: Czech couples planning weddings
+- Competitors: WeMarry.io (1490 CZK), Brzy-svoji.cz (490-990 CZK)
+
+## Constraints
+
+- **Stack**: Next.js 16 + Tailwind CSS 4 + Supabase (keep existing)
+- **Animation library**: Framer Motion (already installed)
+- **Language**: Czech UI throughout
+- **Performance**: Animations must not degrade mobile performance
+- **Compatibility**: Must work on all modern browsers + mobile Safari
+
+## Current Milestone: v1.0 Design Overhaul
+
+**Goal:** Transform the entire UI from prototype-quality to premium 2026 SaaS aesthetic.
+
+**Target features:**
+- Fresh warm-premium color system
+- Modern typography pairing
+- Tasteful scroll animations and micro-interactions (Framer Motion)
+- Redesigned landing page, auth flows, and dashboard
+- Public wedding web visual refresh
+
+## Key Decisions
+
+| Decision | Rationale | Outcome |
+|----------|-----------|---------|
+| Full redesign over incremental | Current design is prototype quality, incremental would leave inconsistencies | — Pending |
+| Warm premium style | Fits wedding domain while feeling modern (not rustic/vintage) | — Pending |
+| Replace Playfair Display | Too common in wedding space, feels dated | — Pending |
+| Framer Motion for animations | Already installed, powerful, good React integration | — Pending |
+| Fresh color palette | Current mocha scheme reads as 2020s rustic, not 2026 premium | — Pending |
+
+---
+*Last updated: 2026-02-28 after milestone v1.0 initialization*
