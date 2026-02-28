@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { Plus, Trash2, Check, X, PiggyBank } from 'lucide-react';
-import { Button, Card } from '@/components/ui';
+import { Button, Card, Badge } from '@/components/ui';
 
 interface BudgetItem {
   id: string;
@@ -34,6 +34,21 @@ const BUDGET_CATEGORIES = [
   { value: 'honeymoon', label: 'Líbánky', icon: '✈️' },
   { value: 'other', label: 'Ostatní', icon: '📦' },
 ];
+
+const BUDGET_CATEGORY_INTENT: Record<string, 'success' | 'warning' | 'danger' | 'info' | 'neutral'> = {
+  venue: 'info',
+  catering: 'warning',
+  photo: 'info',
+  music: 'neutral',
+  flowers: 'success',
+  attire: 'neutral',
+  rings: 'warning',
+  decor: 'info',
+  cake: 'warning',
+  transport: 'neutral',
+  honeymoon: 'success',
+  other: 'neutral',
+};
 
 export function BudgetView({ items: initialItems, totalBudget, coupleId }: BudgetViewProps) {
   const [items, setItems] = useState(initialItems);
@@ -241,9 +256,9 @@ export function BudgetView({ items: initialItems, totalBudget, coupleId }: Budge
           {groupedItems.map((group) => (
             <Card key={group.value} className="overflow-hidden">
               <Card.Header className="bg-[var(--color-secondary)] flex justify-between items-center">
-                <span className="font-medium">
+                <Badge intent={BUDGET_CATEGORY_INTENT[group.value] ?? 'neutral'} size="sm">
                   {group.icon} {group.label}
-                </span>
+                </Badge>
                 <span className="text-sm text-[var(--color-text-light)]">
                   {group.total.toLocaleString('cs-CZ')} Kč
                 </span>
