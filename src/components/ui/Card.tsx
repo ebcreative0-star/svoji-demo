@@ -1,7 +1,12 @@
+'use client';
+
+import { motion } from 'framer-motion';
 import { cn } from '@/lib/cn';
 import type { HTMLAttributes } from 'react';
 
-interface CardProps extends HTMLAttributes<HTMLDivElement> {
+type MotionConflicts = 'onDrag' | 'onDragStart' | 'onDragEnd' | 'onAnimationStart' | 'onAnimationEnd';
+
+interface CardProps extends Omit<HTMLAttributes<HTMLDivElement>, MotionConflicts> {
   padding?: 'default' | 'compact';
   interactive?: boolean;
 }
@@ -13,11 +18,26 @@ export function Card({
   children,
   ...props
 }: CardProps) {
+  if (interactive) {
+    return (
+      <motion.div
+        className={cn(
+          'bg-white border border-[var(--color-border)] rounded-xl shadow-sm cursor-pointer',
+          className
+        )}
+        whileHover={{ boxShadow: '0 8px 30px rgba(0,0,0,0.12)' }}
+        transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+        {...props}
+      >
+        {children}
+      </motion.div>
+    );
+  }
+
   return (
     <div
       className={cn(
         'bg-white border border-[var(--color-border)] rounded-xl shadow-sm',
-        interactive && 'cursor-pointer hover:shadow-md transition-shadow',
         className
       )}
       {...props}

@@ -1,6 +1,7 @@
 'use client';
 
 import { cva, type VariantProps } from 'class-variance-authority';
+import { motion } from 'framer-motion';
 import { Loader2 } from 'lucide-react';
 import { forwardRef, type ButtonHTMLAttributes, type ReactNode } from 'react';
 import { cn } from '@/lib/cn';
@@ -28,8 +29,10 @@ const buttonVariants = cva(
   }
 );
 
+type MotionConflicts = 'onDrag' | 'onDragStart' | 'onDragEnd' | 'onAnimationStart' | 'onAnimationEnd';
+
 export interface ButtonProps
-  extends ButtonHTMLAttributes<HTMLButtonElement>,
+  extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, MotionConflicts>,
     VariantProps<typeof buttonVariants> {
   isLoading?: boolean;
   leadingIcon?: ReactNode;
@@ -56,18 +59,23 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       console.warn('[Button] Icon-only button is missing an aria-label. Screen readers will not announce this button.');
     }
 
+    const isDisabled = disabled || isLoading;
+
     return (
-      <button
+      <motion.button
         ref={ref}
-        disabled={disabled || isLoading}
+        disabled={isDisabled}
         className={cn(buttonVariants({ variant, size }), className)}
         aria-label={ariaLabel}
+        whileHover={isDisabled ? undefined : { y: -1.5, scale: 1.03 }}
+        whileTap={isDisabled ? undefined : { scale: 0.975 }}
+        transition={{ type: 'spring', stiffness: 400, damping: 20 }}
         {...props}
       >
         {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : leadingIcon}
         {children}
         {!isLoading && trailingIcon}
-      </button>
+      </motion.button>
     );
   }
 );
