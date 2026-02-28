@@ -6,9 +6,9 @@ import { ScrollReveal } from '@/components/animation/ScrollReveal';
 
 export function FinalCTA() {
   return (
-    <section className="py-20 lg:py-32 bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-primary-dark)]">
-      <ScrollReveal>
-        <div className="max-w-3xl mx-auto px-4 text-center text-white">
+    <section className="min-h-[80dvh] flex items-center bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-primary-dark)] py-24 lg:py-32">
+      <ScrollReveal className="w-full">
+        <div className="max-w-3xl mx-auto px-6 sm:px-8 text-center text-white">
           <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl mb-6">
             Váš velký den si zaslouží klid
           </h2>

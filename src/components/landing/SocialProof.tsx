@@ -10,8 +10,8 @@ const stats = [
 
 export function SocialProof() {
   return (
-    <section className="py-16 lg:py-20 bg-[var(--color-secondary)]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section className="min-h-[60dvh] flex items-center bg-[var(--color-secondary)] py-24 lg:py-32">
+      <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 w-full">
         <ScrollReveal>
           <div className="flex flex-col md:flex-row items-center justify-center gap-8 md:gap-16">
             {stats.map((stat, index) => (
