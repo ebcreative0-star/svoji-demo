@@ -18,7 +18,7 @@ export default async function ChatPage() {
       <div className="max-w-4xl mx-auto px-4 py-8 h-[calc(100vh-4rem)]">
         <div className="mb-4">
           <p className="text-sm text-amber-600 bg-amber-50 px-3 py-1 rounded-lg inline-block">
-            Demo rezim - AI chat neni aktivni, vidite pouze ukazkovou konverzaci
+            Demo režim - AI chat není aktivní, vidíte pouze ukázkovou konverzaci
           </p>
         </div>
         <ChatInterface

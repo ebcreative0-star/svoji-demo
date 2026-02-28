@@ -106,7 +106,7 @@ export function ChecklistView({ items: initialItems, weddingDate }: ChecklistVie
   return (
     <div>
       {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-4 sm:mb-6">
         <StatCard
           label="Hotovo"
           value={`${stats.completed}/${stats.total}`}
@@ -130,13 +130,13 @@ export function ChecklistView({ items: initialItems, weddingDate }: ChecklistVie
       </div>
 
       {/* Filters */}
-      <div className="flex flex-wrap gap-4 mb-6">
-        <div className="flex bg-white rounded-lg p-1 shadow-sm">
+      <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-4 sm:mb-6">
+        <div className="flex bg-white rounded-lg p-1 shadow-sm overflow-x-auto">
           {(['pending', 'all', 'completed', 'overdue'] as FilterType[]).map((f) => (
             <button
               key={f}
               onClick={() => setFilter(f)}
-              className={`px-3 py-1.5 text-sm rounded-md transition-colors ${
+              className={`px-3 py-2 sm:py-1.5 text-xs sm:text-sm rounded-md transition-colors whitespace-nowrap min-h-[44px] sm:min-h-0 ${
                 filter === f
                   ? 'bg-[var(--color-primary)] text-white'
                   : 'text-[var(--color-text-light)] hover:bg-gray-100'

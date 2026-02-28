@@ -28,7 +28,7 @@ export default function OnboardingPage() {
 
   const handleSubmit = async () => {
     if (!partner1 || !partner2 || !weddingDate || !weddingSize) {
-      setError('Vyplnte prosim vsechna povinna pole');
+      setError('Vyplňte prosím všechna povinná pole');
       return;
     }
 
@@ -38,7 +38,7 @@ export default function OnboardingPage() {
     today.setHours(0, 0, 0, 0);
 
     if (selectedDate < today) {
-      setError('Datum svatby musi byt v budoucnosti');
+      setError('Datum svatby musí být v budoucnosti');
       return;
     }
 
@@ -105,7 +105,7 @@ export default function OnboardingPage() {
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       if (selectedDate < today) {
-        setError('Datum svatby musi byt v budoucnosti');
+        setError('Datum svatby musí být v budoucnosti');
         return;
       }
     }

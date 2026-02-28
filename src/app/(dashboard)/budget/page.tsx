@@ -19,12 +19,12 @@ export default async function BudgetPage() {
     return (
       <div className="max-w-4xl mx-auto px-4 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-serif mb-2">Rozpocet</h1>
+          <h1 className="text-3xl font-serif mb-2">Rozpočet</h1>
           <p className="text-[var(--color-text-light)]">
-            Sledujte vydaje na svatbu
+            Sledujte výdaje na svatbu
           </p>
           <p className="text-sm text-amber-600 mt-2 bg-amber-50 px-3 py-1 rounded-lg inline-block">
-            Demo rezim - zmeny se neukladaji
+            Demo režim - změny se neukládají
           </p>
         </div>
 
@@ -66,9 +66,9 @@ export default async function BudgetPage() {
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-serif mb-2">Rozpocet</h1>
+        <h1 className="text-3xl font-serif mb-2">Rozpočet</h1>
         <p className="text-[var(--color-text-light)]">
-          Sledujte vydaje na svatbu
+          Sledujte výdaje na svatbu
         </p>
       </div>
 

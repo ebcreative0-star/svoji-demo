@@ -150,7 +150,7 @@ export default async function WeddingPage({
 
         {typedWebsite.story && (
           <About
-            title="Nas pribeh"
+            title="Náš příběh"
             story={typedWebsite.story}
           />
         )}
