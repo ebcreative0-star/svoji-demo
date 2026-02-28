@@ -138,7 +138,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 | 1. Design System Foundation | 0/2 | Planned | - |
 | 2. UI Primitives | 2/2 | Complete   | 2026-02-28 |
 | 3. Animation Layer | 4/4 | Complete   | 2026-02-28 |
-| 4. Landing Page | 0/? | Not started | - |
+| 4. Landing Page | 2/3 | In Progress|  |
 | 5. Auth Pages | 0/? | Not started | - |
 | 6. Dashboard | 0/? | Not started | - |
 | 7. Public Wedding Web | 0/? | Not started | - |
