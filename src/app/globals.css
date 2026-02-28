@@ -1,6 +1,28 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@theme inline {
+  --font-heading: var(--font-heading);
+  --font-body: var(--font-body);
+}
+
+@theme {
+  --color-primary: oklch(55% 0.045 55);
+  --color-primary-light: oklch(64% 0.040 57);
+  --color-primary-dark: oklch(45% 0.038 55);
+  --color-secondary: oklch(98.1% 0.012 80);
+  --color-accent: oklch(72% 0.055 65);
+  --color-accent-rose: oklch(76.5% 0.056 18);
+  --color-accent-sage: oklch(75.7% 0.033 134);
+  --color-text: oklch(21.8% 0.000 0);
+  --color-text-light: oklch(47.5% 0.000 0);
+  --color-background: oklch(100% 0 0);
+  --color-white: oklch(100% 0 0);
+  --color-border: oklch(90.8% 0.012 80);
+
+  --spacing-page-section: 6rem;
+  --spacing-page-section-mobile: 4rem;
+  --spacing-content-gap: 3rem;
+}
 
 /* ====================================
    DESIGN GUIDELINES 2026
@@ -13,28 +35,6 @@
    ==================================== */
 
 :root {
-  /* Colors - Elegant 2026 (Mocha Mousse inspired + contrast accents) */
-  --color-primary: #8B7355;
-  --color-primary-light: #A69076;
-  --color-primary-dark: #6B5A45;
-  --color-secondary: #FAF8F5;
-  --color-accent: #C4A77D;
-  --color-accent-rose: #D4A5A5;
-  --color-accent-sage: #A8B5A0;
-  --color-text: #1A1A1A;
-  --color-text-light: #5C5C5C;
-  --color-background: #FFFFFF;
-  --color-white: #FFFFFF;
-  --color-border: #E5E0D8;
-
-  /* Fonts - CSS variables set by Next.js font loader */
-  /* --font-heading and --font-body are injected via className on html */
-
-  /* Spacing - unified */
-  --section-padding: 6rem;
-  --section-padding-mobile: 4rem;
-  --content-gap: 3rem;
-
   /* Safe areas for notched devices */
   --safe-area-inset-top: env(safe-area-inset-top, 0px);
   --safe-area-inset-bottom: env(safe-area-inset-bottom, 0px);
@@ -65,7 +65,7 @@ body {
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-heading), 'Playfair Display', Georgia, serif;
+  font-family: var(--font-heading), 'Cormorant Garamond', Georgia, serif;
   font-weight: 600;
   line-height: 1.15;
   letter-spacing: -0.01em;
@@ -73,12 +73,12 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Font serif class */
 .font-serif {
-  font-family: var(--font-heading), 'Playfair Display', Georgia, serif !important;
+  font-family: var(--font-heading), 'Cormorant Garamond', Georgia, serif !important;
 }
 
 /* Utility classes */
 .section-padding {
-  padding: var(--section-padding) 1.5rem;
+  padding: var(--spacing-page-section) 1.5rem;
 }
 
 .container {
