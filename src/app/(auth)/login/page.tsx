@@ -4,8 +4,8 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
-import { Loader2 } from 'lucide-react';
 import { isDemoMode } from '@/lib/demo-data';
+import { Button } from '@/components/ui';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -94,20 +94,15 @@ export default function LoginPage() {
             />
           </div>
 
-          <button
+          <Button
             type="submit"
-            disabled={loading}
-            className="w-full btn-primary !py-4 flex items-center justify-center gap-2 mt-6"
+            variant="primary"
+            size="lg"
+            isLoading={loading}
+            className="w-full mt-6"
           >
-            {loading ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin" />
-                Přihlašuji...
-              </>
-            ) : (
-              'Přihlásit se'
-            )}
-          </button>
+            {loading ? 'Přihlašuji...' : 'Přihlásit se'}
+          </Button>
 
           <p className="text-center text-sm text-[var(--color-text-light)] mt-6">
             Nemáte účet?{' '}

@@ -4,7 +4,8 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Check, Loader2 } from "lucide-react";
+import { Check } from "lucide-react";
+import { Button, Input, Textarea, Select } from "@/components/ui";
 
 const rsvpSchema = z.object({
   name: z.string().min(2, "Zadejte prosím vaše jméno"),
@@ -215,20 +216,14 @@ export function RSVP({ deadline, contactEmail, websiteId }: RSVPProps) {
           </div>
 
           {/* Submit */}
-          <button
+          <Button
             type="submit"
-            disabled={isSubmitting}
-            className="w-full btn-primary flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
+            variant="primary"
+            isLoading={isSubmitting}
+            className="w-full"
           >
-            {isSubmitting ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin" />
-                <span>Odesílám...</span>
-              </>
-            ) : (
-              <span>Odeslat odpověď</span>
-            )}
-          </button>
+            {isSubmitting ? 'Odesílám...' : 'Odeslat odpověď'}
+          </Button>
 
           {contactEmail && (
             <p className="text-center text-sm text-[var(--color-text-light)]">

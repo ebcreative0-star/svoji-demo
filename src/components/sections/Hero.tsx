@@ -84,7 +84,7 @@ export function Hero({ partner1, partner2, date, headline, subheadline }: HeroPr
 
         {/* CTA */}
         <div className="animate-fade-in-up" style={{ animationDelay: "0.6s" }}>
-          <a href="#rsvp" className="btn-primary">
+          <a href="#rsvp" className="inline-flex items-center justify-center gap-2 font-medium rounded-full text-base px-7 py-3.5 min-h-[52px] bg-[var(--color-primary)] text-white hover:bg-[var(--color-primary-light)] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-primary)]">
             Potvrdit účast
           </a>
         </div>

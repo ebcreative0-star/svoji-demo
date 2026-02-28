@@ -104,14 +104,14 @@ export default function LandingPage() {
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link
                   href="/register"
-                  className="btn-primary !text-base !px-8 !py-4 inline-flex items-center justify-center gap-2"
+                  className="inline-flex items-center justify-center gap-2 font-medium rounded-full text-base px-8 py-4 min-h-[52px] bg-[var(--color-primary)] text-white hover:bg-[var(--color-primary-light)] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-primary)]"
                 >
                   Vyzkoušet zdarma
                   <ArrowRight className="w-5 h-5" />
                 </Link>
                 <Link
                   href="/login"
-                  className="btn-outline !text-base !px-8 !py-4"
+                  className="inline-flex items-center justify-center gap-2 font-medium rounded-full text-base px-8 py-4 min-h-[52px] border border-[var(--color-primary)] text-[var(--color-primary)] hover:bg-[var(--color-primary)] hover:text-white transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-primary)]"
                 >
                   Přihlásit se
                 </Link>
@@ -297,7 +297,7 @@ export default function LandingPage() {
               </p>
               <Link
                 href="/register"
-                className="btn-primary !text-base !px-8 !py-4 inline-flex items-center gap-2"
+                className="inline-flex items-center justify-center gap-2 font-medium rounded-full text-base px-8 py-4 min-h-[52px] bg-[var(--color-primary)] text-white hover:bg-[var(--color-primary-light)] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-primary)]"
               >
                 Zkusit zdarma
                 <ArrowRight className="w-5 h-5" />

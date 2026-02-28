@@ -3,7 +3,8 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
-import { Loader2, Calendar, Users, Wallet } from 'lucide-react';
+import { Calendar, Users, Wallet } from 'lucide-react';
+import { Button } from '@/components/ui';
 
 type WeddingSize = 'small' | 'medium' | 'large';
 
@@ -272,39 +273,36 @@ export default function OnboardingPage() {
           {/* Navigation */}
           <div className="flex gap-4 mt-8">
             {step > 1 && (
-              <button
+              <Button
                 type="button"
+                variant="secondary"
                 onClick={prevStep}
-                className="flex-1 btn-outline"
+                className="flex-1"
               >
                 Zpět
-              </button>
+              </Button>
             )}
 
             {step < 4 ? (
-              <button
+              <Button
                 type="button"
+                variant="primary"
                 onClick={nextStep}
-                className="flex-1 btn-primary"
+                className="flex-1"
               >
                 Pokračovat
-              </button>
+              </Button>
             ) : (
-              <button
+              <Button
                 type="button"
+                variant="primary"
                 onClick={handleSubmit}
                 disabled={loading}
-                className="flex-1 btn-primary flex items-center justify-center gap-2"
+                isLoading={loading}
+                className="flex-1"
               >
-                {loading ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    Vytvářím plán...
-                  </>
-                ) : (
-                  'Začít plánovat'
-                )}
-              </button>
+                {loading ? 'Vytvářím plán...' : 'Začít plánovat'}
+              </Button>
             )}
           </div>
         </div>
