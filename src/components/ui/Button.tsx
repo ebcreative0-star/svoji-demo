@@ -67,9 +67,15 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         disabled={isDisabled}
         className={cn(buttonVariants({ variant, size }), className)}
         aria-label={ariaLabel}
-        whileHover={isDisabled ? undefined : { y: -1.5, scale: 1.03 }}
-        whileTap={isDisabled ? undefined : { scale: 0.975 }}
-        transition={{ type: 'spring', stiffness: 400, damping: 20 }}
+        whileHover={isDisabled ? undefined : {
+          y: -1.5,
+          scale: 1.03,
+          transition: { type: 'tween', duration: 0.15, ease: 'easeOut' }
+        }}
+        whileTap={isDisabled ? undefined : {
+          scale: 0.975,
+          transition: { type: 'tween', duration: 0.1, ease: 'easeOut' }
+        }}
         {...props}
       >
         {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : leadingIcon}
