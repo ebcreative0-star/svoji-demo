@@ -62,10 +62,11 @@ Plans:
   3. Hovering a button lifts it; hovering a card deepens its shadow; focusing an input glows with accent color
   4. Navigating between routes shows a clean opacity transition rather than an abrupt swap
   5. A user with prefers-reduced-motion enabled sees no motion — all animations are suppressed
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 03-01: TBD
+- [ ] 03-01-PLAN.md -- Install Lenis, create LenisProvider + MotionConfig root wiring, build ScrollReveal/StaggerContainer/FrozenRouter animation primitives
+- [ ] 03-02-PLAN.md -- Wire micro-interactions to Button/Card/Input, create (public) route group with crossfade page transitions via template.tsx
 
 ### Phase 4: Landing Page
 **Goal**: The landing page is a polished showcase of the new design direction that converts visitors to sign-ups

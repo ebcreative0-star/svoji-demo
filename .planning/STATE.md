@@ -18,23 +18,23 @@ progress:
 See: .planning/PROJECT.md (updated 2026-02-28)
 
 **Core value:** Couples can plan their entire wedding from one place with AI guidance
-**Current focus:** Phase 2 - UI Primitives
+**Current focus:** Phase 3 - Animation Layer
 
 ## Current Position
 
-Phase: 2 of 7 (UI Primitives)
-Plan: 3 of 3 in current phase (02-03 complete, PRIM-04 gap closed)
-Status: Phase 02 complete -- all 3 plans done, PRIM-04 fully satisfied
-Last activity: 2026-02-28 -- Phase 02-03 complete: Badge added to BudgetView category headers via BUDGET_CATEGORY_INTENT mapping, closing final PRIM-04 gap (Badge now used in GuestsView, ChecklistView, BudgetView)
+Phase: 3 of 7 (Animation Layer)
+Plan: 1 of 2 in current phase (03-01 complete)
+Status: Phase 03 in progress -- Plan 01 done (animation infrastructure), Plan 02 pending
+Last activity: 2026-02-28 -- Phase 03-01 complete: Lenis smooth scroll + animation primitives (ScrollReveal, StaggerContainer, FrozenRouter) + Providers wrapper wired into root layout
 
 Progress: [█████░░░░░] 57%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 3
-- Average duration: ~8 min
-- Total execution time: 0.40 hours
+- Total plans completed: 4
+- Average duration: ~7 min
+- Total execution time: 0.47 hours
 
 **By Phase:**
 
@@ -42,6 +42,7 @@ Progress: [█████░░░░░] 57%
 |-------|-------|-------|----------|
 | 1 | 2 | 8 min | 4 min |
 | 2 | 1 (so far) | 15 min | 15 min |
+| 3 | 1 (so far) | 4 min | 4 min |
 
 **Recent Trend:**
 - Last 5 plans: -
@@ -69,6 +70,9 @@ Recent decisions affecting current work:
 - [Phase 02-ui-primitives]: Link elements use direct Tailwind classes (no Button asChild) -- asChild not implemented in Phase 2
 - [Phase 02-ui-primitives]: RSVP_INTENT/CATEGORY_INTENT mapping pattern for status-to-badge-intent translation
 - [Phase 02-ui-primitives]: Badge size sm used for BudgetView category headers, consistent with ChecklistView CATEGORY_INTENT pattern
+- 03-01: Providers.tsx wrapper pattern keeps layout.tsx as Server Component
+- 03-01: syncTouch: false avoids jank on older mobile devices
+- 03-01: MotionConfig reducedMotion='user' as outermost provider layer
 
 ### Pending Todos
 
@@ -84,5 +88,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-28
-Stopped at: Phase 02 complete (all 3 plans) -- ready for Phase 03
+Stopped at: Phase 03-01 complete -- executing Phase 03-02 next
 Resume file: None
