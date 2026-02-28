@@ -40,15 +40,12 @@ export function Features() {
         </ScrollReveal>
 
         <StaggerContainer className="grid md:grid-cols-3 gap-6 lg:gap-8">
-          {features.map((feature, index) => {
+          {features.map((feature) => {
             const Icon = feature.icon;
             return (
-              <ScrollReveal key={feature.title}>
+              <ScrollReveal key={feature.title} className="h-full">
                 <Card
-                  className={[
-                    'p-8 lg:p-10',
-                    index === 1 ? 'md:-translate-y-4' : '',
-                  ].filter(Boolean).join(' ')}
+                  className="p-8 lg:p-10 h-full"
                 >
                   <div
                     className="w-14 h-14 rounded-2xl flex items-center justify-center mb-6"

@@ -19,7 +19,7 @@ export function ScrollReveal({ children, delay = 0, className }: ScrollRevealPro
     <motion.div
       initial="hidden"
       whileInView="visible"
-      viewport={{ once: true, margin: '-80px' }}
+      viewport={{ once: true, margin: '-40px' }}
       variants={variants}
       transition={{ duration: 0.45, ease: 'easeOut', delay }}
       className={className}

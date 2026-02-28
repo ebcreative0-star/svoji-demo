@@ -1,79 +1,90 @@
 'use client';
 
 import Link from 'next/link';
-import { Check, ArrowRight } from 'lucide-react';
+import { UserPlus, CalendarHeart, Sparkles, ArrowRight } from 'lucide-react';
 import { buttonVariants } from '@/components/ui/Button';
 import { ScrollReveal } from '@/components/animation/ScrollReveal';
 import { StaggerContainer } from '@/components/animation/StaggerContainer';
 
 const steps = [
-  { step: 1, title: 'Zaregistrujte se', desc: 'Email a základní info', done: true },
-  { step: 2, title: 'Nastavte svatbu', desc: 'Datum, rozpočet, velikost', done: true },
-  { step: 3, title: 'AI vytvoří plán', desc: 'Personalizovaný checklist', done: false },
+  {
+    icon: UserPlus,
+    step: '01',
+    title: 'Vytvořte účet',
+    description: 'Registrace zabere 30 sekund. Stačí email a jste připraveni.',
+    color: 'var(--color-accent-rose)',
+  },
+  {
+    icon: CalendarHeart,
+    step: '02',
+    title: 'Zadejte detail svatby',
+    description: 'Datum, rozpočet, počet hostů. AI se přizpůsobí vašim potřebám.',
+    color: 'var(--color-accent-sage)',
+  },
+  {
+    icon: Sparkles,
+    step: '03',
+    title: 'AI vytvoří plán',
+    description: 'Personalizovaný checklist, rozpočet a časový plán na míru.',
+    color: 'var(--color-primary)',
+  },
 ];
 
 export function HowItWorks() {
   return (
-    <section className="py-20 lg:py-32">
+    <section className="py-20 lg:py-32 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <ScrollReveal>
-          <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
-            {/* Left: visual steps */}
-            <div className="order-2 lg:order-1">
-              <div className="bg-[var(--color-secondary)] rounded-3xl p-8 lg:p-12">
-                <StaggerContainer className="space-y-4">
-                  {steps.map((item) => (
-                    <ScrollReveal key={item.step}>
-                      <div
-                        className={[
-                          'flex items-center gap-4 rounded-xl p-4',
-                          item.done ? 'bg-white shadow-sm' : 'bg-white/50',
-                        ].join(' ')}
-                      >
-                        <div
-                          className={[
-                            'w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0',
-                            item.done
-                              ? 'bg-emerald-100 text-emerald-600'
-                              : 'bg-gray-100 text-gray-400',
-                          ].join(' ')}
-                        >
-                          {item.done ? (
-                            <Check className="w-5 h-5" />
-                          ) : (
-                            <span className="text-sm font-medium">{item.step}</span>
-                          )}
-                        </div>
-                        <div>
-                          <p className="font-medium text-[var(--color-text)]">{item.title}</p>
-                          <p className="text-sm text-[var(--color-text-light)]">{item.desc}</p>
-                        </div>
-                      </div>
-                    </ScrollReveal>
-                  ))}
-                </StaggerContainer>
-              </div>
-            </div>
+        <ScrollReveal className="text-center mb-16">
+          <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl text-[var(--color-text)] mb-4">
+            Začněte za{' '}
+            <span className="text-[var(--color-primary)]">2 minuty</span>
+          </h2>
+          <p className="text-[var(--color-text-light)] text-lg max-w-2xl mx-auto">
+            Žádné složité nastavení. Tři jednoduché kroky a máte osobního svatebního plánovače.
+          </p>
+        </ScrollReveal>
 
-            {/* Right: text + CTA */}
-            <div className="order-1 lg:order-2">
-              <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl text-[var(--color-text)] mb-6">
-                Začněte za{' '}
-                <span className="text-[var(--color-primary)]">2 minuty</span>
-              </h2>
-              <p className="text-[var(--color-text-light)] text-lg leading-relaxed mb-8">
-                Žádné složité nastavení. Registrace, datum svatby a AI sestaví
-                váš osobní plán -- krok za krokem.
-              </p>
-              <Link
-                href="/register"
-                className={buttonVariants({ variant: 'primary', size: 'lg' })}
-              >
-                Zkusit zdarma
-                <ArrowRight className="w-5 h-5" />
-              </Link>
-            </div>
-          </div>
+        <StaggerContainer className="grid md:grid-cols-3 gap-6 lg:gap-8 mb-14">
+          {steps.map((item) => {
+            const Icon = item.icon;
+            return (
+              <ScrollReveal key={item.step} className="h-full">
+                <div className="relative bg-[var(--color-secondary)] rounded-2xl p-8 lg:p-10 h-full flex flex-col items-center text-center">
+                  {/* Step number */}
+                  <span className="text-xs font-semibold tracking-widest uppercase text-[var(--color-text-light)] mb-4">
+                    Krok {item.step}
+                  </span>
+
+                  {/* Icon */}
+                  <div
+                    className="w-16 h-16 rounded-2xl flex items-center justify-center mb-6"
+                    style={{ backgroundColor: item.color }}
+                  >
+                    <Icon className="w-8 h-8 text-white" />
+                  </div>
+
+                  {/* Content */}
+                  <h3 className="font-serif text-xl text-[var(--color-text)] mb-3">
+                    {item.title}
+                  </h3>
+                  <p className="text-[var(--color-text-light)] leading-relaxed">
+                    {item.description}
+                  </p>
+                </div>
+              </ScrollReveal>
+            );
+          })}
+        </StaggerContainer>
+
+        {/* CTA */}
+        <ScrollReveal className="text-center">
+          <Link
+            href="/register"
+            className={buttonVariants({ variant: 'primary', size: 'lg' })}
+          >
+            Zkusit zdarma
+            <ArrowRight className="w-5 h-5" />
+          </Link>
         </ScrollReveal>
       </div>
     </section>
