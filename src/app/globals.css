@@ -104,6 +104,21 @@ h1, h2, h3, h4, h5, h6 {
   animation: fadeInUp 0.8s ease-out forwards;
 }
 
+@keyframes chatMessageIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-chat-message {
+  animation: chatMessageIn 0.35s ease-out both;
+}
+
 /* Focus styles for accessibility */
 a:focus-visible,
 button:focus-visible,

@@ -1,48 +1,134 @@
 'use client';
 
+import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { ArrowRight, Sparkles, CheckSquare } from 'lucide-react';
 import { buttonVariants } from '@/components/ui/Button';
 
 const chatMessages = [
-  {
-    id: 1,
-    from: 'user' as const,
-    text: 'Kolik stojí svatební fotograf v Praze?',
-    delay: 0.5,
-  },
-  {
-    id: 2,
-    from: 'ai' as const,
-    text: 'Ceny se pohybují mezi 15-40 tisíci Kč. Pro Prahu doporučuji počítat s 25-30 tisíci.',
-    delay: 1.2,
-  },
-  {
-    id: 3,
-    from: 'user' as const,
-    text: 'A co videograf?',
-    delay: 2.2,
-  },
-  {
-    id: 4,
-    from: 'ai' as const,
-    text: 'Videograf vyjde na 20-50 tisíc Kč. Tip: některé studia nabízejí balíček foto + video se slevou.',
-    delay: 3.0,
-  },
-  {
-    id: 5,
-    from: 'user' as const,
-    text: 'Jaké jsou trendy ve svatební výzdobě 2026?',
-    delay: 4.0,
-  },
-  {
-    id: 6,
-    from: 'ai' as const,
-    text: 'Letos frčí přírodní materiály, sušené květiny a teplé zemité tóny. Minimalistické aranžmá s pampaskou trávou je stále velmi populární.',
-    delay: 4.8,
-  },
+  { id: 1, from: 'user' as const, text: 'Kolik stojí svatební fotograf v Praze?' },
+  { id: 2, from: 'ai' as const, text: 'Ceny se pohybují mezi 15-40 tisíci Kč. Pro Prahu doporučuji počítat s 25-30 tisíci.' },
+  { id: 3, from: 'user' as const, text: 'A co videograf?' },
+  { id: 4, from: 'ai' as const, text: 'Videograf vyjde na 20-50 tisíc Kč. Tip: některé studia nabízejí balíček foto + video se slevou.' },
+  { id: 5, from: 'user' as const, text: 'Jaké jsou trendy ve svatební výzdobě 2026?' },
+  { id: 6, from: 'ai' as const, text: 'Letos frčí přírodní materiály, sušené květiny a teplé zemité tóny. Minimalistické aranžmá s pampaskou trávou je velmi populární.' },
 ];
+
+// Delays in ms between each message appearing
+const messageDelays = [800, 1200, 1400, 1600, 1400, 1600];
+
+function ChatMockup() {
+  const [visibleCount, setVisibleCount] = useState(0);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    let timeout: ReturnType<typeof setTimeout>;
+    let current = 0;
+
+    function showNext() {
+      current++;
+      setVisibleCount(current);
+      if (current < chatMessages.length) {
+        timeout = setTimeout(showNext, messageDelays[current]);
+      }
+    }
+
+    // Start the sequence after a short initial delay
+    timeout = setTimeout(showNext, messageDelays[0]);
+
+    return () => clearTimeout(timeout);
+  }, []);
+
+  // Auto-scroll to bottom when new messages appear
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTo({
+        top: scrollRef.current.scrollHeight,
+        behavior: 'smooth',
+      });
+    }
+  }, [visibleCount]);
+
+  const visibleMessages = chatMessages.slice(0, visibleCount);
+
+  return (
+    <div className="relative max-w-md mx-auto mt-12">
+      <div className="bg-white rounded-3xl shadow-2xl border border-[var(--color-border)] overflow-hidden">
+        {/* Browser bar */}
+        <div className="bg-gray-50 px-4 py-3 flex items-center gap-2 border-b border-gray-100">
+          <div className="flex gap-1.5">
+            <div className="w-3 h-3 rounded-full bg-red-400" />
+            <div className="w-3 h-3 rounded-full bg-yellow-400" />
+            <div className="w-3 h-3 rounded-full bg-green-400" />
+          </div>
+          <div className="flex-1 text-center text-xs text-gray-400">svoji.cz/chat</div>
+        </div>
+
+        {/* Chat messages - fixed height, scrollable */}
+        <div
+          ref={scrollRef}
+          className="h-[280px] overflow-y-auto p-6 space-y-4 scroll-smooth"
+        >
+          {visibleMessages.map((msg) => (
+            <div
+              key={msg.id}
+              className={`flex gap-3 animate-chat-message ${msg.from === 'user' ? 'justify-end' : 'justify-start'}`}
+            >
+              {msg.from === 'ai' && (
+                <div className="w-8 h-8 rounded-full bg-[var(--color-primary)] flex items-center justify-center flex-shrink-0">
+                  <Sparkles className="w-4 h-4 text-white" />
+                </div>
+              )}
+              <div
+                className={`rounded-2xl px-4 py-3 max-w-xs text-sm text-left ${
+                  msg.from === 'user'
+                    ? 'bg-[var(--color-secondary)] rounded-tr-sm'
+                    : 'bg-gray-50 rounded-tl-sm'
+                }`}
+              >
+                {msg.text}
+              </div>
+              {msg.from === 'user' && (
+                <div className="w-8 h-8 rounded-full bg-[var(--color-secondary)] flex items-center justify-center flex-shrink-0">
+                  <span className="text-xs font-medium">Vy</span>
+                </div>
+              )}
+            </div>
+          ))}
+          {/* Typing indicator when next message is pending */}
+          {visibleCount > 0 && visibleCount < chatMessages.length && (
+            <div className="flex gap-3 justify-start animate-chat-message">
+              <div className="w-8 h-8 rounded-full bg-[var(--color-primary)] flex items-center justify-center flex-shrink-0">
+                <Sparkles className="w-4 h-4 text-white" />
+              </div>
+              <div className="rounded-2xl px-4 py-3 bg-gray-50 rounded-tl-sm">
+                <div className="flex gap-1">
+                  <span className="w-2 h-2 rounded-full bg-gray-300 animate-bounce" style={{ animationDelay: '0ms' }} />
+                  <span className="w-2 h-2 rounded-full bg-gray-300 animate-bounce" style={{ animationDelay: '150ms' }} />
+                  <span className="w-2 h-2 rounded-full bg-gray-300 animate-bounce" style={{ animationDelay: '300ms' }} />
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Floating stats card (desktop only) */}
+      <div className="absolute -right-4 bottom-16 bg-white rounded-2xl shadow-xl border border-gray-100 p-4 hidden lg:block">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 bg-[var(--color-accent-sage)] rounded-xl flex items-center justify-center">
+            <CheckSquare className="w-5 h-5 text-white" />
+          </div>
+          <div>
+            <p className="text-sm font-semibold">8/10 úkolů</p>
+            <p className="text-xs text-[var(--color-text-light)]">Tento měsíc</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export function Hero() {
   return (
@@ -62,7 +148,7 @@ export function Hero() {
         initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: 'easeOut' }}
-        className="relative z-10 max-w-5xl mx-auto px-6 sm:px-8 lg:px-12 py-16 text-center"
+        className="relative z-10 max-w-4xl mx-auto px-6 sm:px-8 lg:px-12 py-16 text-center"
       >
         {/* Badge */}
         <div className="inline-flex items-center gap-2 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-full mb-8">
@@ -100,71 +186,7 @@ export function Hero() {
           Přidalo se 500+ párů · Zdarma · Bez karty
         </p>
 
-        {/* Chat mockup */}
-        <div className="relative max-w-lg mx-auto mt-14">
-          <div className="bg-white rounded-3xl shadow-2xl border border-[var(--color-border)] overflow-hidden">
-            {/* Browser bar */}
-            <div className="bg-gray-50 px-4 py-3 flex items-center gap-2 border-b border-gray-100">
-              <div className="flex gap-1.5">
-                <div className="w-3 h-3 rounded-full bg-red-400" />
-                <div className="w-3 h-3 rounded-full bg-yellow-400" />
-                <div className="w-3 h-3 rounded-full bg-green-400" />
-              </div>
-              <div className="flex-1 text-center text-xs text-gray-400">svoji.cz/chat</div>
-            </div>
-
-            {/* Chat messages */}
-            <div className="p-6 space-y-4">
-              {chatMessages.map((msg) => (
-                <motion.div
-                  key={msg.id}
-                  initial={{ opacity: 0, y: 12 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, ease: 'easeOut', delay: msg.delay }}
-                  className={`flex gap-3 ${msg.from === 'user' ? 'justify-end' : 'justify-start'}`}
-                >
-                  {msg.from === 'ai' && (
-                    <div className="w-8 h-8 rounded-full bg-[var(--color-primary)] flex items-center justify-center flex-shrink-0">
-                      <Sparkles className="w-4 h-4 text-white" />
-                    </div>
-                  )}
-                  <div
-                    className={`rounded-2xl px-4 py-3 max-w-xs text-sm text-left ${
-                      msg.from === 'user'
-                        ? 'bg-[var(--color-secondary)] rounded-tr-sm'
-                        : 'bg-gray-50 rounded-tl-sm'
-                    }`}
-                  >
-                    {msg.text}
-                  </div>
-                  {msg.from === 'user' && (
-                    <div className="w-8 h-8 rounded-full bg-[var(--color-secondary)] flex items-center justify-center flex-shrink-0">
-                      <span className="text-xs font-medium">Vy</span>
-                    </div>
-                  )}
-                </motion.div>
-              ))}
-            </div>
-          </div>
-
-          {/* Floating stats card (desktop only) */}
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, ease: 'easeOut', delay: 1.5 }}
-            className="absolute -right-4 bottom-20 bg-white rounded-2xl shadow-xl border border-gray-100 p-4 hidden lg:block"
-          >
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-[var(--color-accent-sage)] rounded-xl flex items-center justify-center">
-                <CheckSquare className="w-5 h-5 text-white" />
-              </div>
-              <div>
-                <p className="text-sm font-semibold">8/10 úkolů</p>
-                <p className="text-xs text-[var(--color-text-light)]">Tento měsíc</p>
-              </div>
-            </div>
-          </motion.div>
-        </div>
+        <ChatMockup />
       </motion.div>
     </section>
   );
