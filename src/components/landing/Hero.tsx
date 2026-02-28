@@ -10,36 +10,43 @@ const chatMessages = [
     id: 1,
     from: 'user' as const,
     text: 'Kolik stojí svatební fotograf v Praze?',
-    delay: 0.3,
+    delay: 0.5,
   },
   {
     id: 2,
     from: 'ai' as const,
     text: 'Ceny se pohybují mezi 15-40 tisíci Kč. Pro Prahu doporučuji počítat s 25-30 tisíci.',
-    delay: 1.0,
+    delay: 1.2,
   },
   {
     id: 3,
     from: 'user' as const,
     text: 'A co videograf?',
-    delay: 2.0,
+    delay: 2.2,
   },
   {
     id: 4,
     from: 'ai' as const,
     text: 'Videograf vyjde na 20-50 tisíc Kč. Tip: některé studia nabízejí balíček foto + video se slevou.',
-    delay: 2.8,
+    delay: 3.0,
+  },
+  {
+    id: 5,
+    from: 'user' as const,
+    text: 'Jaké jsou trendy ve svatební výzdobě 2026?',
+    delay: 4.0,
+  },
+  {
+    id: 6,
+    from: 'ai' as const,
+    text: 'Letos frčí přírodní materiály, sušené květiny a teplé zemité tóny. Minimalistické aranžmá s pampaskou trávou je stále velmi populární.',
+    delay: 4.8,
   },
 ];
 
-const messageVariant = {
-  hidden: { opacity: 0, y: 10 },
-  visible: { opacity: 1, y: 0 },
-};
-
 export function Hero() {
   return (
-    <section className="relative min-h-[100dvh] flex items-center justify-center overflow-hidden bg-[var(--color-secondary)] pt-20">
+    <section className="relative min-h-[100dvh] flex items-center justify-center overflow-hidden bg-[var(--color-secondary)] pt-20 snap-start">
       {/* Grain texture overlay */}
       <div
         aria-hidden="true"
@@ -51,12 +58,11 @@ export function Hero() {
         }}
       />
 
-      {/* Content - no ScrollReveal here, above-fold uses animate directly */}
       <motion.div
         initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: 'easeOut' }}
-        className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center"
+        className="relative z-10 max-w-5xl mx-auto px-6 sm:px-8 lg:px-12 py-16 text-center"
       >
         {/* Badge */}
         <div className="inline-flex items-center gap-2 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-full mb-8">
@@ -95,8 +101,7 @@ export function Hero() {
         </p>
 
         {/* Chat mockup */}
-        <div className="relative max-w-md mx-auto mt-12">
-          {/* Mockup card */}
+        <div className="relative max-w-lg mx-auto mt-14">
           <div className="bg-white rounded-3xl shadow-2xl border border-[var(--color-border)] overflow-hidden">
             {/* Browser bar */}
             <div className="bg-gray-50 px-4 py-3 flex items-center gap-2 border-b border-gray-100">
@@ -113,9 +118,8 @@ export function Hero() {
               {chatMessages.map((msg) => (
                 <motion.div
                   key={msg.id}
-                  variants={messageVariant}
-                  initial="hidden"
-                  animate="visible"
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.4, ease: 'easeOut', delay: msg.delay }}
                   className={`flex gap-3 ${msg.from === 'user' ? 'justify-end' : 'justify-start'}`}
                 >
@@ -125,7 +129,7 @@ export function Hero() {
                     </div>
                   )}
                   <div
-                    className={`rounded-2xl px-4 py-3 max-w-xs text-sm ${
+                    className={`rounded-2xl px-4 py-3 max-w-xs text-sm text-left ${
                       msg.from === 'user'
                         ? 'bg-[var(--color-secondary)] rounded-tr-sm'
                         : 'bg-gray-50 rounded-tl-sm'
@@ -144,7 +148,12 @@ export function Hero() {
           </div>
 
           {/* Floating stats card (desktop only) */}
-          <div className="absolute -right-4 bottom-16 bg-white rounded-2xl shadow-xl border border-gray-100 p-4 hidden lg:block">
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, ease: 'easeOut', delay: 1.5 }}
+            className="absolute -right-4 bottom-20 bg-white rounded-2xl shadow-xl border border-gray-100 p-4 hidden lg:block"
+          >
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-[var(--color-accent-sage)] rounded-xl flex items-center justify-center">
                 <CheckSquare className="w-5 h-5 text-white" />
@@ -154,7 +163,7 @@ export function Hero() {
                 <p className="text-xs text-[var(--color-text-light)]">Tento měsíc</p>
               </div>
             </div>
-          </div>
+          </motion.div>
         </div>
       </motion.div>
     </section>
