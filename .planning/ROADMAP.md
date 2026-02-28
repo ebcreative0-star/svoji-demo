@@ -13,7 +13,7 @@ Transform Svoji from prototype-quality visuals to a premium 2026 SaaS aesthetic.
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [ ] **Phase 1: Design System Foundation** - Establish OKLCH color tokens, typography swap, and spacing scale that propagate to all 196+ CSS variable references
-- [ ] **Phase 2: UI Primitives** - Build typed Button, Card, Input, and Badge components that all surface redesigns depend on
+- [x] **Phase 2: UI Primitives** - Build typed Button, Card, Input, and Badge components that all surface redesigns depend on (completed 2026-02-28)
 - [ ] **Phase 3: Animation Layer** - Wire Lenis smooth scroll, Framer Motion scroll-triggered reveals, micro-interactions, page transitions, and reduced-motion support
 - [ ] **Phase 4: Landing Page** - Redesign all landing page sections with new tokens, primitives, and scroll animations
 - [ ] **Phase 5: Auth Pages** - Restyle login, register, and onboarding with polished form interactions and branded aesthetic
@@ -131,7 +131,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Design System Foundation | 0/2 | Planned | - |
-| 2. UI Primitives | 1/2 | In Progress|  |
+| 2. UI Primitives | 2/2 | Complete   | 2026-02-28 |
 | 3. Animation Layer | 0/? | Not started | - |
 | 4. Landing Page | 0/? | Not started | - |
 | 5. Auth Pages | 0/? | Not started | - |
