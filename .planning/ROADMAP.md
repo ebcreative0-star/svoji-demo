@@ -31,10 +31,11 @@ Decimal phases appear between their surrounding integers in numeric order.
   2. Headings site-wide render in Cormorant Garamond with Inter body copy, with no layout shift on load
   3. A visitor inspecting any page sees a consistent spacing and sizing scale applied via Tailwind 4 @theme tokens
   4. Dev can add a new color reference using @theme variable names and it resolves correctly in all browsers
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 01-01: TBD
+- [ ] 01-01-PLAN.md -- Migrate globals.css to @theme OKLCH tokens + swap font to Cormorant Garamond in layout.tsx
+- [ ] 01-02-PLAN.md -- Automated token verification + visual checkpoint
 
 ### Phase 2: UI Primitives
 **Goal**: Typed Button, Card, Input, and Badge components exist and replace all one-off CSS class usage
@@ -128,7 +129,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Design System Foundation | 0/? | Not started | - |
+| 1. Design System Foundation | 0/2 | Planned | - |
 | 2. UI Primitives | 0/? | Not started | - |
 | 3. Animation Layer | 0/? | Not started | - |
 | 4. Landing Page | 0/? | Not started | - |
