@@ -6,7 +6,7 @@ import { ScrollReveal } from '@/components/animation/ScrollReveal';
 
 export function FinalCTA() {
   return (
-    <section className="min-h-[100dvh] flex items-center bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-primary-dark)] py-24 lg:py-32 snap-start">
+    <section className="min-h-[100dvh] flex items-center bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-primary-dark)] py-24 lg:py-32">
       <ScrollReveal className="w-full">
         <div className="max-w-3xl mx-auto px-6 sm:px-8 text-center text-white">
           <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl mb-6">

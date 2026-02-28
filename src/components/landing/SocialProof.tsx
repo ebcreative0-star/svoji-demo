@@ -30,7 +30,7 @@ const testimonials = [
 
 export function SocialProof() {
   return (
-    <section className="min-h-[100dvh] flex items-center bg-[var(--color-secondary)] py-24 lg:py-32 snap-start">
+    <section className="min-h-[100dvh] flex items-center bg-[var(--color-secondary)] py-24 lg:py-32">
       <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 w-full">
         {/* Stats */}
         <ScrollReveal className="mb-20">

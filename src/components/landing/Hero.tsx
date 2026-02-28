@@ -7,40 +7,74 @@ import { ArrowRight, Sparkles, CheckSquare } from 'lucide-react';
 import { buttonVariants } from '@/components/ui/Button';
 
 const chatMessages = [
-  { id: 1, from: 'user' as const, text: 'Kolik stojí svatební fotograf v Praze?' },
-  { id: 2, from: 'ai' as const, text: 'Ceny se pohybují mezi 15-40 tisíci Kč. Pro Prahu doporučuji počítat s 25-30 tisíci.' },
-  { id: 3, from: 'user' as const, text: 'A co videograf?' },
-  { id: 4, from: 'ai' as const, text: 'Videograf vyjde na 20-50 tisíc Kč. Tip: některé studia nabízejí balíček foto + video se slevou.' },
-  { id: 5, from: 'user' as const, text: 'Jaké jsou trendy ve svatební výzdobě 2026?' },
-  { id: 6, from: 'ai' as const, text: 'Letos frčí přírodní materiály, sušené květiny a teplé zemité tóny. Minimalistické aranžmá s pampaskou trávou je velmi populární.' },
+  { from: 'user' as const, text: 'Kolik stojí svatební fotograf v Praze?' },
+  { from: 'ai' as const, text: 'Ceny se pohybují mezi 15-40 tisíci Kč. Pro Prahu doporučuji počítat s 25-30 tisíci.' },
+  { from: 'user' as const, text: 'A co videograf?' },
+  { from: 'ai' as const, text: 'Videograf vyjde na 20-50 tisíc Kč. Tip: některé studia nabízejí balíček foto + video se slevou.' },
+  { from: 'user' as const, text: 'Jaké jsou trendy ve svatební výzdobě 2026?' },
+  { from: 'ai' as const, text: 'Přírodní materiály, sušené květiny a teplé zemité tóny. Minimalistické aranžmá s pampaskou trávou je velmi populární.' },
+  { from: 'user' as const, text: 'Kolik hostů se vejde na zámek Hluboká?' },
+  { from: 'ai' as const, text: 'Velký sál pojme až 120 hostů. Pro menší obřad je k dispozici kaple pro 60 osob. Pronájem vychází od 80 tisíc Kč.' },
+  { from: 'user' as const, text: 'Máš tip na svatební koordinátorku v Brně?' },
+  { from: 'ai' as const, text: 'V Brně doporučuji Wedding Factory nebo Svatby s úsměvem. Obě mají výborné reference a ceny od 25 tisíc Kč.' },
+  { from: 'user' as const, text: 'Kdy objednat svatební oznámení?' },
+  { from: 'ai' as const, text: 'Ideálně 3-4 měsíce před svatbou. Tisk trvá 2-3 týdny a hosté potřebují čas na odpověď. Save-the-date posílejte 6 měsíců předem.' },
+  { from: 'user' as const, text: 'Jaký rozpočet na svatbu pro 80 lidí?' },
+  { from: 'ai' as const, text: 'Realistický rozpočet pro 80 hostů v ČR je 350-500 tisíc Kč. Největší položky: catering (40%), místo (20%), foto+video (15%).' },
+  { from: 'user' as const, text: 'Co nesmí chybět v den D?' },
+  { from: 'ai' as const, text: 'Snubní prsteny, občanky, hotovost pro dodavatele, nouzová sada (jehla, nit, náplasti) a kontakty na všechny dodavatele v telefonu.' },
 ];
 
-// Delays in ms between each message appearing
-const messageDelays = [800, 1200, 1400, 1600, 1400, 1600];
+// Delay before each message appears (ms). User messages shorter, AI longer.
+function getDelay(from: 'user' | 'ai') {
+  return from === 'user' ? 1000 : 1500;
+}
 
 function ChatMockup() {
-  const [visibleCount, setVisibleCount] = useState(0);
+  const [messages, setMessages] = useState<Array<{ key: number; from: 'user' | 'ai'; text: string }>>([]);
+  const [showTyping, setShowTyping] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const indexRef = useRef(0);
+  const keyRef = useRef(0);
 
   useEffect(() => {
     let timeout: ReturnType<typeof setTimeout>;
-    let current = 0;
+    let cancelled = false;
 
-    function showNext() {
-      current++;
-      setVisibleCount(current);
-      if (current < chatMessages.length) {
-        timeout = setTimeout(showNext, messageDelays[current]);
+    function scheduleNext() {
+      if (cancelled) return;
+      const msg = chatMessages[indexRef.current % chatMessages.length];
+      const isAi = msg.from === 'ai';
+
+      // Show typing indicator before AI messages
+      if (isAi) {
+        setShowTyping(true);
       }
+
+      const delay = getDelay(msg.from);
+
+      timeout = setTimeout(() => {
+        if (cancelled) return;
+        setShowTyping(false);
+        keyRef.current++;
+        setMessages((prev) => [...prev, { key: keyRef.current, from: msg.from, text: msg.text }]);
+        indexRef.current++;
+        scheduleNext();
+      }, delay);
     }
 
-    // Start the sequence after a short initial delay
-    timeout = setTimeout(showNext, messageDelays[0]);
+    // Kick off after initial pause
+    timeout = setTimeout(() => {
+      if (!cancelled) scheduleNext();
+    }, 600);
 
-    return () => clearTimeout(timeout);
+    return () => {
+      cancelled = true;
+      clearTimeout(timeout);
+    };
   }, []);
 
-  // Auto-scroll to bottom when new messages appear
+  // Auto-scroll to bottom
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTo({
@@ -48,9 +82,7 @@ function ChatMockup() {
         behavior: 'smooth',
       });
     }
-  }, [visibleCount]);
-
-  const visibleMessages = chatMessages.slice(0, visibleCount);
+  }, [messages, showTyping]);
 
   return (
     <div className="relative max-w-md mx-auto mt-12">
@@ -68,11 +100,11 @@ function ChatMockup() {
         {/* Chat messages - fixed height, scrollable */}
         <div
           ref={scrollRef}
-          className="h-[280px] overflow-y-auto p-6 space-y-4 scroll-smooth"
+          className="h-[280px] overflow-y-auto p-6 space-y-4"
         >
-          {visibleMessages.map((msg) => (
+          {messages.map((msg) => (
             <div
-              key={msg.id}
+              key={msg.key}
               className={`flex gap-3 animate-chat-message ${msg.from === 'user' ? 'justify-end' : 'justify-start'}`}
             >
               {msg.from === 'ai' && (
@@ -96,8 +128,8 @@ function ChatMockup() {
               )}
             </div>
           ))}
-          {/* Typing indicator when next message is pending */}
-          {visibleCount > 0 && visibleCount < chatMessages.length && (
+          {/* Typing indicator */}
+          {showTyping && (
             <div className="flex gap-3 justify-start animate-chat-message">
               <div className="w-8 h-8 rounded-full bg-[var(--color-primary)] flex items-center justify-center flex-shrink-0">
                 <Sparkles className="w-4 h-4 text-white" />
@@ -132,7 +164,7 @@ function ChatMockup() {
 
 export function Hero() {
   return (
-    <section className="relative min-h-[100dvh] flex items-center justify-center overflow-hidden bg-[var(--color-secondary)] pt-20 snap-start">
+    <section className="relative min-h-[100dvh] flex items-center justify-center overflow-hidden bg-[var(--color-secondary)] pt-20">
       {/* Grain texture overlay */}
       <div
         aria-hidden="true"

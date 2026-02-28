@@ -8,7 +8,7 @@ import { LandingFooter } from '@/components/landing/LandingFooter';
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-white snap-y snap-proximity overflow-y-auto h-[100dvh]">
+    <div className="min-h-screen bg-white">
       <LandingNav />
       <Hero />
       <Features />
