@@ -31,13 +31,13 @@ Requirements for v1.0 Design Overhaul. Each maps to roadmap phases.
 
 ### Landing Page
 
-- [ ] **LAND-01**: Hero section with compelling headline, CTA, and animated entrance
+- [x] **LAND-01**: Hero section with compelling headline, CTA, and animated entrance
 - [ ] **LAND-02**: Features section with visual cards showcasing product capabilities
 - [ ] **LAND-03**: Social proof section (stats, testimonials)
 - [ ] **LAND-04**: How-it-works section with step-by-step visual flow
 - [ ] **LAND-05**: Final CTA section with gradient or accent background
-- [ ] **LAND-06**: Navigation bar with scroll behavior and mobile menu
-- [ ] **LAND-07**: Footer with consistent brand styling
+- [x] **LAND-06**: Navigation bar with scroll behavior and mobile menu
+- [x] **LAND-07**: Footer with consistent brand styling
 
 ### Auth Pages
 
@@ -100,13 +100,13 @@ Which phases cover which requirements. Updated during roadmap creation.
 | ANIM-03 | Phase 3 | Complete |
 | ANIM-04 | Phase 3 | Complete |
 | ANIM-05 | Phase 3 | Complete |
-| LAND-01 | Phase 4 | Pending |
+| LAND-01 | Phase 4 | Complete |
 | LAND-02 | Phase 4 | Pending |
 | LAND-03 | Phase 4 | Pending |
 | LAND-04 | Phase 4 | Pending |
 | LAND-05 | Phase 4 | Pending |
-| LAND-06 | Phase 4 | Pending |
-| LAND-07 | Phase 4 | Pending |
+| LAND-06 | Phase 4 | Complete |
+| LAND-07 | Phase 4 | Complete |
 | AUTH-01 | Phase 5 | Pending |
 | AUTH-02 | Phase 5 | Pending |
 | AUTH-03 | Phase 5 | Pending |
