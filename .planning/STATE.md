@@ -23,18 +23,18 @@ See: .planning/PROJECT.md (updated 2026-02-28)
 ## Current Position
 
 Phase: 3 of 7 (Animation Layer)
-Plan: 1 of 2 in current phase (03-01 complete)
-Status: Phase 03 in progress -- Plan 01 done (animation infrastructure), Plan 02 pending
-Last activity: 2026-02-28 -- Phase 03-01 complete: Lenis smooth scroll + animation primitives (ScrollReveal, StaggerContainer, FrozenRouter) + Providers wrapper wired into root layout
+Plan: 2 of 2 in current phase (03-01, 03-02 complete)
+Status: Phase 03 complete -- all 2 plans done, pending verification
+Last activity: 2026-02-28 -- Phase 03-02 complete: Framer Motion micro-interactions on Button/Card/Input + (public) route group with crossfade page transitions
 
 Progress: [█████░░░░░] 57%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 4
-- Average duration: ~7 min
-- Total execution time: 0.47 hours
+- Total plans completed: 5
+- Average duration: ~6 min
+- Total execution time: 0.50 hours
 
 **By Phase:**
 
@@ -42,7 +42,7 @@ Progress: [█████░░░░░] 57%
 |-------|-------|-------|----------|
 | 1 | 2 | 8 min | 4 min |
 | 2 | 1 (so far) | 15 min | 15 min |
-| 3 | 1 (so far) | 4 min | 4 min |
+| 3 | 2 | 9 min | 4.5 min |
 
 **Recent Trend:**
 - Last 5 plans: -
@@ -73,6 +73,8 @@ Recent decisions affecting current work:
 - 03-01: Providers.tsx wrapper pattern keeps layout.tsx as Server Component
 - 03-01: syncTouch: false avoids jank on older mobile devices
 - 03-01: MotionConfig reducedMotion='user' as outermost provider layer
+- 03-02: MotionConflicts type alias pattern for Omitting React/Framer Motion event handler conflicts
+- 03-02: (public) route group for page transitions; (auth)/(dashboard) stay instant
 
 ### Pending Todos
 
@@ -88,5 +90,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-28
-Stopped at: Phase 03-01 complete -- executing Phase 03-02 next
+Stopped at: Phase 03 complete -- pending verification
 Resume file: None
