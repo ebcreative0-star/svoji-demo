@@ -1,0 +1,66 @@
+import { redirect } from 'next/navigation';
+import { createClient } from '@/lib/supabase/server';
+import { GuestsView } from '@/components/dashboard/GuestsView';
+import { DEMO_COUPLE, DEMO_GUESTS } from '@/lib/demo-data';
+
+const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE === 'true';
+
+export default async function GuestsPage() {
+  // Demo mode
+  if (isDemoMode) {
+    return (
+      <div className="max-w-4xl mx-auto px-4 py-8">
+        <div className="mb-8">
+          <h1 className="text-3xl font-serif mb-2">Seznam hostu</h1>
+          <p className="text-[var(--color-text-light)]">
+            Spravujte pozvane hosty a sledujte RSVP
+          </p>
+          <p className="text-sm text-amber-600 mt-2 bg-amber-50 px-3 py-1 rounded-lg inline-block">
+            Demo rezim - zmeny se neukladaji
+          </p>
+        </div>
+
+        <GuestsView guests={DEMO_GUESTS} coupleId={DEMO_COUPLE.id} />
+      </div>
+    );
+  }
+
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect('/login');
+  }
+
+  const { data: couple } = await supabase
+    .from('couples')
+    .select('*')
+    .eq('id', user.id)
+    .single();
+
+  if (!couple) {
+    redirect('/onboarding');
+  }
+
+  const { data: guests } = await supabase
+    .from('guests')
+    .select('*')
+    .eq('couple_id', user.id)
+    .order('created_at', { ascending: true });
+
+  return (
+    <div className="max-w-4xl mx-auto px-4 py-8">
+      <div className="mb-8">
+        <h1 className="text-3xl font-serif mb-2">Seznam hostu</h1>
+        <p className="text-[var(--color-text-light)]">
+          Spravujte pozvane hosty a sledujte RSVP
+        </p>
+      </div>
+
+      <GuestsView guests={guests || []} coupleId={couple.id} />
+    </div>
+  );
+}
