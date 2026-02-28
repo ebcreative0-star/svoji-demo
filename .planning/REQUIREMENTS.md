@@ -25,8 +25,8 @@ Requirements for v1.0 Design Overhaul. Each maps to roadmap phases.
 
 - [ ] **ANIM-01**: Scroll-triggered entrance animations on all major sections (fade + slide, Framer Motion whileInView)
 - [ ] **ANIM-02**: Smooth scroll across entire site via Lenis
-- [ ] **ANIM-03**: Micro-interactions on buttons (hover lift/scale), cards (hover shadow), inputs (focus glow)
-- [ ] **ANIM-04**: Page transitions between routes using Next.js App Router template.js pattern
+- [x] **ANIM-03**: Micro-interactions on buttons (hover lift/scale), cards (hover shadow), inputs (focus glow)
+- [x] **ANIM-04**: Page transitions between routes using Next.js App Router template.js pattern
 - [ ] **ANIM-05**: All animations respect prefers-reduced-motion via useReducedMotion
 
 ### Landing Page
@@ -97,8 +97,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | PRIM-04 | Phase 2 | Complete |
 | ANIM-01 | Phase 3 | Pending |
 | ANIM-02 | Phase 3 | Pending |
-| ANIM-03 | Phase 3 | Pending |
-| ANIM-04 | Phase 3 | Pending |
+| ANIM-03 | Phase 3 | Complete |
+| ANIM-04 | Phase 3 | Complete |
 | ANIM-05 | Phase 3 | Pending |
 | LAND-01 | Phase 4 | Pending |
 | LAND-02 | Phase 4 | Pending |
