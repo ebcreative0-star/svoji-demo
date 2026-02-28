@@ -62,11 +62,13 @@ Plans:
   3. Hovering a button lifts it; hovering a card deepens its shadow; focusing an input glows with accent color
   4. Navigating between routes shows a clean opacity transition rather than an abrupt swap
   5. A user with prefers-reduced-motion enabled sees no motion — all animations are suppressed
-**Plans**: 2 plans
+**Plans**: 4 plans
 
 Plans:
-- [ ] 03-01-PLAN.md -- Install Lenis, create LenisProvider + MotionConfig root wiring, build ScrollReveal/StaggerContainer/FrozenRouter animation primitives
-- [ ] 03-02-PLAN.md -- Wire micro-interactions to Button/Card/Input, create (public) route group with crossfade page transitions via template.tsx
+- [x] 03-01-PLAN.md -- Install Lenis, create LenisProvider + MotionConfig root wiring, build ScrollReveal/StaggerContainer/FrozenRouter animation primitives
+- [x] 03-02-PLAN.md -- Wire micro-interactions to Button/Card/Input, create (public) route group with crossfade page transitions via template.tsx
+- [x] 03-03-PLAN.md -- UAT gap closure: button tween transitions, input focus ring, AnimatePresence in persistent layout
+- [x] 03-04-PLAN.md -- Wire ScrollReveal into landing page and public wedding web; remove CSS scroll-behavior conflict
 
 ### Phase 4: Landing Page
 **Goal**: The landing page is a polished showcase of the new design direction that converts visitors to sign-ups
@@ -133,7 +135,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 |-------|----------------|--------|-----------|
 | 1. Design System Foundation | 0/2 | Planned | - |
 | 2. UI Primitives | 2/2 | Complete   | 2026-02-28 |
-| 3. Animation Layer | 3/3 | Complete   | 2026-02-28 |
+| 3. Animation Layer | 4/4 | Complete   | 2026-02-28 |
 | 4. Landing Page | 0/? | Not started | - |
 | 5. Auth Pages | 0/? | Not started | - |
 | 6. Dashboard | 0/? | Not started | - |

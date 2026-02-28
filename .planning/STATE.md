@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-last_updated: "2026-02-28T21:24:21.394Z"
+last_updated: "2026-02-28T21:41:00.949Z"
 progress:
   total_phases: 3
   completed_phases: 3
-  total_plans: 8
-  completed_plans: 8
+  total_plans: 9
+  completed_plans: 9
 ---
 
 # Project State
@@ -23,9 +23,9 @@ See: .planning/PROJECT.md (updated 2026-02-28)
 ## Current Position
 
 Phase: 3 of 7 (Animation Layer)
-Plan: 3 of 3 in current phase (03-01, 03-02, 03-03 complete)
-Status: Phase 03 complete -- all UAT gaps closed
-Last activity: 2026-02-28 -- Phase 03-03 complete: UAT gap closure - button tween transitions, input focus ring, AnimatePresence in persistent layout
+Plan: 4 of 4 in current phase (03-01, 03-02, 03-03, 03-04 complete)
+Status: Phase 03 complete -- scroll animations wired, CSS scroll-behavior fixed, ANIM-01/02/05 marked complete
+Last activity: 2026-02-28 -- Phase 03-04 complete: ScrollReveal wired into landing page (5 sections + stagger) and public wedding web (6 sections); scroll-behavior CSS conflict removed
 
 Progress: [█████░░░░░] 57%
 
@@ -52,6 +52,7 @@ Progress: [█████░░░░░] 57%
 | Phase 02-ui-primitives P02-02 | 6 | 2 tasks | 12 files |
 | Phase 02-ui-primitives P03 | 3 | 1 tasks | 1 files |
 | Phase 03-animation-layer P03-03 | 2 | 2 tasks | 5 files |
+| Phase 03-animation-layer P03-04 | 5 | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -78,6 +79,8 @@ Recent decisions affecting current work:
 - 03-02: (public) route group for page transitions; (auth)/(dashboard) stay instant
 - [Phase 03-animation-layer]: Per-gesture transitions on motion.button (whileHover/whileTap each carry own transition) -- cleaner than shared prop
 - [Phase 03-animation-layer]: PublicTransitionProvider client component wraps AnimatePresence inside server layout.tsx -- keeps layout as Server Component
+- [Phase 03-animation-layer]: ScrollReveal wraps inner content not outer section to avoid animating background/padding
+- [Phase 03-animation-layer]: scroll-behavior: smooth removed from CSS; Lenis handles smooth scroll via JS to respect reduced-motion
 
 ### Pending Todos
 
@@ -93,5 +96,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-28
-Stopped at: Completed 03-03-PLAN.md
+Stopped at: Completed 03-04-PLAN.md
 Resume file: None
