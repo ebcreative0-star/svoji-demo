@@ -1,5 +1,9 @@
 import { LandingNav } from '@/components/landing/LandingNav';
 import { Hero } from '@/components/landing/Hero';
+import { Features } from '@/components/landing/Features';
+import { SocialProof } from '@/components/landing/SocialProof';
+import { HowItWorks } from '@/components/landing/HowItWorks';
+import { FinalCTA } from '@/components/landing/FinalCTA';
 import { LandingFooter } from '@/components/landing/LandingFooter';
 
 export default function LandingPage() {
@@ -7,7 +11,10 @@ export default function LandingPage() {
     <div className="min-h-screen overflow-x-hidden bg-white">
       <LandingNav />
       <Hero />
-      {/* Features, SocialProof, HowItWorks, FinalCTA -- Plan 04-02 */}
+      <Features />
+      <SocialProof />
+      <HowItWorks />
+      <FinalCTA />
       <LandingFooter />
     </div>
   );
