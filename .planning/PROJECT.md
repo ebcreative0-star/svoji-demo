@@ -79,6 +79,27 @@ Couples can plan their entire wedding from one place with AI guidance, without n
 - Redesigned landing page, auth flows, and dashboard
 - Public wedding web visual refresh
 
+## Product Vision & Design Direction
+
+### Overall Aesthetic
+Modern, trustworthy, and emotionally engaging -- targeting couples planning a wedding. Clean SaaS aesthetic combined with subtle wedding accents: generous whitespace, elegant typography, and restrained romantic color accents. The overall impression should be a modern smart app, not a traditional wedding catalog -- fast responses, subtle micro-interactions, smooth animations, full responsiveness on all devices.
+
+### Hero Section (Phase 4)
+The hero must immediately communicate the core benefit: fast, smart wedding planning with AI. The dominant element is an interactive AI assistant window placed above the fold. The chatbot should have a friendly but professional look with a subtle entrance animation (pulsing cursor, typing effect, or gentle "breathing" of the window) signaling readiness to interact. On page load, the chatbot can display a sample message like "Pomohu vam naplanovat svatbu behem par minut" to pull the user in immediately.
+
+### User Flow
+Maximally direct: clicking the main CTA takes the user straight into an AI conversation that walks them through key decisions step by step (budget, guest count, venue, wedding style). The user should see a concrete plan forming in real time -- e.g., a dynamic checklist or timeline appearing as they answer.
+
+### Landing Page Structure (Phase 4)
+Below the hero: a concise "How it works" section in 3 simple steps, then an overview of key benefits (time savings, personalization, budget overview), then a visual showcase of the app in action. Clear, repeated CTA elements throughout the page that guide the user back to starting their plan.
+
+### Design Principles
+- Modern smart app feel, not a wedding catalog
+- Fast perceived performance
+- Subtle micro-interactions and smooth animations (Phase 3)
+- Full responsiveness across all devices
+- User should understand the value within seconds and feel naturally motivated to start planning via the AI assistant
+
 ## Key Decisions
 
 | Decision | Rationale | Outcome |
