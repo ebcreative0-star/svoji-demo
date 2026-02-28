@@ -84,5 +84,8 @@ Doporucuji zajit 2-3 mesice pred svatbou. Mate svatbu 20. zari, takze idealne v 
 ];
 
 export function isDemoMode(): boolean {
-  return process.env.NEXT_PUBLIC_DEMO_MODE === 'true';
+  // Demo mode if explicitly set OR if Supabase is not configured
+  return process.env.NEXT_PUBLIC_DEMO_MODE === 'true' ||
+    process.env.NEXT_PUBLIC_SUPABASE_URL?.includes('placeholder') ||
+    !process.env.NEXT_PUBLIC_SUPABASE_URL;
 }
