@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@source not "../../.planning";
+
 @theme inline {
   --font-heading: var(--font-heading);
   --font-body: var(--font-body);
