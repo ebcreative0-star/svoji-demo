@@ -4,7 +4,8 @@ import { ChecklistView } from '@/components/dashboard/ChecklistView';
 import { generateChecklist, type WeddingSize } from '@/lib/checklist-generator';
 import { DEMO_COUPLE, DEMO_CHECKLIST } from '@/lib/demo-data';
 
-const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE === 'true';
+// Always demo mode for now
+const isDemoMode = true;
 
 export default async function ChecklistPage() {
   // Demo mode
@@ -18,9 +19,9 @@ export default async function ChecklistPage() {
     }));
 
     return (
-      <div className="max-w-4xl mx-auto px-4 py-6 sm:py-8">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-10">
         <div className="mb-6 sm:mb-8">
-          <h1 className="text-2xl sm:text-3xl font-serif mb-2">Váš checklist</h1>
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-serif mb-2">Váš checklist</h1>
           <p className="text-sm sm:text-base text-[var(--color-text-light)]">
             {DEMO_COUPLE.partner1_name} & {DEMO_COUPLE.partner2_name} - svatba{' '}
             {new Date(DEMO_COUPLE.wedding_date).toLocaleDateString('cs-CZ', {
@@ -98,9 +99,9 @@ export default async function ChecklistPage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-6 sm:py-8">
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-10">
       <div className="mb-6 sm:mb-8">
-        <h1 className="text-2xl sm:text-3xl font-serif mb-2">Váš checklist</h1>
+        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-serif mb-2">Váš checklist</h1>
         <p className="text-sm sm:text-base text-[var(--color-text-light)]">
           {couple.partner1_name} & {couple.partner2_name} - svatba{' '}
           {new Date(couple.wedding_date).toLocaleDateString('cs-CZ', {

@@ -106,7 +106,7 @@ export function ChecklistView({ items: initialItems, weddingDate }: ChecklistVie
   return (
     <div>
       {/* Stats */}
-      <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-4 sm:mb-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6 mb-4 sm:mb-6 lg:mb-8">
         <StatCard
           label="Hotovo"
           value={`${stats.completed}/${stats.total}`}

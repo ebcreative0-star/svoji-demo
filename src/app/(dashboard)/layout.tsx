@@ -3,7 +3,8 @@ import { createClient } from '@/lib/supabase/server';
 import { DashboardNav } from '@/components/dashboard/DashboardNav';
 import { DEMO_COUPLE } from '@/lib/demo-data';
 
-const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE === 'true';
+// Always demo mode for now - no production Supabase
+const isDemoMode = true;
 
 export default async function DashboardLayout({
   children,

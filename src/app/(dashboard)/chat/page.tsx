@@ -3,7 +3,8 @@ import { createClient } from '@/lib/supabase/server';
 import { ChatInterface } from '@/components/dashboard/ChatInterface';
 import { DEMO_COUPLE, DEMO_CHAT } from '@/lib/demo-data';
 
-const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE === 'true';
+// Always demo mode for now
+const isDemoMode = true;
 
 export default async function ChatPage() {
   // Demo mode
@@ -15,9 +16,9 @@ export default async function ChatPage() {
     }));
 
     return (
-      <div className="max-w-4xl mx-auto px-4 py-8 h-[calc(100vh-4rem)]">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 h-[calc(100vh-4rem)]">
         <div className="mb-4">
-          <p className="text-sm text-amber-600 bg-amber-50 px-3 py-1 rounded-lg inline-block">
+          <p className="text-xs sm:text-sm text-amber-600 bg-amber-50 px-3 py-1 rounded-lg inline-block">
             Demo režim - AI chat není aktivní, vidíte pouze ukázkovou konverzaci
           </p>
         </div>
@@ -66,7 +67,7 @@ export default async function ChatPage() {
     .limit(50);
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8 h-[calc(100vh-4rem)]">
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 h-[calc(100vh-4rem)]">
       <ChatInterface
         couple={{
           id: couple.id,
