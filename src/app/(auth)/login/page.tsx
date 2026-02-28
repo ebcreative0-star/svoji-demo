@@ -20,7 +20,13 @@ export default function LoginPage() {
     setLoading(true);
     setError('');
 
-    // Demo mode bypass - use window.location for reliable redirect
+    // Demo credentials: demo / demo
+    if (email === 'demo' && password === 'demo') {
+      window.location.href = '/checklist';
+      return;
+    }
+
+    // Demo mode bypass
     if (isDemoMode()) {
       window.location.href = '/checklist';
       return;
@@ -63,12 +69,12 @@ export default function LoginPage() {
               Email
             </label>
             <input
-              type="email"
+              type="text"
               id="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full px-4 py-3.5 border border-[var(--color-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent bg-[var(--color-secondary)]"
-              placeholder="vas@email.cz"
+              placeholder="vas@email.cz nebo demo"
               required
             />
           </div>
