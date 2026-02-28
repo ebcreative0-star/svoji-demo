@@ -9,6 +9,7 @@ import { Locations } from '@/components/sections/Locations';
 import { Gallery } from '@/components/sections/Gallery';
 import { Contacts } from '@/components/sections/Contacts';
 import { RSVP } from '@/components/sections/RSVP';
+import { ScrollReveal } from '@/components/animation/ScrollReveal';
 
 interface WeddingWebsite {
   id: string;
@@ -149,74 +150,86 @@ export default async function WeddingPage({
         />
 
         {typedWebsite.story && (
-          <About
-            title="Náš příběh"
-            story={typedWebsite.story}
-          />
+          <ScrollReveal>
+            <About
+              title="Náš příběh"
+              story={typedWebsite.story}
+            />
+          </ScrollReveal>
         )}
 
         {typedWebsite.show_timeline && timeline.length > 0 && (
-          <Timeline
-            items={timeline.map((item) => ({
-              time: item.time,
-              title: item.title,
-              description: item.description,
-              icon: item.icon,
-            }))}
-          />
+          <ScrollReveal>
+            <Timeline
+              items={timeline.map((item) => ({
+                time: item.time,
+                title: item.title,
+                description: item.description,
+                icon: item.icon,
+              }))}
+            />
+          </ScrollReveal>
         )}
 
         {typedWebsite.show_locations && locations.length > 0 && (
-          <Locations
-            locations={locations.map((loc) => ({
-              type: loc.type as 'ceremony' | 'reception' | 'parking',
-              name: loc.name,
-              address: loc.address,
-              time: loc.time,
-              description: loc.description,
-              coordinates: { lat: loc.lat, lng: loc.lng },
-              mapUrl: loc.map_url,
-            }))}
-          />
+          <ScrollReveal>
+            <Locations
+              locations={locations.map((loc) => ({
+                type: loc.type as 'ceremony' | 'reception' | 'parking',
+                name: loc.name,
+                address: loc.address,
+                time: loc.time,
+                description: loc.description,
+                coordinates: { lat: loc.lat, lng: loc.lng },
+                mapUrl: loc.map_url,
+              }))}
+            />
+          </ScrollReveal>
         )}
 
         {typedWebsite.show_gallery && gallery.length > 0 && (
-          <Gallery
-            images={gallery.map((img) => ({
-              url: img.image_url,
-              caption: img.caption,
-            }))}
-          />
+          <ScrollReveal>
+            <Gallery
+              images={gallery.map((img) => ({
+                url: img.image_url,
+                caption: img.caption,
+              }))}
+            />
+          </ScrollReveal>
         )}
 
         {typedWebsite.show_contacts && contacts.length > 0 && (
-          <Contacts
-            contacts={contacts.map((c) => ({
-              name: c.name,
-              role: c.role,
-              phone: c.phone,
-            }))}
-            dressCode={
-              typedWebsite.show_dress_code && typedWebsite.dress_code_description
-                ? {
-                    title: typedWebsite.dress_code_title,
-                    description: typedWebsite.dress_code_description,
-                  }
-                : undefined
-            }
-          />
+          <ScrollReveal>
+            <Contacts
+              contacts={contacts.map((c) => ({
+                name: c.name,
+                role: c.role,
+                phone: c.phone,
+              }))}
+              dressCode={
+                typedWebsite.show_dress_code && typedWebsite.dress_code_description
+                  ? {
+                      title: typedWebsite.dress_code_title,
+                      description: typedWebsite.dress_code_description,
+                    }
+                  : undefined
+              }
+            />
+          </ScrollReveal>
         )}
 
         {typedWebsite.show_rsvp && (
-          <RSVP
-            deadline={
-              typedWebsite.rsvp_deadline
-                ? new Date(typedWebsite.rsvp_deadline)
-                : new Date(couple.wedding_date)
-            }
-            contactEmail=""
-            websiteId={typedWebsite.id}
-          />
+          <ScrollReveal>
+            <RSVP
+              deadline={
+                typedWebsite.rsvp_deadline
+                  ? new Date(typedWebsite.rsvp_deadline)
+                  : new Date(couple.wedding_date)
+              }
+              contactEmail=""
+              websiteId={typedWebsite.id}
+            />
+          </ScrollReveal>
         )}
       </main>
 

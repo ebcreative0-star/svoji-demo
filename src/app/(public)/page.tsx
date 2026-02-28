@@ -8,6 +8,8 @@ import {
   Sparkles,
   Check,
 } from 'lucide-react';
+import { ScrollReveal } from '@/components/animation/ScrollReveal';
+import { StaggerContainer } from '@/components/animation/StaggerContainer';
 
 const features = [
   {
@@ -71,6 +73,7 @@ export default function LandingPage() {
       {/* Hero - Split layout */}
       <section className="pt-24 lg:pt-32 pb-16 lg:pb-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <ScrollReveal>
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
             {/* Left - Text */}
             <div className="order-2 lg:order-1">
@@ -184,51 +187,56 @@ export default function LandingPage() {
               </div>
             </div>
           </div>
+          </ScrollReveal>
         </div>
       </section>
 
       {/* Features - Asymmetric cards */}
       <section id="features" className="py-20 lg:py-32 bg-[var(--color-secondary)]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-serif mb-4">
-              Vše co potřebujete
-            </h2>
-            <p className="text-lg text-[var(--color-text-light)] max-w-lg mx-auto">
-              Kompletní nástroje pro plánování svatby bez stresu.
-            </p>
-          </div>
+          <ScrollReveal>
+            <div className="text-center mb-16">
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-serif mb-4">
+                Vše co potřebujete
+              </h2>
+              <p className="text-lg text-[var(--color-text-light)] max-w-lg mx-auto">
+                Kompletní nástroje pro plánování svatby bez stresu.
+              </p>
+            </div>
+          </ScrollReveal>
 
-          <div className="grid md:grid-cols-3 gap-6 lg:gap-8">
+          <StaggerContainer className="grid md:grid-cols-3 gap-6 lg:gap-8">
             {features.map((feature, index) => {
               const Icon = feature.icon;
               return (
-                <div
-                  key={feature.title}
-                  className={`bg-white rounded-3xl p-8 lg:p-10 border border-gray-100 shadow-sm hover:shadow-lg transition-shadow ${
-                    index === 1 ? 'md:-translate-y-4' : ''
-                  }`}
-                >
+                <ScrollReveal key={feature.title}>
                   <div
-                    className="w-14 h-14 rounded-2xl flex items-center justify-center mb-6"
-                    style={{ backgroundColor: feature.color }}
+                    className={`bg-white rounded-3xl p-8 lg:p-10 border border-gray-100 shadow-sm hover:shadow-lg transition-shadow ${
+                      index === 1 ? 'md:-translate-y-4' : ''
+                    }`}
                   >
-                    <Icon className="w-7 h-7 text-white" />
+                    <div
+                      className="w-14 h-14 rounded-2xl flex items-center justify-center mb-6"
+                      style={{ backgroundColor: feature.color }}
+                    >
+                      <Icon className="w-7 h-7 text-white" />
+                    </div>
+                    <h3 className="text-xl lg:text-2xl font-semibold mb-3">{feature.title}</h3>
+                    <p className="text-[var(--color-text-light)] leading-relaxed">
+                      {feature.description}
+                    </p>
                   </div>
-                  <h3 className="text-xl lg:text-2xl font-semibold mb-3">{feature.title}</h3>
-                  <p className="text-[var(--color-text-light)] leading-relaxed">
-                    {feature.description}
-                  </p>
-                </div>
+                </ScrollReveal>
               );
             })}
-          </div>
+          </StaggerContainer>
         </div>
       </section>
 
       {/* Social proof banner */}
       <section className="py-12 bg-[var(--color-primary)]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <ScrollReveal>
           <div className="flex flex-col md:flex-row items-center justify-center gap-8 md:gap-16 text-white">
             <div className="text-center">
               <p className="text-3xl lg:text-4xl font-serif">500+</p>
@@ -245,12 +253,14 @@ export default function LandingPage() {
               <p className="text-sm opacity-80">hodnocení</p>
             </div>
           </div>
+          </ScrollReveal>
         </div>
       </section>
 
       {/* How it works - Visual */}
       <section className="py-20 lg:py-32">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <ScrollReveal>
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
             {/* Left - Visual */}
             <div className="relative order-2 lg:order-1">
@@ -304,29 +314,32 @@ export default function LandingPage() {
               </Link>
             </div>
           </div>
+          </ScrollReveal>
         </div>
       </section>
 
       {/* CTA - Full width */}
       <section className="py-20 lg:py-32 bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-primary-dark)]">
-        <div className="max-w-3xl mx-auto px-4 text-center text-white">
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-serif mb-6">
-            Váš velký den si zaslouží klid
-          </h2>
-          <p className="text-lg lg:text-xl opacity-90 mb-10 max-w-xl mx-auto">
-            Přidejte se ke stovkám párů, které plánují svatbu bez stresu.
-          </p>
-          <Link
-            href="/register"
-            className="inline-flex items-center justify-center bg-white text-[var(--color-primary)] text-base font-medium px-8 py-4 rounded-full hover:bg-gray-100 transition-colors gap-2"
-          >
-            Vyzkoušet zdarma
-            <ArrowRight className="w-5 h-5" />
-          </Link>
-          <p className="mt-6 text-sm opacity-70">
-            Bez platební karty · Zrušte kdykoliv
-          </p>
-        </div>
+        <ScrollReveal>
+          <div className="max-w-3xl mx-auto px-4 text-center text-white">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-serif mb-6">
+              Váš velký den si zaslouží klid
+            </h2>
+            <p className="text-lg lg:text-xl opacity-90 mb-10 max-w-xl mx-auto">
+              Přidejte se ke stovkám párů, které plánují svatbu bez stresu.
+            </p>
+            <Link
+              href="/register"
+              className="inline-flex items-center justify-center bg-white text-[var(--color-primary)] text-base font-medium px-8 py-4 rounded-full hover:bg-gray-100 transition-colors gap-2"
+            >
+              Vyzkoušet zdarma
+              <ArrowRight className="w-5 h-5" />
+            </Link>
+            <p className="mt-6 text-sm opacity-70">
+              Bez platební karty · Zrušte kdykoliv
+            </p>
+          </div>
+        </ScrollReveal>
       </section>
 
       {/* Footer */}
