@@ -9,10 +9,10 @@ Requirements for v1.0 Design Overhaul. Each maps to roadmap phases.
 
 ### Design Tokens
 
-- [ ] **DSGN-01**: Color palette uses OKLCH color space with warm premium tones (champagne, blush, stone, charcoal)
-- [ ] **DSGN-02**: Typography uses modern serif heading font replacing Playfair Display, paired with Inter body
-- [ ] **DSGN-03**: Spacing and sizing follow a consistent token scale defined in Tailwind 4 @theme
-- [ ] **DSGN-04**: All color tokens propagate via CSS variables to existing 196+ references without breakage
+- [x] **DSGN-01**: Color palette uses OKLCH color space with warm premium tones (champagne, blush, stone, charcoal)
+- [x] **DSGN-02**: Typography uses modern serif heading font replacing Playfair Display, paired with Inter body
+- [x] **DSGN-03**: Spacing and sizing follow a consistent token scale defined in Tailwind 4 @theme
+- [x] **DSGN-04**: All color tokens propagate via CSS variables to existing 196+ references without breakage
 
 ### UI Primitives
 
@@ -87,10 +87,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| DSGN-01 | Phase 1 | Pending |
-| DSGN-02 | Phase 1 | Pending |
-| DSGN-03 | Phase 1 | Pending |
-| DSGN-04 | Phase 1 | Pending |
+| DSGN-01 | Phase 1 | Complete |
+| DSGN-02 | Phase 1 | Complete |
+| DSGN-03 | Phase 1 | Complete |
+| DSGN-04 | Phase 1 | Complete |
 | PRIM-01 | Phase 2 | Pending |
 | PRIM-02 | Phase 2 | Pending |
 | PRIM-03 | Phase 2 | Pending |
