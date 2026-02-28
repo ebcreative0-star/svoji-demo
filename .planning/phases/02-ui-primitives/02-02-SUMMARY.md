@@ -137,8 +137,8 @@ None - no external service configuration required.
 ## Next Phase Readiness
 - All UI primitives now consistently used across the entire codebase
 - Zero legacy btn-primary/btn-outline patterns remain
-- Visual checkpoint (Task 3) requires user to open http://localhost:3000 and verify no visual regressions
-- After checkpoint approval, Phase 2 is complete and Phase 3 can begin
+- Visual checkpoint approved -- no regressions found
+- Phase 2 complete, Phase 3 can begin
 
 ---
 *Phase: 02-ui-primitives*
