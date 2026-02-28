@@ -16,10 +16,10 @@ Requirements for v1.0 Design Overhaul. Each maps to roadmap phases.
 
 ### UI Primitives
 
-- [ ] **PRIM-01**: Typed Button component with size/variant props replaces all .btn-primary/.btn-outline usage
-- [ ] **PRIM-02**: Typed Card component with consistent padding, radius, and shadow
-- [ ] **PRIM-03**: Typed Input component with focus transitions and error states
-- [ ] **PRIM-04**: Typed Badge component for status indicators (RSVP, priority, categories)
+- [x] **PRIM-01**: Typed Button component with size/variant props replaces all .btn-primary/.btn-outline usage
+- [x] **PRIM-02**: Typed Card component with consistent padding, radius, and shadow
+- [x] **PRIM-03**: Typed Input component with focus transitions and error states
+- [x] **PRIM-04**: Typed Badge component for status indicators (RSVP, priority, categories)
 
 ### Animation
 
@@ -91,10 +91,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | DSGN-02 | Phase 1 | Complete |
 | DSGN-03 | Phase 1 | Complete |
 | DSGN-04 | Phase 1 | Complete |
-| PRIM-01 | Phase 2 | Pending |
-| PRIM-02 | Phase 2 | Pending |
-| PRIM-03 | Phase 2 | Pending |
-| PRIM-04 | Phase 2 | Pending |
+| PRIM-01 | Phase 2 | Complete |
+| PRIM-02 | Phase 2 | Complete |
+| PRIM-03 | Phase 2 | Complete |
+| PRIM-04 | Phase 2 | Complete |
 | ANIM-01 | Phase 3 | Pending |
 | ANIM-02 | Phase 3 | Pending |
 | ANIM-03 | Phase 3 | Pending |

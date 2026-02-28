@@ -46,10 +46,11 @@ Plans:
   2. Card components display with consistent padding, border-radius, and shadow matching design spec
   3. Input fields show branded focus rings and inline error states using the Input component
   4. Badge components render status indicators (RSVP states, checklist priorities, budget categories) consistently across all views
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 02-01: TBD
+- [ ] 02-01-PLAN.md -- Install cva+clsx, create cn() utility, build Button/Card/Input/Textarea/Select/Badge/FormX components + barrel export
+- [ ] 02-02-PLAN.md -- Migrate all btn-primary/btn-outline usages, dashboard buttons/cards/badges, RSVP inputs to new primitives + remove legacy CSS
 
 ### Phase 3: Animation Layer
 **Goal**: Smooth scroll physics, scroll-triggered reveals, micro-interactions, and page transitions are wired and accessible
@@ -130,7 +131,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Design System Foundation | 0/2 | Planned | - |
-| 2. UI Primitives | 0/? | Not started | - |
+| 2. UI Primitives | 1/2 | In Progress|  |
 | 3. Animation Layer | 0/? | Not started | - |
 | 4. Landing Page | 0/? | Not started | - |
 | 5. Auth Pages | 0/? | Not started | - |
