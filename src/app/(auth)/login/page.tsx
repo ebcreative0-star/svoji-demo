@@ -20,9 +20,9 @@ export default function LoginPage() {
     setLoading(true);
     setError('');
 
-    // Demo mode bypass
+    // Demo mode bypass - use window.location for reliable redirect
     if (isDemoMode()) {
-      router.push('/checklist');
+      window.location.href = '/checklist';
       return;
     }
 
