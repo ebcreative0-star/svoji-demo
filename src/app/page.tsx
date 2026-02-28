@@ -77,16 +77,16 @@ export default function LandingPage() {
                 Svoji
               </span>
             </Link>
-            <div className="flex items-center gap-2 sm:gap-4">
+            <div className="flex items-center gap-3">
               <Link
                 href="/login"
-                className="hidden sm:flex items-center text-sm text-[var(--color-text-light)] hover:text-[var(--color-primary)] min-h-[44px] px-3"
+                className="hidden sm:inline-flex text-sm text-[var(--color-text-light)] hover:text-[var(--color-primary)] min-h-[44px] items-center px-3"
               >
                 Přihlásit se
               </Link>
               <Link
                 href="/register"
-                className="btn-primary !text-sm !px-4 !py-2"
+                className="inline-flex items-center justify-center bg-[var(--color-primary)] text-white text-sm font-medium px-5 py-2.5 rounded-full min-h-[44px] hover:bg-[var(--color-primary-light)] transition-colors"
               >
                 Začít zdarma
               </Link>
