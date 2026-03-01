@@ -1,9 +1,9 @@
 ---
 status: diagnosed
 phase: 06-ui-redesign
-source: 06-01-SUMMARY.md, 06-02-SUMMARY.md, 06-03-SUMMARY.md, 06-04-SUMMARY.md
-started: 2026-03-01T18:00:00Z
-updated: 2026-03-01T18:30:00Z
+source: 06-01-SUMMARY.md, 06-02-SUMMARY.md, 06-03-SUMMARY.md, 06-04-SUMMARY.md, 06-05-SUMMARY.md
+started: 2026-03-01T20:00:00Z
+updated: 2026-03-01T20:15:00Z
 ---
 
 ## Current Test
@@ -17,89 +17,70 @@ expected: Visit /login. The card should fade in and slide up smoothly (not appea
 result: pass
 
 ### 2. SaasFooter on landing page
-expected: Scroll to the bottom of the landing page (/). Footer has 4 columns: Brand, Legal (TOS, Privacy links), Social (Instagram icon), Contact. Links are clickable.
+expected: Footer has a warm dark brown background (not black), 4 columns: Brand, Legal, Social, Contact. Text has breathing room from edges.
 result: issue
-reported: "je to tam, ale text je příliš blizko hranice segmentů. + černý background mi moc neladí co celkového vzhledu"
+reported: "stále je to příliš blízko hranici segmentu nad. Fotter bych udělal nějakou světlejší barvou, protože nad je skoro stejná hněda"
 severity: cosmetic
 
 ### 3. Legal and contact pages
-expected: /tos shows Czech legal terms (7 sections). /privacy shows Czech GDPR policy (8 sections). /contact shows a form with validation -- submit empty to see error messages.
+expected: /tos shows Czech legal terms (7 sections). /privacy shows Czech GDPR policy (8 sections). /contact shows a form with validation.
 result: pass
 
 ### 4. Desktop dashboard navigation
-expected: On desktop, the dashboard top bar has a backdrop-blur effect, active page gets a border-b-2 underline in accent color, and there's a "Web pro hosty" link.
-result: issue
-reported: "nevidím web pro hosty"
-severity: major
+expected: Desktop top bar has backdrop-blur, border-b-2 active underline, and "Web pro hosty" link visible.
+result: pass
 
 ### 5. Mobile bottom tab bar
-expected: On mobile viewport, hamburger menu is gone. Instead, a fixed bottom tab bar shows 5 items (icons + labels). Content is not hidden behind it.
+expected: Fixed bottom tab bar with 5 items, no hamburger menu, content not hidden behind it.
 result: pass
 
 ### 6. Dashboard views use design primitives
-expected: Open Checklist, Budget, and Guests views. They should use Card wrappers, styled Input/Select elements (not raw HTML inputs), and have a subtle fade-in entrance animation.
+expected: Checklist, Budget, Guests use Card wrappers, styled Input/Select, fade-in animation.
 result: pass
 
 ### 7. Settings page redesigned
-expected: Settings page uses Card sections for grouping, all form fields use styled Input/Select/Textarea components, and action buttons use the Button component.
+expected: Card sections, styled form fields, Button components.
 result: pass
 
 ### 8. Hero parallax scroll
-expected: Visit a wedding page (/w/[slug]). As you scroll, the Hero background moves at a slower rate than the content (parallax effect). On mobile or with reduced-motion, parallax should be disabled.
-result: skipped
-reason: No couple/slug in database, wedding page not accessible
+expected: Hero background moves slower than content on scroll. Disabled on mobile/reduced-motion.
+result: pass
 
 ### 9. Gallery parallax and hover effects
-expected: Gallery section has a subtle parallax shift on scroll. Hovering individual gallery items shows a scale-up effect.
+expected: Gallery has parallax shift on scroll. Hover on items shows scale-up.
 result: skipped
-reason: No couple/slug in database, wedding page not accessible
+reason: No photos uploaded and no option to add photos in settings
 
 ### 10. Wedding sections consistent styling
-expected: All 7 wedding page sections (Hero, About, Gallery, Timeline, Locations, Contacts, RSVP) use consistent heading typography (font-heading) and color tokens.
-result: skipped
-reason: No couple/slug in database, wedding page not accessible
+expected: All 7 sections use font-heading and color tokens consistently.
+result: pass
 
 ### 11. RSVP and Navigation
-expected: RSVP form is wrapped in a Card. Navigation bar shows the couple's names (from data, not hardcoded placeholder).
-result: skipped
-reason: No couple/slug in database, wedding page not accessible
+expected: RSVP form in Card wrapper. Navigation shows couple's names from data.
+result: pass
 
 ## Summary
 
 total: 11
-passed: 5
-issues: 2
+passed: 9
+issues: 1
 pending: 0
-skipped: 4
+skipped: 1
 
 ## Gaps
 
-- truth: "Footer has 4 columns with proper spacing and visually fitting background"
+- truth: "Footer has distinct lighter color from section above and sufficient spacing from segment border"
   status: failed
-  reason: "User reported: je to tam, ale text je příliš blizko hranice segmentů. + černý background mi moc neladí co celkového vzhledu"
+  reason: "User reported: stále je to příliš blízko hranici segmentu nad. Fotter bych udělal nějakou světlejší barvou, protože nad je skoro stejná hněda"
   severity: cosmetic
   test: 2
-  root_cause: "Footer uses bg-[var(--color-text)] (black) which clashes with the light/cream site palette. Container padding px-4 (1rem) is too tight for column text near segment borders."
+  root_cause: "SaasFooter uses bg-[var(--color-primary-dark)] which is oklch(45% 0.038 55) - a dark brown nearly identical to the section above. No visual separator (spacing or border) between last content section and footer."
   artifacts:
     - path: "src/components/ui/SaasFooter.tsx"
-      issue: "bg-[var(--color-text)] is black, px-4 padding too tight"
+      issue: "bg-[var(--color-primary-dark)] too similar to section above"
+    - path: "src/app/globals.css"
+      issue: "--color-primary-dark: oklch(45% 0.038 55) is close to content section browns"
   missing:
-    - "Change background to match site palette (e.g. bg-[var(--color-secondary)] or bg-[var(--color-primary-dark)])"
-    - "Increase horizontal padding to px-6 or px-8"
-  debug_session: ""
-
-- truth: "Dashboard nav shows 'Web pro hosty' link"
-  status: failed
-  reason: "User reported: nevidím web pro hosty"
-  severity: major
-  test: 4
-  root_cause: "DashboardNav renders 'Web pro hosty' only when slug prop is truthy. Dashboard layout.tsx does not pass slug prop because it only queries couples table (partner names), not wedding_websites table where slug is stored."
-  artifacts:
-    - path: "src/components/dashboard/DashboardNav.tsx"
-      issue: "slug prop conditional render works, but slug is never passed"
-    - path: "src/app/(dashboard)/layout.tsx"
-      issue: "Missing query to wedding_websites table, slug prop not passed to DashboardNav"
-  missing:
-    - "Query wedding_websites table in layout.tsx to get slug"
-    - "Pass slug prop to DashboardNav component"
+    - "Change footer background to a lighter, distinct color (e.g. --color-secondary or a light warm gray)"
+    - "Add top margin or separator between last section and footer"
   debug_session: ""
