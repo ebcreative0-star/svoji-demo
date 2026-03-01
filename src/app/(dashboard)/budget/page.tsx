@@ -1,14 +1,11 @@
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { BudgetView } from '@/components/dashboard/BudgetView';
-import { DEMO_COUPLE, DEMO_BUDGET } from '@/lib/demo-data';
-
-// Always demo mode for now
-const isDemoMode = true;
+import { isDemoMode, DEMO_COUPLE, DEMO_BUDGET } from '@/lib/demo-data';
 
 export default async function BudgetPage() {
   // Demo mode
-  if (isDemoMode) {
+  if (isDemoMode()) {
     const demoItems = DEMO_BUDGET.map((item) => ({
       ...item,
       couple_id: DEMO_COUPLE.id,

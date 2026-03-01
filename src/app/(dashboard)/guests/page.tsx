@@ -1,14 +1,11 @@
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { GuestsView } from '@/components/dashboard/GuestsView';
-import { DEMO_COUPLE, DEMO_GUESTS } from '@/lib/demo-data';
-
-// Always demo mode for now
-const isDemoMode = true;
+import { isDemoMode, DEMO_COUPLE, DEMO_GUESTS } from '@/lib/demo-data';
 
 export default async function GuestsPage() {
   // Demo mode
-  if (isDemoMode) {
+  if (isDemoMode()) {
     return (
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-10">
         <div className="mb-6 sm:mb-8">

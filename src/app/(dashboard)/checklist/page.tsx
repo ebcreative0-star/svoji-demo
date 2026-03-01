@@ -2,14 +2,11 @@ import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { ChecklistView } from '@/components/dashboard/ChecklistView';
 import { generateChecklist, type WeddingSize } from '@/lib/checklist-generator';
-import { DEMO_COUPLE, DEMO_CHECKLIST } from '@/lib/demo-data';
-
-// Always demo mode for now
-const isDemoMode = true;
+import { isDemoMode, DEMO_COUPLE, DEMO_CHECKLIST } from '@/lib/demo-data';
 
 export default async function ChecklistPage() {
   // Demo mode
-  if (isDemoMode) {
+  if (isDemoMode()) {
     const demoItems = DEMO_CHECKLIST.map((item) => ({
       ...item,
       couple_id: DEMO_COUPLE.id,

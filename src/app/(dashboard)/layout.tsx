@@ -1,10 +1,7 @@
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { DashboardNav } from '@/components/dashboard/DashboardNav';
-import { DEMO_COUPLE } from '@/lib/demo-data';
-
-// Always demo mode for now - no production Supabase
-const isDemoMode = true;
+import { isDemoMode, DEMO_COUPLE } from '@/lib/demo-data';
 
 export default async function DashboardLayout({
   children,
@@ -12,7 +9,7 @@ export default async function DashboardLayout({
   children: React.ReactNode;
 }) {
   // Demo mode - skip auth
-  if (isDemoMode) {
+  if (isDemoMode()) {
     return (
       <div className="min-h-screen bg-[var(--color-background)]">
         <DashboardNav

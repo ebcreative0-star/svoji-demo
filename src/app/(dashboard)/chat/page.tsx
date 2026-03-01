@@ -1,14 +1,11 @@
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { ChatInterface } from '@/components/dashboard/ChatInterface';
-import { DEMO_COUPLE, DEMO_CHAT } from '@/lib/demo-data';
-
-// Always demo mode for now
-const isDemoMode = true;
+import { isDemoMode, DEMO_COUPLE, DEMO_CHAT } from '@/lib/demo-data';
 
 export default async function ChatPage() {
   // Demo mode
-  if (isDemoMode) {
+  if (isDemoMode()) {
     const demoMessages = DEMO_CHAT.map((msg) => ({
       ...msg,
       couple_id: DEMO_COUPLE.id,
