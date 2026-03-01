@@ -22,5 +22,25 @@
 **Notes:** Feature-complete prototype. Visuals are prototype quality. All planned v1 features from original implementation plan were built.
 
 ---
-*Last milestone: v0*
-*Last phase number: 0*
+
+## v1.0 — Design Overhaul (Partial)
+
+**Completed:** 2026-02-28 (archived — remaining design work merged into v2.0)
+**Phases:** 1–4 (of planned 7)
+
+**What shipped:**
+- UI Primitives: Typed Button, Card, Input, Badge components with cva+clsx (Phase 2)
+- Animation Layer: Lenis smooth scroll, Framer Motion scroll-triggered reveals, micro-interactions, page transitions, reduced-motion support (Phase 3)
+- Landing Page: Full redesign — Hero, Features, SocialProof, HowItWorks, FinalCTA, LandingNav, LandingFooter (Phase 4)
+
+**Carried forward to v2.0:**
+- Auth pages redesign (AUTH-01, AUTH-02, AUTH-03)
+- Dashboard redesign (DASH-01 through DASH-06)
+- Public wedding web redesign (PWEB-01, PWEB-02, PWEB-03)
+- Design token migration (Phase 1 — 0/2 plans completed)
+
+**Notes:** Design foundation is solid (primitives + animations + landing). Remaining surface redesigns will happen alongside new feature work in v2.0. Key decisions from v1.0 (OKLCH tokens, clsx-only cn(), Card dot notation, ScrollReveal patterns) carry forward.
+
+---
+*Last milestone: v1.0*
+*Last phase number: 4*
