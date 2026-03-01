@@ -107,10 +107,13 @@ Plans:
   2. An authenticated user opening the dashboard sees consistent navigation, section layouts, and component usage matching the new design system across all views (checklist, budget, guests, chat, settings)
   3. A guest visiting a /w/[slug] URL sees a visually premium page with new design tokens, scroll animations, and a polished RSVP form
   4. The footer contains functional links for TOS and GDPR/privacy, social media icons, and a contact placeholder
-**Plans**: TBD
+**Plans**: 4 plans
 
 Plans:
-- [ ] 06-01: TBD
+- [ ] 06-01-PLAN.md -- Auth page entrance animations + SaaS footer + /tos, /privacy, /contact pages
+- [ ] 06-02-PLAN.md -- Dashboard nav polish + mobile bottom tab bar + layout padding
+- [ ] 06-03-PLAN.md -- Dashboard views (checklist, budget, guests, chat, settings) design system primitive substitution
+- [ ] 06-04-PLAN.md -- Public wedding web parallax + section design tokens + Navigation update + visual checkpoint
 
 #### Phase 7: Enhanced Onboarding
 **Goal**: New users complete a 5-step personalization flow that equips the AI with full wedding context and satisfies GDPR requirements
