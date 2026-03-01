@@ -30,9 +30,9 @@ Requirements for v2.0 B2C Product. Each maps to roadmap phases.
 
 ### UI Redesign
 
-- [ ] **UI-01**: Auth pages (login, register) redesigned with new design system primitives
+- [x] **UI-01**: Auth pages (login, register) redesigned with new design system primitives
 - [x] **UI-02**: Dashboard full redesign (navigation, checklist, budget, guests, chat, settings views)
-- [ ] **UI-03**: Public wedding web visual refresh with new design tokens and primitives
+- [x] **UI-03**: Public wedding web visual refresh with new design tokens and primitives
 - [x] **UI-04**: Footer expanded with standard content (TOS link, GDPR/privacy link, social media icons, contact placeholder)
 
 ### AI Pipeline
@@ -127,9 +127,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | SEC-02 | Phase 5 | Complete |
 | AUTH-01 | Phase 5 | Complete |
 | AUTH-02 | Phase 5 | Complete |
-| UI-01 | Phase 6 | Pending |
+| UI-01 | Phase 6 | Complete |
 | UI-02 | Phase 6 | Complete |
-| UI-03 | Phase 6 | Pending |
+| UI-03 | Phase 6 | Complete |
 | UI-04 | Phase 6 | Complete |
 | ONBD-01 | Phase 7 | Pending |
 | ONBD-02 | Phase 7 | Pending |
