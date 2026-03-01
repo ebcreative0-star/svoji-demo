@@ -3,6 +3,11 @@
 import { useState, useEffect } from "react";
 import { Menu, X } from "lucide-react";
 
+interface NavigationProps {
+  partner1?: string;
+  partner2?: string;
+}
+
 const navItems = [
   { href: "#o-nas", label: "O nás" },
   { href: "#program", label: "Program" },
@@ -12,7 +17,7 @@ const navItems = [
   { href: "#rsvp", label: "RSVP" },
 ];
 
-export function Navigation() {
+export function Navigation({ partner1, partner2 }: NavigationProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
 
@@ -25,17 +30,21 @@ export function Navigation() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  const displayName = `${partner1 || "Partner 1"} & ${partner2 || "Partner 2"}`;
+
   return (
     <nav
       className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${
-        isScrolled ? "bg-white/95 backdrop-blur-sm shadow-sm" : "bg-transparent"
+        isScrolled
+          ? "bg-white/95 backdrop-blur-sm border-b border-[var(--color-border)]"
+          : "bg-transparent"
       }`}
     >
       <div className="container">
         <div className="flex items-center justify-between h-16 md:h-20">
-          {/* Logo */}
-          <a href="#" className="text-xl font-medium">
-            A & T
+          {/* Logo with couple names */}
+          <a href="#" className="text-xl font-heading text-[var(--color-text)]">
+            {displayName}
           </a>
 
           {/* Desktop nav */}
@@ -64,7 +73,7 @@ export function Navigation() {
 
       {/* Mobile nav */}
       {isOpen && (
-        <div className="md:hidden bg-white border-t">
+        <div className="md:hidden bg-white border-t border-[var(--color-border)]">
           <div className="container py-4">
             {navItems.map((item) => (
               <a

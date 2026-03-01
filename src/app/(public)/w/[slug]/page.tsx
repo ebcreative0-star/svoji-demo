@@ -138,7 +138,7 @@ export default async function WeddingPage({
         ['--color-secondary' as string]: typedWebsite.secondary_color,
       }}
     >
-      <Navigation />
+      <Navigation partner1={couple.partner1_name} partner2={couple.partner2_name} />
 
       <main>
         <Hero
