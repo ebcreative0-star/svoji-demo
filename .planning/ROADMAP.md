@@ -1,26 +1,14 @@
-# Roadmap: Svoji v1.0 Design Overhaul
+# Roadmap: Svoji
 
-## Overview
+## Milestones
 
-Transform Svoji from prototype-quality visuals to a premium 2026 SaaS aesthetic. The work follows a strict dependency order: design tokens first (shifts the palette everywhere atomically), then typed UI primitives, then the animation layer, then surfaces in priority order (landing, auth, dashboard, public wedding web). Each phase builds on the last — no surface work starts before the foundation is stable.
+- ✅ **v1.0 Design Overhaul** - Phases 1-4 (shipped 2026-02-28, partial -- carried into v2.0)
+- 🚧 **v2.0 B2C Product** - Phases 5-9 (in progress)
 
 ## Phases
 
-**Phase Numbering:**
-- Integer phases (1, 2, 3): Planned milestone work
-- Decimal phases (2.1, 2.2): Urgent insertions (marked with INSERTED)
-
-Decimal phases appear between their surrounding integers in numeric order.
-
-- [ ] **Phase 1: Design System Foundation** - Establish OKLCH color tokens, typography swap, and spacing scale that propagate to all 196+ CSS variable references
-- [x] **Phase 2: UI Primitives** - Build typed Button, Card, Input, and Badge components that all surface redesigns depend on (completed 2026-02-28)
-- [x] **Phase 3: Animation Layer** - Wire Lenis smooth scroll, Framer Motion scroll-triggered reveals, micro-interactions, page transitions, and reduced-motion support (completed 2026-02-28)
-- [x] **Phase 4: Landing Page** - Redesign all landing page sections with new tokens, primitives, and scroll animations (completed 2026-02-28)
-- [ ] **Phase 5: Auth Pages** - Restyle login, register, and onboarding with polished form interactions and branded aesthetic
-- [ ] **Phase 6: Dashboard** - Restyle all dashboard views with skeleton screens, empty states, and performance-gated micro-interactions
-- [ ] **Phase 7: Public Wedding Web** - Redesign guest-facing wedding pages and RSVP form to editorial premium quality
-
-## Phase Details
+<details>
+<summary>✅ v1.0 Design Overhaul (Phases 1-4) - SHIPPED 2026-02-28 (partial)</summary>
 
 ### Phase 1: Design System Foundation
 **Goal**: The new warm-premium palette and typography are live across the entire app from a single atomic commit
@@ -42,26 +30,26 @@ Plans:
 **Depends on**: Phase 1
 **Requirements**: PRIM-01, PRIM-02, PRIM-03, PRIM-04
 **Success Criteria** (what must be TRUE):
-  1. A button rendered on any page uses the Button component with explicit variant/size props — no .btn-primary or .btn-outline class strings remain
+  1. A button rendered on any page uses the Button component with explicit variant/size props -- no .btn-primary or .btn-outline class strings remain
   2. Card components display with consistent padding, border-radius, and shadow matching design spec
   3. Input fields show branded focus rings and inline error states using the Input component
-  4. Badge components render status indicators (RSVP states, checklist priorities, budget categories) consistently across all views
+  4. Badge components render status indicators consistently across all views
 **Plans**: 2 plans
 
 Plans:
-- [ ] 02-01-PLAN.md -- Install cva+clsx, create cn() utility, build Button/Card/Input/Textarea/Select/Badge/FormX components + barrel export
-- [ ] 02-02-PLAN.md -- Migrate all btn-primary/btn-outline usages, dashboard buttons/cards/badges, RSVP inputs to new primitives + remove legacy CSS
+- [x] 02-01-PLAN.md -- Install cva+clsx, create cn() utility, build Button/Card/Input/Textarea/Select/Badge/FormX components + barrel export
+- [x] 02-02-PLAN.md -- Migrate all btn-primary/btn-outline usages, dashboard buttons/cards/badges, RSVP inputs to new primitives + remove legacy CSS
 
 ### Phase 3: Animation Layer
 **Goal**: Smooth scroll physics, scroll-triggered reveals, micro-interactions, and page transitions are wired and accessible
 **Depends on**: Phase 2
 **Requirements**: ANIM-01, ANIM-02, ANIM-03, ANIM-04, ANIM-05
 **Success Criteria** (what must be TRUE):
-  1. Scrolling any page feels physically smooth via Lenis — no abrupt jumps on desktop or mobile
-  2. Major content sections (landing page, public web) fade and slide into view as the user scrolls to them
+  1. Scrolling any page feels physically smooth via Lenis -- no abrupt jumps on desktop or mobile
+  2. Major content sections fade and slide into view as the user scrolls to them
   3. Hovering a button lifts it; hovering a card deepens its shadow; focusing an input glows with accent color
   4. Navigating between routes shows a clean opacity transition rather than an abrupt swap
-  5. A user with prefers-reduced-motion enabled sees no motion — all animations are suppressed
+  5. A user with prefers-reduced-motion enabled sees no motion -- all animations are suppressed
 **Plans**: 4 plans
 
 Plans:
@@ -83,62 +71,98 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 04-01-PLAN.md -- Export buttonVariants, create LandingNav + Hero (animated chat + grain texture) + LandingFooter, refactor page.tsx to component composition
-- [ ] 04-02-PLAN.md -- Create Features + SocialProof + HowItWorks + FinalCTA sections, finalize page.tsx with all 7 components
-- [ ] 04-03-PLAN.md -- Visual QA checkpoint: verify landing page on desktop and mobile
+- [x] 04-01-PLAN.md -- Export buttonVariants, create LandingNav + Hero + LandingFooter, refactor page.tsx to component composition
+- [x] 04-02-PLAN.md -- Create Features + SocialProof + HowItWorks + FinalCTA sections, finalize page.tsx with all 7 components
+- [x] 04-03-PLAN.md -- Visual QA checkpoint: verify landing page on desktop and mobile
 
-### Phase 5: Auth Pages
-**Goal**: Login, register, and onboarding feel like premium product surfaces, not prototype forms
+</details>
+
+---
+
+### 🚧 v2.0 B2C Product (In Progress)
+
+**Milestone Goal:** Transform Svoji from a prototype into a production-ready freemium product. Real authentication, polished surfaces, enhanced onboarding, AI pipeline improvements, and the data collection foundation that powers the vendor marketplace flywheel.
+
+#### Phase 5: Auth Foundation
+**Goal**: Real authentication is active in production and users can sign in with Google
 **Depends on**: Phase 4
-**Requirements**: AUTH-01, AUTH-02, AUTH-03
+**Requirements**: SEC-01, SEC-02, AUTH-01, AUTH-02
 **Success Criteria** (what must be TRUE):
-  1. A user can log in through a branded page that matches the new aesthetic — correct typography, colors, and Input/Button primitives
-  2. The register page is visually consistent with login — same layout approach, same component usage
-  3. The 3-step onboarding flow shows a clear progress indicator and smooth transitions between steps, with polished input interactions at each step
+  1. An unauthenticated GET to /dashboard returns a 302 redirect to /login -- DEMO_MODE bypass is gone
+  2. A user can click "Sign in with Google" and land in their dashboard within 2 clicks, with no account duplication
+  3. A user who previously registered with email can then sign in with Google using the same email without getting a second account
+  4. An audit confirms zero unverified email accounts exist before Google OAuth is enabled in production
 **Plans**: TBD
 
 Plans:
 - [ ] 05-01: TBD
 
-### Phase 6: Dashboard
-**Goal**: Authenticated users experience a premium daily-use product — all dashboard views are restyled with proper loading states and micro-interactions
+#### Phase 6: UI Redesign
+**Goal**: Auth pages, dashboard, and public wedding web match the premium design system established in v1.0
 **Depends on**: Phase 5
-**Requirements**: DASH-01, DASH-02, DASH-03, DASH-04, DASH-05, DASH-06
+**Requirements**: UI-01, UI-02, UI-03
 **Success Criteria** (what must be TRUE):
-  1. The dashboard navigation is styled with consistent brand tokens and collapses correctly on mobile
-  2. All async dashboard sections (checklist, budget, guest list) show skeleton screens while loading — no blank flash
-  3. Checklist, budget, and guest list views use new primitives throughout — no legacy .btn-primary classes remain in dashboard
-  4. The chat interface matches the new aesthetic — correct font, colors, and spacing
-  5. Micro-interactions (task completion check, item add/remove) animate smoothly without jank on a mid-range Android with 50+ items
+  1. A user visiting /login or /register sees a branded page with correct typography, OKLCH palette, and Input/Button primitives -- no prototype-era styles remain
+  2. An authenticated user opening the dashboard sees consistent navigation, section layouts, and component usage matching the new design system across all views (checklist, budget, guests, chat, settings)
+  3. A guest visiting a /w/[slug] URL sees a visually premium page with new design tokens, scroll animations, and a polished RSVP form
 **Plans**: TBD
 
 Plans:
 - [ ] 06-01: TBD
 
-### Phase 7: Public Wedding Web
-**Goal**: The guest-facing wedding page is editorial-quality — guests see a premium brand surface that reflects well on the couple
+#### Phase 7: Enhanced Onboarding
+**Goal**: New users complete a 5-step personalization flow that equips the AI with full wedding context and satisfies GDPR requirements
 **Depends on**: Phase 6
-**Requirements**: PWEB-01, PWEB-02, PWEB-03
+**Requirements**: ONBD-01, ONBD-02, ONBD-03, ONBD-04, ONBD-05, ONBD-06, ONBD-07, SEC-03
 **Success Criteria** (what must be TRUE):
-  1. Visiting a /w/[slug] URL shows a visually premium page with new palette, typography, and scroll animations matching the overall brand
-  2. The RSVP form uses new Input and Button primitives and submits without visual glitches
-  3. Gallery, timeline, and locations sections display with updated visual treatment consistent with the new design system
+  1. A new user completes 5 onboarding steps -- names+date, guest count, location+radius, wedding style, budget -- with satin fade transitions between each step
+  2. The "Ještě nevíme" date option and skippable budget step work correctly without blocking onboarding completion
+  3. After completing onboarding, the AI chat greets the user with a personalized message that references their names, wedding date, guest count, location, and style
+  4. A user is shown a GDPR consent notice and must accept it before any personal data collection begins
 **Plans**: TBD
 
 Plans:
 - [ ] 07-01: TBD
 
+#### Phase 8: AI Pipeline
+**Goal**: AI chat routes through Kilo gateway, classifies user intent asynchronously, and enforces rate limits without blocking responses
+**Depends on**: Phase 7
+**Requirements**: AI-01, AI-02, AI-03
+**Success Criteria** (what must be TRUE):
+  1. All chat messages route through the Kilo gateway API -- zero direct Claude API calls remain in the codebase
+  2. Sending a chat message triggers intent classification in the background -- the user receives their response at normal speed with no added latency
+  3. A user who has sent 12 messages today sees a warning; at 15 messages they see a hard stop with clear messaging -- the limit resets at midnight
+**Plans**: TBD
+
+Plans:
+- [ ] 08-01: TBD
+
+#### Phase 9: Data Collection
+**Goal**: Demand signals, engagement events, and UTM attribution are captured from the first real user session
+**Depends on**: Phase 8
+**Requirements**: DATA-01, DATA-02, DATA-03
+**Success Criteria** (what must be TRUE):
+  1. Every AI conversation that mentions a vendor category, region, or budget produces a structured demand signal record with category, region, budget, and urgency fields populated
+  2. Key user actions (message sent, checklist item completed, onboarding step completed, upgrade CTA clicked) produce engagement event records queryable in the database
+  3. A user arriving via a UTM link has their source, medium, and campaign stored and associable with their account
+**Plans**: TBD
+
+Plans:
+- [ ] 09-01: TBD
+
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
+Phases execute in numeric order: 5 → 6 → 7 → 8 → 9
 
-| Phase | Plans Complete | Status | Completed |
-|-------|----------------|--------|-----------|
-| 1. Design System Foundation | 0/2 | Planned | - |
-| 2. UI Primitives | 2/2 | Complete   | 2026-02-28 |
-| 3. Animation Layer | 4/4 | Complete   | 2026-02-28 |
-| 4. Landing Page | 3/3 | Complete   | 2026-02-28 |
-| 5. Auth Pages | 0/? | Not started | - |
-| 6. Dashboard | 0/? | Not started | - |
-| 7. Public Wedding Web | 0/? | Not started | - |
+| Phase | Milestone | Plans Complete | Status | Completed |
+|-------|-----------|----------------|--------|-----------|
+| 1. Design System Foundation | v1.0 | 0/2 | Planned | - |
+| 2. UI Primitives | v1.0 | 2/2 | Complete | 2026-02-28 |
+| 3. Animation Layer | v1.0 | 4/4 | Complete | 2026-02-28 |
+| 4. Landing Page | v1.0 | 3/3 | Complete | 2026-02-28 |
+| 5. Auth Foundation | v2.0 | 0/? | Not started | - |
+| 6. UI Redesign | v2.0 | 0/? | Not started | - |
+| 7. Enhanced Onboarding | v2.0 | 0/? | Not started | - |
+| 8. AI Pipeline | v2.0 | 0/? | Not started | - |
+| 9. Data Collection | v2.0 | 0/? | Not started | - |
