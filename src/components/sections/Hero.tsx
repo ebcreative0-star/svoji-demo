@@ -80,7 +80,7 @@ export function Hero({ partner1, partner2, date, headline, subheadline }: HeroPr
           <defs>
             <path id="h" d="M0-3.5C-0.5-5.5-3-5.5-3-3C-3-0.5 0 1.5 0 3.5C0 1.5 3-0.5 3-3C3-5.5 0.5-5.5 0-3.5Z" />
           </defs>
-          <g className="text-[var(--color-primary)]" fill="none" stroke="currentColor">
+          <g fill="none" stroke="var(--color-primary)">
             <use href="#h" x="95" y="70" strokeWidth="0.8" opacity="0.1" transform="rotate(12 95 70) scale(2.2)" />
             <use href="#h" x="310" y="45" strokeWidth="0.6" opacity="0.08" transform="rotate(-8 310 45) scale(1.4)" />
             <use href="#h" x="520" y="90" strokeWidth="0.9" opacity="0.12" transform="rotate(22 520 90) scale(2.8)" />
