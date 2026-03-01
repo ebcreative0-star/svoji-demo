@@ -15,6 +15,7 @@ export default async function DashboardLayout({
         <DashboardNav
           partner1={DEMO_COUPLE.partner1_name}
           partner2={DEMO_COUPLE.partner2_name}
+          slug="demo"
         />
         <main className="pt-16 pb-20 md:pb-0">{children}</main>
       </div>
@@ -42,11 +43,18 @@ export default async function DashboardLayout({
     redirect('/onboarding');
   }
 
+  const { data: website } = await supabase
+    .from('wedding_websites')
+    .select('slug')
+    .eq('couple_id', user.id)
+    .single();
+
   return (
     <div className="min-h-screen bg-[var(--color-background)]">
       <DashboardNav
         partner1={couple.partner1_name}
         partner2={couple.partner2_name}
+        slug={website?.slug}
       />
       <main className="pt-16 pb-20 md:pb-0">{children}</main>
     </div>
