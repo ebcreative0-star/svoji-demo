@@ -79,7 +79,7 @@ export function HowItWorks() {
         {/* CTA */}
         <ScrollReveal className="text-center">
           <Link
-            href="/register"
+            href="/onboarding"
             className={buttonVariants({ variant: 'primary', size: 'lg' })}
           >
             Zkusit zdarma
