@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Check } from "lucide-react";
-import { Button, Input, Textarea, Select } from "@/components/ui";
+import { Button, Card, Input, Textarea, Select } from "@/components/ui";
 
 const rsvpSchema = z.object({
   name: z.string().min(2, "Zadejte prosím vaše jméno"),
@@ -94,15 +94,17 @@ export function RSVP({ deadline, contactEmail, websiteId }: RSVPProps) {
     <section id="rsvp" className="section-padding bg-white">
       <div className="container">
         <div className="text-center mb-12">
-          <h2 className="text-4xl md:text-5xl mb-4">Potvrďte účast</h2>
+          <h2 className="text-4xl md:text-5xl mb-4 font-heading text-[var(--color-text)]">Potvrďte účast</h2>
           <p className="text-[var(--color-text-light)] max-w-xl mx-auto">
             Dejte nám prosím vědět do {formattedDeadline}, zda se zúčastníte
           </p>
         </div>
 
+        <Card className="max-w-lg mx-auto">
+        <Card.Body>
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="max-w-lg mx-auto space-y-6"
+          className="space-y-6"
         >
           {/* Jméno */}
           <Input
@@ -135,7 +137,7 @@ export function RSVP({ deadline, contactEmail, websiteId }: RSVPProps) {
                   type="radio"
                   value="yes"
                   {...register("attending")}
-                  className="w-4 h-4 text-[var(--color-primary)]"
+                  className="w-4 h-4 accent-[var(--color-primary)]"
                 />
                 <span>Ano, přijdu</span>
               </label>
@@ -144,7 +146,7 @@ export function RSVP({ deadline, contactEmail, websiteId }: RSVPProps) {
                   type="radio"
                   value="no"
                   {...register("attending")}
-                  className="w-4 h-4 text-[var(--color-primary)]"
+                  className="w-4 h-4 accent-[var(--color-primary)]"
                 />
                 <span>Bohužel ne</span>
               </label>
@@ -209,6 +211,8 @@ export function RSVP({ deadline, contactEmail, websiteId }: RSVPProps) {
             </p>
           )}
         </form>
+        </Card.Body>
+        </Card>
       </div>
     </section>
   );

@@ -26,7 +26,7 @@ export function Locations({ locations }: LocationsProps) {
     <section id="mista" className="section-padding bg-[var(--color-secondary)]">
       <div className="container">
         <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl mb-4">Kde nás najdete</h2>
+          <h2 className="text-4xl md:text-5xl mb-4 font-heading text-[var(--color-text)]">Kde nás najdete</h2>
           <p className="text-[var(--color-text-light)] max-w-xl mx-auto">
             Všechny důležité lokace pro váš pohodlný příjezd
           </p>

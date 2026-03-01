@@ -1,7 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { motion, useScroll, useTransform, useReducedMotion } from "framer-motion";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
+import { ScrollReveal } from "@/components/animation/ScrollReveal";
 
 interface GalleryImage {
   url: string;
@@ -14,6 +16,24 @@ interface GalleryProps {
 
 export function Gallery({ images }: GalleryProps) {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
+  const ref = useRef<HTMLElement>(null);
+  const prefersReducedMotion = useReducedMotion();
+
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ["start end", "end start"],
+  });
+
+  const backgroundY = useTransform(scrollYProgress, [0, 1], ["0%", "20%"]);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 768px)");
+    setIsMobile(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, []);
 
   const openLightbox = (index: number) => setSelectedIndex(index);
   const closeLightbox = () => setSelectedIndex(null);
@@ -28,41 +48,49 @@ export function Gallery({ images }: GalleryProps) {
     setSelectedIndex(selectedIndex === images.length - 1 ? 0 : selectedIndex + 1);
   };
 
-  // Handle keyboard navigation
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Escape") closeLightbox();
     if (e.key === "ArrowLeft") goToPrevious();
     if (e.key === "ArrowRight") goToNext();
   };
 
+  const disableParallax = isMobile || prefersReducedMotion;
+
   return (
-    <section id="galerie" className="section-padding bg-white">
-      <div className="container">
+    <section ref={ref} id="galerie" className="section-padding bg-white relative overflow-hidden">
+      {/* Parallax background layer */}
+      <motion.div
+        className="absolute inset-0 bg-white"
+        style={{ y: disableParallax ? 0 : backgroundY }}
+      />
+
+      <div className="container relative z-10">
         <div className="text-center mb-12">
-          <h2 className="text-4xl md:text-5xl mb-4">Naše fotky</h2>
+          <h2 className="text-4xl md:text-5xl mb-4 font-heading text-[var(--color-text)]">Naše fotky</h2>
           <p className="text-[var(--color-text-light)] max-w-xl mx-auto">
             Momenty, které jsme spolu prožili
           </p>
         </div>
 
-        {/* Grid */}
+        {/* Grid with staggered entrance */}
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4 max-w-5xl mx-auto">
           {images.map((image, index) => (
-            <button
-              key={image.url}
-              onClick={() => openLightbox(index)}
-              className="aspect-square bg-[var(--color-secondary)] rounded-lg overflow-hidden group relative cursor-pointer"
-            >
-              {/* Placeholder - v produkci bude Image component */}
-              <div className="absolute inset-0 flex items-center justify-center text-[var(--color-text-light)]">
-                <span className="text-sm">Foto {index + 1}</span>
-              </div>
+            <ScrollReveal key={image.url} delay={index * 0.1}>
+              <button
+                onClick={() => openLightbox(index)}
+                className="aspect-square bg-[var(--color-secondary)] rounded-lg overflow-hidden group relative cursor-pointer"
+              >
+                {/* Placeholder */}
+                <div className="absolute inset-0 flex items-center justify-center text-[var(--color-text-light)] group-hover:scale-105 transition-transform duration-500">
+                  <span className="text-sm">Foto {index + 1}</span>
+                </div>
 
-              {/* Hover overlay */}
-              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
-                <p className="text-white text-sm">{image.caption}</p>
-              </div>
-            </button>
+                {/* Hover overlay */}
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
+                  <p className="text-white text-sm">{image.caption}</p>
+                </div>
+              </button>
+            </ScrollReveal>
           ))}
         </div>
 
@@ -74,7 +102,6 @@ export function Gallery({ images }: GalleryProps) {
             onKeyDown={handleKeyDown}
             tabIndex={0}
           >
-            {/* Close button */}
             <button
               onClick={closeLightbox}
               className="absolute top-4 right-4 text-white p-2 hover:bg-white/10 rounded-full transition-colors"
@@ -83,7 +110,6 @@ export function Gallery({ images }: GalleryProps) {
               <X className="w-8 h-8" />
             </button>
 
-            {/* Previous button */}
             <button
               onClick={(e) => {
                 e.stopPropagation();
@@ -95,7 +121,6 @@ export function Gallery({ images }: GalleryProps) {
               <ChevronLeft className="w-8 h-8" />
             </button>
 
-            {/* Image */}
             <div
               className="max-w-4xl max-h-[80vh] flex flex-col items-center"
               onClick={(e) => e.stopPropagation()}
@@ -113,7 +138,6 @@ export function Gallery({ images }: GalleryProps) {
               </p>
             </div>
 
-            {/* Next button */}
             <button
               onClick={(e) => {
                 e.stopPropagation();

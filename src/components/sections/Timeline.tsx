@@ -27,7 +27,7 @@ export function Timeline({ items }: TimelineProps) {
     <section id="program" className="section-padding bg-white">
       <div className="container">
         <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl mb-4">Program dne</h2>
+          <h2 className="text-4xl md:text-5xl mb-4 font-heading text-[var(--color-text)]">Program dne</h2>
           <p className="text-[var(--color-text-light)] max-w-xl mx-auto">
             Těšíme se na společně strávený den plný radosti a oslav
           </p>

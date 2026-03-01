@@ -28,7 +28,7 @@ export function Contacts({ contacts, dressCode }: ContactsProps) {
             <div className="text-center md:text-left">
               <div className="flex items-center justify-center md:justify-start gap-3 mb-4">
                 <Shirt className="w-6 h-6 text-[var(--color-primary)]" />
-                <h2 className="text-2xl">{dressCode.title}</h2>
+                <h2 className="text-2xl font-heading text-[var(--color-text)]">{dressCode.title}</h2>
               </div>
               <p className="text-[var(--color-text-light)]">
                 {dressCode.description}
@@ -38,7 +38,7 @@ export function Contacts({ contacts, dressCode }: ContactsProps) {
 
           {/* Contacts */}
           <div className="text-center md:text-left">
-            <h2 className="text-2xl mb-6">Kontakty</h2>
+            <h2 className="text-2xl mb-6 font-heading text-[var(--color-text)]">Kontakty</h2>
             <div className="space-y-4">
               {contacts.map((contact) => (
                 <div key={contact.name} className="flex items-center gap-4">

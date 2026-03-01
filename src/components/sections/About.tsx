@@ -13,7 +13,7 @@ export function About({ title, story }: AboutProps) {
       <div className="container">
         <div className="max-w-3xl mx-auto">
           <div className="text-center mb-12">
-            <h2 className="text-4xl md:text-5xl mb-4">{title}</h2>
+            <h2 className="text-4xl md:text-5xl mb-4 font-heading text-[var(--color-text)]">{title}</h2>
           </div>
 
           <div className="grid md:grid-cols-2 gap-8 items-center mb-12">
