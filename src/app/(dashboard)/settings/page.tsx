@@ -3,8 +3,10 @@
 import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
+import { motion } from 'framer-motion';
 import { Loader2, Save, Trash2, Globe, ExternalLink, Copy, Check } from 'lucide-react';
 import Link from 'next/link';
+import { Button, Card, Input, Select, Textarea } from '@/components/ui';
 
 interface Website {
   id: string;
@@ -53,7 +55,6 @@ export default function SettingsPage() {
       return;
     }
 
-    // Load couple data
     const { data: coupleData } = await supabase
       .from('couples')
       .select('*')
@@ -70,7 +71,6 @@ export default function SettingsPage() {
       });
     }
 
-    // Load website data
     const { data: websiteData } = await supabase
       .from('wedding_websites')
       .select('*')
@@ -115,7 +115,6 @@ export default function SettingsPage() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
-    // Generate slug from names
     const slug = `${couple.partner1_name.toLowerCase()}-${couple.partner2_name.toLowerCase()}`
       .normalize('NFD')
       .replace(/[\u0300-\u036f]/g, '')
@@ -136,7 +135,6 @@ export default function SettingsPage() {
 
     if (error) {
       if (error.code === '23505') {
-        // Duplicate slug - add random suffix
         const newSlug = `${slug}-${Math.random().toString(36).substring(2, 6)}`;
         const { data: retryData } = await supabase
           .from('wedding_websites')
@@ -202,7 +200,6 @@ export default function SettingsPage() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
-    // Smazat data
     await supabase.from('wedding_websites').delete().eq('couple_id', user.id);
     await supabase.from('checklist_items').delete().eq('couple_id', user.id);
     await supabase.from('budget_items').delete().eq('couple_id', user.id);
@@ -210,7 +207,6 @@ export default function SettingsPage() {
     await supabase.from('chat_messages').delete().eq('couple_id', user.id);
     await supabase.from('couples').delete().eq('id', user.id);
 
-    // Odhlásit
     await supabase.auth.signOut();
     router.push('/');
   };
@@ -224,293 +220,273 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-8">
-      <h1 className="text-3xl font-serif mb-8">Nastavení</h1>
+    <motion.div
+      className="max-w-2xl mx-auto px-4 py-8"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.2 }}
+    >
+      <h1 className="text-3xl font-heading text-[var(--color-text)] mb-8">Nastavení</h1>
 
       {/* Wedding info */}
-      <div className="bg-white rounded-lg shadow-sm p-6 space-y-6 mb-8">
-        <h2 className="text-lg font-medium">Údaje o svatbě</h2>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium mb-2">Partner 1</label>
-            <input
+      <Card className="mb-8">
+        <Card.Header>
+          <h2 className="text-lg font-medium">Údaje o svatbě</h2>
+        </Card.Header>
+        <Card.Body className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Input
+              label="Partner 1"
               type="text"
               value={couple.partner1_name}
               onChange={(e) => setCouple({ ...couple, partner1_name: e.target.value })}
-              className="w-full px-4 py-2 border rounded-lg"
             />
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-2">Partner 2</label>
-            <input
+            <Input
+              label="Partner 2"
               type="text"
               value={couple.partner2_name}
               onChange={(e) => setCouple({ ...couple, partner2_name: e.target.value })}
-              className="w-full px-4 py-2 border rounded-lg"
             />
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-2">Datum svatby</label>
-            <input
+            <Input
+              label="Datum svatby"
               type="date"
               value={couple.wedding_date}
               onChange={(e) => setCouple({ ...couple, wedding_date: e.target.value })}
-              className="w-full px-4 py-2 border rounded-lg"
             />
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-2">Velikost svatby</label>
-            <select
+            <Select
+              label="Velikost svatby"
               value={couple.wedding_size}
               onChange={(e) => setCouple({ ...couple, wedding_size: e.target.value })}
-              className="w-full px-4 py-2 border rounded-lg"
             >
-              <option value="small">Komorní (do 30 hostů)</option>
-              <option value="medium">Střední (30-80 hostů)</option>
-              <option value="large">Velká (80+ hostů)</option>
-            </select>
+              <option value="small">Komorní (do 30 hostu)</option>
+              <option value="medium">Střední (30-80 hostu)</option>
+              <option value="large">Velká (80+ hostu)</option>
+            </Select>
+            <div className="md:col-span-2">
+              <Input
+                label="Rozpočet (Kč)"
+                type="number"
+                value={couple.budget_total}
+                onChange={(e) => setCouple({ ...couple, budget_total: e.target.value })}
+                placeholder="150000"
+              />
+            </div>
           </div>
-          <div className="md:col-span-2">
-            <label className="block text-sm font-medium mb-2">Rozpočet (Kč)</label>
-            <input
-              type="number"
-              value={couple.budget_total}
-              onChange={(e) => setCouple({ ...couple, budget_total: e.target.value })}
-              className="w-full px-4 py-2 border rounded-lg"
-              placeholder="150000"
-            />
-          </div>
-        </div>
 
-        <div className="flex items-center gap-4">
-          <button
-            onClick={saveSettings}
-            disabled={saving}
-            className="flex items-center gap-2 px-4 py-2 bg-[var(--color-primary)] text-white rounded-lg hover:bg-[var(--color-primary-light)] transition-colors disabled:opacity-50"
-          >
-            {saving ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : (
-              <Save className="w-4 h-4" />
+          <div className="flex items-center gap-4">
+            <Button
+              variant="primary"
+              onClick={saveSettings}
+              isLoading={saving}
+              leadingIcon={!saving ? <Save className="w-4 h-4" /> : undefined}
+            >
+              Uložit změny
+            </Button>
+            {message && (
+              <span className={message === 'Uloženo' ? 'text-green-600' : 'text-red-600'}>
+                {message}
+              </span>
             )}
-            Uložit změny
-          </button>
-          {message && (
-            <span className={message === 'Uloženo' ? 'text-green-600' : 'text-red-600'}>
-              {message}
-            </span>
-          )}
-        </div>
-      </div>
+          </div>
+        </Card.Body>
+      </Card>
 
       {/* Wedding website */}
-      <div className="bg-white rounded-lg shadow-sm p-6 space-y-6 mb-8">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Globe className="w-5 h-5 text-[var(--color-primary)]" />
-            <h2 className="text-lg font-medium">Svatební web pro hosty</h2>
+      <Card className="mb-8">
+        <Card.Header>
+          <div className="flex items-center justify-between w-full">
+            <div className="flex items-center gap-2">
+              <Globe className="w-5 h-5 text-[var(--color-primary)]" />
+              <h2 className="text-lg font-medium">Svatební web pro hosty</h2>
+            </div>
+            {website && (
+              <Link
+                href={`/w/${website.slug}`}
+                target="_blank"
+                className="flex items-center gap-1 text-sm text-[var(--color-primary)] hover:underline"
+              >
+                Náhled <ExternalLink className="w-3 h-3" />
+              </Link>
+            )}
           </div>
-          {website && (
-            <Link
-              href={`/w/${website.slug}`}
-              target="_blank"
-              className="flex items-center gap-1 text-sm text-[var(--color-primary)] hover:underline"
-            >
-              Náhled <ExternalLink className="w-3 h-3" />
-            </Link>
-          )}
-        </div>
-
-        {!website ? (
-          <div className="text-center py-8">
-            <p className="text-[var(--color-text-light)] mb-4">
-              Vytvořte si krásný svatební web, který můžete sdílet s hosty.
-            </p>
-            <button
-              onClick={createWebsite}
-              className="px-4 py-2 bg-[var(--color-primary)] text-white rounded-lg hover:bg-[var(--color-primary-light)] transition-colors"
-            >
-              Vytvořit svatební web
-            </button>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {/* URL */}
-            <div>
-              <label className="block text-sm font-medium mb-2">Adresa webu</label>
-              <div className="flex gap-2">
-                <div className="flex-1 flex items-center bg-gray-50 border rounded-lg px-3">
-                  <span className="text-[var(--color-text-light)] text-sm">
-                    {typeof window !== 'undefined' ? window.location.origin : ''}/w/
-                  </span>
-                  <input
-                    type="text"
-                    value={website.slug}
-                    onChange={(e) =>
-                      setWebsite({
-                        ...website,
-                        slug: e.target.value
-                          .toLowerCase()
-                          .replace(/[^a-z0-9-]/g, '-')
-                          .substring(0, 50),
-                      })
+        </Card.Header>
+        <Card.Body>
+          {!website ? (
+            <div className="text-center py-8">
+              <p className="text-[var(--color-text-light)] mb-4">
+                Vytvořte si krásný svatební web, který můžete sdílet s hosty.
+              </p>
+              <Button variant="primary" onClick={createWebsite}>
+                Vytvořit svatební web
+              </Button>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {/* URL */}
+              <div>
+                <label className="block text-sm font-medium text-[var(--color-text)] mb-1">
+                  Adresa webu
+                </label>
+                <div className="flex gap-2">
+                  <div className="flex-1 flex items-center bg-[var(--color-secondary)] border border-[var(--color-border)] rounded-lg px-3">
+                    <span className="text-[var(--color-text-light)] text-sm">
+                      {typeof window !== 'undefined' ? window.location.origin : ''}/w/
+                    </span>
+                    <input
+                      type="text"
+                      value={website.slug}
+                      onChange={(e) =>
+                        setWebsite({
+                          ...website,
+                          slug: e.target.value
+                            .toLowerCase()
+                            .replace(/[^a-z0-9-]/g, '-')
+                            .substring(0, 50),
+                        })
+                      }
+                      className="flex-1 bg-transparent py-2 outline-none text-sm"
+                    />
+                  </div>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={copyLink}
+                    aria-label="Kopírovat odkaz"
+                    leadingIcon={
+                      copied ? (
+                        <Check className="w-4 h-4 text-green-600" />
+                      ) : (
+                        <Copy className="w-4 h-4" />
+                      )
                     }
-                    className="flex-1 bg-transparent py-2 outline-none text-sm"
                   />
                 </div>
-                <button
-                  onClick={copyLink}
-                  className="px-3 py-2 border rounded-lg hover:bg-gray-50 transition-colors"
-                  title="Kopírovat odkaz"
-                >
-                  {copied ? (
-                    <Check className="w-4 h-4 text-green-600" />
-                  ) : (
-                    <Copy className="w-4 h-4" />
-                  )}
-                </button>
               </div>
-            </div>
 
-            {/* Headline */}
-            <div>
-              <label className="block text-sm font-medium mb-2">Hlavní nadpis</label>
-              <input
+              <Input
+                label="Hlavní nadpis"
                 type="text"
                 value={website.headline}
                 onChange={(e) => setWebsite({ ...website, headline: e.target.value })}
-                className="w-full px-4 py-2 border rounded-lg"
                 placeholder="Bereme se!"
               />
-            </div>
 
-            <div>
-              <label className="block text-sm font-medium mb-2">Podnadpis</label>
-              <input
+              <Input
+                label="Podnadpis"
                 type="text"
                 value={website.subheadline}
                 onChange={(e) => setWebsite({ ...website, subheadline: e.target.value })}
-                className="w-full px-4 py-2 border rounded-lg"
                 placeholder="A rádi bychom to oslavili s vámi"
               />
-            </div>
 
-            {/* Story */}
-            <div>
-              <label className="block text-sm font-medium mb-2">Váš příběh</label>
-              <textarea
+              <Textarea
+                label="Váš příběh"
                 value={website.story || ''}
                 onChange={(e) => setWebsite({ ...website, story: e.target.value })}
-                className="w-full px-4 py-2 border rounded-lg resize-none"
                 rows={4}
                 placeholder="Jak jste se poznali? Váš příběh lásky..."
               />
-            </div>
 
-            {/* Dress code */}
-            <div>
-              <label className="block text-sm font-medium mb-2">Dress code</label>
-              <input
+              <Input
+                label="Dress code"
                 type="text"
                 value={website.dress_code_description || ''}
                 onChange={(e) =>
                   setWebsite({ ...website, dress_code_description: e.target.value })
                 }
-                className="w-full px-4 py-2 border rounded-lg"
                 placeholder="Elegantní / Semi-formal"
               />
-            </div>
 
-            {/* Sections toggle */}
-            <div>
-              <label className="block text-sm font-medium mb-3">Zobrazit sekce</label>
-              <div className="grid grid-cols-2 gap-2">
-                {[
-                  { key: 'show_timeline', label: 'Program' },
-                  { key: 'show_locations', label: 'Místa' },
-                  { key: 'show_gallery', label: 'Galerie' },
-                  { key: 'show_rsvp', label: 'RSVP' },
-                  { key: 'show_contacts', label: 'Kontakty' },
-                  { key: 'show_dress_code', label: 'Dress code' },
-                ].map((section) => (
-                  <label key={section.key} className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={website[section.key as keyof Website] as boolean}
-                      onChange={(e) =>
-                        setWebsite({ ...website, [section.key]: e.target.checked })
-                      }
-                      className="w-4 h-4 text-[var(--color-primary)]"
-                    />
-                    <span className="text-sm">{section.label}</span>
-                  </label>
-                ))}
-              </div>
-            </div>
-
-            {/* Published */}
-            <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+              {/* Sections toggle */}
               <div>
-                <p className="font-medium">Publikovat web</p>
-                <p className="text-sm text-[var(--color-text-light)]">
-                  {website.published
-                    ? 'Web je veřejně dostupný'
-                    : 'Web je skrytý'}
-                </p>
+                <label className="block text-sm font-medium text-[var(--color-text)] mb-3">
+                  Zobrazit sekce
+                </label>
+                <div className="grid grid-cols-2 gap-2">
+                  {[
+                    { key: 'show_timeline', label: 'Program' },
+                    { key: 'show_locations', label: 'Místa' },
+                    { key: 'show_gallery', label: 'Galerie' },
+                    { key: 'show_rsvp', label: 'RSVP' },
+                    { key: 'show_contacts', label: 'Kontakty' },
+                    { key: 'show_dress_code', label: 'Dress code' },
+                  ].map((section) => (
+                    <label key={section.key} className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={website[section.key as keyof Website] as boolean}
+                        onChange={(e) =>
+                          setWebsite({ ...website, [section.key]: e.target.checked })
+                        }
+                        className="w-4 h-4 accent-[var(--color-primary)]"
+                      />
+                      <span className="text-sm text-[var(--color-text)]">{section.label}</span>
+                    </label>
+                  ))}
+                </div>
               </div>
-              <label className="relative inline-flex items-center cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={website.published}
-                  onChange={(e) => setWebsite({ ...website, published: e.target.checked })}
-                  className="sr-only peer"
-                />
-                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[var(--color-primary)]"></div>
-              </label>
-            </div>
 
-            <div className="flex items-center gap-4">
-              <button
-                onClick={saveWebsite}
-                disabled={savingWebsite}
-                className="flex items-center gap-2 px-4 py-2 bg-[var(--color-primary)] text-white rounded-lg hover:bg-[var(--color-primary-light)] transition-colors disabled:opacity-50"
-              >
-                {savingWebsite ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : (
-                  <Save className="w-4 h-4" />
+              {/* Published toggle */}
+              <div className="flex items-center justify-between p-4 bg-[var(--color-secondary)] rounded-lg">
+                <div>
+                  <p className="font-medium text-[var(--color-text)]">Publikovat web</p>
+                  <p className="text-sm text-[var(--color-text-light)]">
+                    {website.published ? 'Web je veřejně dostupný' : 'Web je skrytý'}
+                  </p>
+                </div>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={website.published}
+                    onChange={(e) => setWebsite({ ...website, published: e.target.checked })}
+                    className="sr-only peer"
+                  />
+                  <div className="w-11 h-6 bg-[var(--color-border)] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-[var(--color-border)] after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[var(--color-primary)]"></div>
+                </label>
+              </div>
+
+              <div className="flex items-center gap-4">
+                <Button
+                  variant="primary"
+                  onClick={saveWebsite}
+                  isLoading={savingWebsite}
+                  leadingIcon={!savingWebsite ? <Save className="w-4 h-4" /> : undefined}
+                >
+                  Uložit web
+                </Button>
+                {websiteMessage && (
+                  <span className={websiteMessage === 'Uloženo' ? 'text-green-600' : 'text-red-600'}>
+                    {websiteMessage}
+                  </span>
                 )}
-                Uložit web
-              </button>
-              {websiteMessage && (
-                <span className={websiteMessage === 'Uloženo' ? 'text-green-600' : 'text-red-600'}>
-                  {websiteMessage}
-                </span>
-              )}
-            </div>
+              </div>
 
-            <p className="text-sm text-[var(--color-text-light)]">
-              Pro přidání programu, míst a fotek použijte tlačítka v navigaci nebo je přidejte přímo v databázi.
-            </p>
-          </div>
-        )}
-      </div>
+              <p className="text-sm text-[var(--color-text-light)]">
+                Pro přidání programu, míst a fotek použijte tlačítka v navigaci nebo je přidejte přímo v databázi.
+              </p>
+            </div>
+          )}
+        </Card.Body>
+      </Card>
 
       {/* Danger zone */}
-      <div className="bg-white rounded-lg shadow-sm p-6 border-l-4 border-red-500">
-        <h2 className="text-lg font-medium text-red-600 mb-4">Nebezpečná zóna</h2>
-        <p className="text-[var(--color-text-light)] mb-4">
-          Smazáním účtu ztratíte všechna data včetně checklistu, rozpočtu a seznamu hostů.
-        </p>
-        <button
-          onClick={deleteAccount}
-          className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-        >
-          <Trash2 className="w-4 h-4" />
-          Smazat účet
-        </button>
-      </div>
-    </div>
+      <Card className="border-l-4 border-red-500">
+        <Card.Header>
+          <h2 className="text-lg font-medium text-red-600">Nebezpečná zóna</h2>
+        </Card.Header>
+        <Card.Body>
+          <p className="text-[var(--color-text-light)] mb-4">
+            Smazáním účtu ztratíte všechna data včetně checklistu, rozpočtu a seznamu hostů.
+          </p>
+          <Button
+            variant="danger"
+            onClick={deleteAccount}
+            leadingIcon={<Trash2 className="w-4 h-4" />}
+          >
+            Smazat účet
+          </Button>
+        </Card.Body>
+      </Card>
+    </motion.div>
   );
 }

@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
+import { motion } from 'framer-motion';
 import { Send, Loader2, Bot, User } from 'lucide-react';
 import { format } from 'date-fns';
 import { cs } from 'date-fns/locale';
@@ -115,7 +116,12 @@ export function ChatInterface({ couple, initialMessages }: ChatInterfaceProps) {
   ];
 
   return (
-    <div className="flex flex-col h-full bg-white rounded-lg shadow-sm overflow-hidden">
+    <motion.div
+      className="flex flex-col h-full bg-white rounded-lg shadow-sm overflow-hidden"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.2 }}
+    >
       {/* Header */}
       <div className="px-6 py-4 border-b bg-[var(--color-secondary)]">
         <div className="flex items-center gap-3">
@@ -195,7 +201,7 @@ export function ChatInterface({ couple, initialMessages }: ChatInterfaceProps) {
           />
         </div>
       </form>
-    </div>
+    </motion.div>
   );
 }
 
