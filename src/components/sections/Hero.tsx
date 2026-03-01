@@ -76,36 +76,34 @@ export function Hero({ partner1, partner2, date, headline, subheadline }: HeroPr
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 1200 900"
           preserveAspectRatio="xMidYMid slice"
+          fill="none"
+          stroke="var(--color-text)"
         >
-          <defs>
-            <path id="h" d="M0-3.5C-0.5-5.5-3-5.5-3-3C-3-0.5 0 1.5 0 3.5C0 1.5 3-0.5 3-3C3-5.5 0.5-5.5 0-3.5Z" />
-          </defs>
-          <g fill="none" stroke="var(--color-primary)">
-            <use href="#h" x="95" y="70" strokeWidth="0.8" opacity="0.1" transform="rotate(12 95 70) scale(2.2)" />
-            <use href="#h" x="310" y="45" strokeWidth="0.6" opacity="0.08" transform="rotate(-8 310 45) scale(1.4)" />
-            <use href="#h" x="520" y="90" strokeWidth="0.9" opacity="0.12" transform="rotate(22 520 90) scale(2.8)" />
-            <use href="#h" x="780" y="55" strokeWidth="0.5" opacity="0.08" transform="rotate(-15 780 55) scale(1.1)" />
-            <use href="#h" x="1020" y="80" strokeWidth="0.7" opacity="0.1" transform="rotate(5 1020 80) scale(1.8)" />
-            <use href="#h" x="160" y="220" strokeWidth="0.5" opacity="0.08" transform="rotate(-20 160 220) scale(1.3)" />
-            <use href="#h" x="440" y="260" strokeWidth="0.8" opacity="0.15" transform="rotate(18 440 260) scale(3.2)" />
-            <use href="#h" x="680" y="200" strokeWidth="0.6" opacity="0.09" transform="rotate(-6 680 200) scale(1.6)" />
-            <use href="#h" x="900" y="240" strokeWidth="0.5" opacity="0.08" transform="rotate(30 900 240) scale(1.0)" />
-            <use href="#h" x="1100" y="210" strokeWidth="0.7" opacity="0.1" transform="rotate(-12 1100 210) scale(2.0)" />
-            <use href="#h" x="70" y="400" strokeWidth="0.9" opacity="0.12" transform="rotate(25 70 400) scale(2.5)" />
-            <use href="#h" x="260" y="440" strokeWidth="0.5" opacity="0.08" transform="rotate(-18 260 440) scale(1.2)" />
-            <use href="#h" x="550" y="410" strokeWidth="0.6" opacity="0.11" transform="rotate(8 550 410) scale(1.9)" />
-            <use href="#h" x="820" y="390" strokeWidth="0.8" opacity="0.09" transform="rotate(-25 820 390) scale(2.6)" />
-            <use href="#h" x="1050" y="430" strokeWidth="0.5" opacity="0.08" transform="rotate(15 1050 430) scale(1.4)" />
-            <use href="#h" x="130" y="580" strokeWidth="0.6" opacity="0.09" transform="rotate(-10 130 580) scale(1.5)" />
-            <use href="#h" x="380" y="620" strokeWidth="0.7" opacity="0.1" transform="rotate(20 380 620) scale(2.3)" />
-            <use href="#h" x="620" y="560" strokeWidth="0.5" opacity="0.08" transform="rotate(-22 620 560) scale(1.1)" />
-            <use href="#h" x="860" y="610" strokeWidth="0.9" opacity="0.13" transform="rotate(10 860 610) scale(3.0)" />
-            <use href="#h" x="1080" y="580" strokeWidth="0.6" opacity="0.09" transform="rotate(-5 1080 580) scale(1.7)" />
-            <use href="#h" x="200" y="760" strokeWidth="0.7" opacity="0.1" transform="rotate(28 200 760) scale(2.1)" />
-            <use href="#h" x="490" y="800" strokeWidth="0.5" opacity="0.08" transform="rotate(-14 490 800) scale(1.3)" />
-            <use href="#h" x="740" y="770" strokeWidth="0.6" opacity="0.1" transform="rotate(7 740 770) scale(1.8)" />
-            <use href="#h" x="980" y="810" strokeWidth="0.8" opacity="0.09" transform="rotate(-20 980 810) scale(2.4)" />
-          </g>
+          {/* Heart: M0-4.5 centered at origin, ~9px tall before scale */}
+          <g transform="translate(95,70) rotate(12) scale(4)" opacity="0.12" strokeWidth="0.4"><path d="M0-4.5C-1-7-4-7-4-4C-4-1 0 2 0 4.5C0 2 4-1 4-4C4-7 1-7 0-4.5Z"/></g>
+          <g transform="translate(310,140) rotate(-8) scale(2.5)" opacity="0.08" strokeWidth="0.5"><path d="M0-4.5C-1-7-4-7-4-4C-4-1 0 2 0 4.5C0 2 4-1 4-4C4-7 1-7 0-4.5Z"/></g>
+          <g transform="translate(520,90) rotate(22) scale(5)" opacity="0.1" strokeWidth="0.35"><path d="M0-4.5C-1-7-4-7-4-4C-4-1 0 2 0 4.5C0 2 4-1 4-4C4-7 1-7 0-4.5Z"/></g>
+          <g transform="translate(780,60) rotate(-15) scale(2)" opacity="0.09" strokeWidth="0.5"><path d="M0-4.5C-1-7-4-7-4-4C-4-1 0 2 0 4.5C0 2 4-1 4-4C4-7 1-7 0-4.5Z"/></g>
+          <g transform="translate(1020,110) rotate(5) scale(3.5)" opacity="0.1" strokeWidth="0.4"><path d="M0-4.5C-1-7-4-7-4-4C-4-1 0 2 0 4.5C0 2 4-1 4-4C4-7 1-7 0-4.5Z"/></g>
+          <g transform="translate(160,250) rotate(-20) scale(2.2)" opacity="0.08" strokeWidth="0.5"><path d="M0-4.5C-1-7-4-7-4-4C-4-1 0 2 0 4.5C0 2 4-1 4-4C4-7 1-7 0-4.5Z"/></g>
+          <g transform="translate(440,300) rotate(18) scale(5.5)" opacity="0.12" strokeWidth="0.3"><path d="M0-4.5C-1-7-4-7-4-4C-4-1 0 2 0 4.5C0 2 4-1 4-4C4-7 1-7 0-4.5Z"/></g>
+          <g transform="translate(680,220) rotate(-6) scale(3)" opacity="0.09" strokeWidth="0.45"><path d="M0-4.5C-1-7-4-7-4-4C-4-1 0 2 0 4.5C0 2 4-1 4-4C4-7 1-7 0-4.5Z"/></g>
+          <g transform="translate(920,270) rotate(30) scale(1.8)" opacity="0.08" strokeWidth="0.55"><path d="M0-4.5C-1-7-4-7-4-4C-4-1 0 2 0 4.5C0 2 4-1 4-4C4-7 1-7 0-4.5Z"/></g>
+          <g transform="translate(1100,200) rotate(-12) scale(3.8)" opacity="0.1" strokeWidth="0.4"><path d="M0-4.5C-1-7-4-7-4-4C-4-1 0 2 0 4.5C0 2 4-1 4-4C4-7 1-7 0-4.5Z"/></g>
+          <g transform="translate(70,430) rotate(25) scale(4.5)" opacity="0.11" strokeWidth="0.35"><path d="M0-4.5C-1-7-4-7-4-4C-4-1 0 2 0 4.5C0 2 4-1 4-4C4-7 1-7 0-4.5Z"/></g>
+          <g transform="translate(280,480) rotate(-18) scale(2.3)" opacity="0.08" strokeWidth="0.5"><path d="M0-4.5C-1-7-4-7-4-4C-4-1 0 2 0 4.5C0 2 4-1 4-4C4-7 1-7 0-4.5Z"/></g>
+          <g transform="translate(550,410) rotate(8) scale(3.5)" opacity="0.1" strokeWidth="0.4"><path d="M0-4.5C-1-7-4-7-4-4C-4-1 0 2 0 4.5C0 2 4-1 4-4C4-7 1-7 0-4.5Z"/></g>
+          <g transform="translate(830,390) rotate(-25) scale(4.8)" opacity="0.09" strokeWidth="0.35"><path d="M0-4.5C-1-7-4-7-4-4C-4-1 0 2 0 4.5C0 2 4-1 4-4C4-7 1-7 0-4.5Z"/></g>
+          <g transform="translate(1060,450) rotate(15) scale(2.6)" opacity="0.09" strokeWidth="0.45"><path d="M0-4.5C-1-7-4-7-4-4C-4-1 0 2 0 4.5C0 2 4-1 4-4C4-7 1-7 0-4.5Z"/></g>
+          <g transform="translate(130,620) rotate(-10) scale(3.2)" opacity="0.1" strokeWidth="0.4"><path d="M0-4.5C-1-7-4-7-4-4C-4-1 0 2 0 4.5C0 2 4-1 4-4C4-7 1-7 0-4.5Z"/></g>
+          <g transform="translate(380,660) rotate(20) scale(4.2)" opacity="0.11" strokeWidth="0.35"><path d="M0-4.5C-1-7-4-7-4-4C-4-1 0 2 0 4.5C0 2 4-1 4-4C4-7 1-7 0-4.5Z"/></g>
+          <g transform="translate(640,580) rotate(-22) scale(2)" opacity="0.08" strokeWidth="0.5"><path d="M0-4.5C-1-7-4-7-4-4C-4-1 0 2 0 4.5C0 2 4-1 4-4C4-7 1-7 0-4.5Z"/></g>
+          <g transform="translate(870,640) rotate(10) scale(5.2)" opacity="0.12" strokeWidth="0.3"><path d="M0-4.5C-1-7-4-7-4-4C-4-1 0 2 0 4.5C0 2 4-1 4-4C4-7 1-7 0-4.5Z"/></g>
+          <g transform="translate(1090,600) rotate(-5) scale(3)" opacity="0.09" strokeWidth="0.45"><path d="M0-4.5C-1-7-4-7-4-4C-4-1 0 2 0 4.5C0 2 4-1 4-4C4-7 1-7 0-4.5Z"/></g>
+          <g transform="translate(200,790) rotate(28) scale(3.8)" opacity="0.1" strokeWidth="0.4"><path d="M0-4.5C-1-7-4-7-4-4C-4-1 0 2 0 4.5C0 2 4-1 4-4C4-7 1-7 0-4.5Z"/></g>
+          <g transform="translate(500,830) rotate(-14) scale(2.4)" opacity="0.08" strokeWidth="0.5"><path d="M0-4.5C-1-7-4-7-4-4C-4-1 0 2 0 4.5C0 2 4-1 4-4C4-7 1-7 0-4.5Z"/></g>
+          <g transform="translate(750,770) rotate(7) scale(3.5)" opacity="0.1" strokeWidth="0.4"><path d="M0-4.5C-1-7-4-7-4-4C-4-1 0 2 0 4.5C0 2 4-1 4-4C4-7 1-7 0-4.5Z"/></g>
+          <g transform="translate(990,820) rotate(-20) scale(4.5)" opacity="0.09" strokeWidth="0.35"><path d="M0-4.5C-1-7-4-7-4-4C-4-1 0 2 0 4.5C0 2 4-1 4-4C4-7 1-7 0-4.5Z"/></g>
         </svg>
       </motion.div>
 
