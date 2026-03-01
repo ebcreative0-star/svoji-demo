@@ -16,7 +16,7 @@ export default async function DashboardLayout({
           partner1={DEMO_COUPLE.partner1_name}
           partner2={DEMO_COUPLE.partner2_name}
         />
-        <main className="pt-16">{children}</main>
+        <main className="pt-16 pb-20 md:pb-0">{children}</main>
       </div>
     );
   }
@@ -48,7 +48,7 @@ export default async function DashboardLayout({
         partner1={couple.partner1_name}
         partner2={couple.partner2_name}
       />
-      <main className="pt-16">{children}</main>
+      <main className="pt-16 pb-20 md:pb-0">{children}</main>
     </div>
   );
 }
