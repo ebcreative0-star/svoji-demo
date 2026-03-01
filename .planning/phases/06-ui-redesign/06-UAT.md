@@ -1,5 +1,5 @@
 ---
-status: complete
+status: diagnosed
 phase: 06-ui-redesign
 source: 06-01-SUMMARY.md, 06-02-SUMMARY.md, 06-03-SUMMARY.md, 06-04-SUMMARY.md
 started: 2026-03-01T18:00:00Z
@@ -79,9 +79,13 @@ skipped: 4
   reason: "User reported: je to tam, ale text je příliš blizko hranice segmentů. + černý background mi moc neladí co celkového vzhledu"
   severity: cosmetic
   test: 2
-  root_cause: ""
-  artifacts: []
-  missing: []
+  root_cause: "Footer uses bg-[var(--color-text)] (black) which clashes with the light/cream site palette. Container padding px-4 (1rem) is too tight for column text near segment borders."
+  artifacts:
+    - path: "src/components/ui/SaasFooter.tsx"
+      issue: "bg-[var(--color-text)] is black, px-4 padding too tight"
+  missing:
+    - "Change background to match site palette (e.g. bg-[var(--color-secondary)] or bg-[var(--color-primary-dark)])"
+    - "Increase horizontal padding to px-6 or px-8"
   debug_session: ""
 
 - truth: "Dashboard nav shows 'Web pro hosty' link"
@@ -89,7 +93,13 @@ skipped: 4
   reason: "User reported: nevidím web pro hosty"
   severity: major
   test: 4
-  root_cause: ""
-  artifacts: []
-  missing: []
+  root_cause: "DashboardNav renders 'Web pro hosty' only when slug prop is truthy. Dashboard layout.tsx does not pass slug prop because it only queries couples table (partner names), not wedding_websites table where slug is stored."
+  artifacts:
+    - path: "src/components/dashboard/DashboardNav.tsx"
+      issue: "slug prop conditional render works, but slug is never passed"
+    - path: "src/app/(dashboard)/layout.tsx"
+      issue: "Missing query to wedding_websites table, slug prop not passed to DashboardNav"
+  missing:
+    - "Query wedding_websites table in layout.tsx to get slug"
+    - "Pass slug prop to DashboardNav component"
   debug_session: ""
