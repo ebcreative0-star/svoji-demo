@@ -7,41 +7,41 @@ import { Heart, Users, MapPin, Palette, Wallet, Shield } from 'lucide-react';
 import { Button } from '@/components/ui';
 
 const CZECH_CITIES = [
-  'Praha', 'Brno', 'Ostrava', 'Plzen', 'Liberec', 'Olomouc', 'Usti nad Labem',
-  'Hradec Kralove', 'Ceske Budejovice', 'Pardubice', 'Zlin', 'Havirov', 'Kladno',
-  'Most', 'Opava', 'Frydek-Mistek', 'Karvina', 'Jihlava', 'Karlovy Vary', 'Teplice',
-  'Decin', 'Chomutov', 'Prerov', 'Jablonec nad Nisou', 'Prostejov', 'Mlada Boleslav',
-  'Ceska Lipa', 'Trebic', 'Trinec', 'Tabor', 'Znojmo', 'Kolin', 'Pribram', 'Cheb',
-  'Pisek', 'Trutnov', 'Kromeriz', 'Vsetin', 'Litomerice', 'Sokolov',
-  'Valasske Mezirici', 'Hodonin', 'Beroun', 'Sumperk', 'Vyskov', 'Blansko',
-  'Novy Jicin', 'Uherske Hradiste', 'Breclav', 'Svitavy', 'Benesov', 'Strakonice',
-  'Kutna Hora', 'Chrudim', 'Nachod', 'Rakovnik', 'Louny', 'Jindrichuv Hradec',
-  'Pelhrimov', 'Domazlice', 'Klatovy', 'Nymburk', 'Rokycany', 'Havlickuv Brod',
-  'Rychnov nad Kneznou', 'Semily', 'Jesenik', 'Bruntal', 'Zatec',
+  'Praha', 'Brno', 'Ostrava', 'Plzeň', 'Liberec', 'Olomouc', 'Ústí nad Labem',
+  'Hradec Králové', 'České Budějovice', 'Pardubice', 'Zlín', 'Havířov', 'Kladno',
+  'Most', 'Opava', 'Frýdek-Místek', 'Karviná', 'Jihlava', 'Karlovy Vary', 'Teplice',
+  'Děčín', 'Chomutov', 'Přerov', 'Jablonec nad Nisou', 'Prostějov', 'Mladá Boleslav',
+  'Česká Lípa', 'Třebíč', 'Třinec', 'Tábor', 'Znojmo', 'Kolín', 'Příbram', 'Cheb',
+  'Písek', 'Trutnov', 'Kroměříž', 'Vsetín', 'Litoměřice', 'Sokolov',
+  'Valašské Meziříčí', 'Hodonín', 'Beroun', 'Šumperk', 'Vyškov', 'Blansko',
+  'Nový Jičín', 'Uherské Hradiště', 'Břeclav', 'Svitavy', 'Benešov', 'Strakonice',
+  'Kutná Hora', 'Chrudim', 'Náchod', 'Rakovník', 'Louny', 'Jindřichův Hradec',
+  'Pelhřimov', 'Domažlice', 'Klatovy', 'Nymburk', 'Rokycany', 'Havlíčkův Brod',
+  'Rychnov nad Kněžnou', 'Semily', 'Jeseník', 'Bruntál', 'Žatec',
 ];
 
 const GUEST_OPTIONS = [
-  { value: 'do-30', label: 'Do 30 hostu' },
-  { value: '30-60', label: '30-60 hostu' },
-  { value: '60-100', label: '60-100 hostu' },
-  { value: '100-150', label: '100-150 hostu' },
-  { value: '150+', label: '150+ hostu' },
+  { value: 'do-30', label: 'Do 30 hostů' },
+  { value: '30-60', label: '30–60 hostů' },
+  { value: '60-100', label: '60–100 hostů' },
+  { value: '100-150', label: '100–150 hostů' },
+  { value: '150+', label: '150+ hostů' },
 ];
 
 const STYLE_OPTIONS = [
-  { value: 'tradicni', label: 'Tradicni' },
+  { value: 'tradicni', label: 'Tradiční' },
   { value: 'boho', label: 'Boho' },
-  { value: 'opulentni', label: 'Opulentni' },
-  { value: 'minimalisticka', label: 'Minimalisticka' },
-  { value: 'rustikalni', label: 'Rustikalni' },
+  { value: 'opulentni', label: 'Opulentní' },
+  { value: 'minimalisticka', label: 'Minimalistická' },
+  { value: 'rustikalni', label: 'Rustikální' },
 ];
 
 const BUDGET_OPTIONS = [
-  { value: 'do-100', label: 'Do 100 000 Kc' },
-  { value: '100-200', label: '100-200 000 Kc' },
-  { value: '200-350', label: '200-350 000 Kc' },
-  { value: '350-500', label: '350-500 000 Kc' },
-  { value: '500+', label: '500 000+ Kc' },
+  { value: 'do-100', label: 'Do 100 000 Kč' },
+  { value: '100-200', label: '100–200 000 Kč' },
+  { value: '200-350', label: '200–350 000 Kč' },
+  { value: '350-500', label: '350–500 000 Kč' },
+  { value: '500+', label: '500 000+ Kč' },
 ];
 
 const RADIUS_OPTIONS = [10, 25, 50, 100];
@@ -86,7 +86,7 @@ export default function OnboardingPage() {
 
     if (step === 0) {
       if (!gdprConsent) {
-        setError('Souhlas se zpracovanim osobnich udaju je povinny');
+        setError('Souhlas se zpracováním osobních údajů je povinný');
         return;
       }
       setGdprTimestamp(new Date().toISOString());
@@ -96,19 +96,19 @@ export default function OnboardingPage() {
 
     if (step === 1) {
       if (!partner1 || !partner2) {
-        setError('Vyplnte jmena obou partneru');
+        setError('Vyplňte jména obou partnerů');
         return;
       }
       if (!dateUnknown) {
         if (!weddingDate) {
-          setError('Vyberte datum svatby nebo zvolte "Jeste nevime"');
+          setError('Vyberte datum svatby nebo zvolte „Ještě nevíme"');
           return;
         }
         const selected = new Date(weddingDate);
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         if (selected < today) {
-          setError('Datum svatby musi byt v budoucnosti');
+          setError('Datum svatby musí být v budoucnosti');
           return;
         }
       }
@@ -118,7 +118,7 @@ export default function OnboardingPage() {
 
     if (step === 2) {
       if (!guestCount) {
-        setError('Vyberte pocet hostu');
+        setError('Vyberte počet hostů');
         return;
       }
       setStep(3);
@@ -127,7 +127,7 @@ export default function OnboardingPage() {
 
     if (step === 3) {
       if (!location) {
-        setError('Zadejte mesto nebo region');
+        setError('Zadejte město nebo region');
         return;
       }
       setStep(4);
@@ -209,9 +209,9 @@ export default function OnboardingPage() {
                 <div className="space-y-6">
                   <div className="text-center mb-6">
                     <Shield className="w-12 h-12 mx-auto mb-4 text-[var(--color-primary)]" />
-                    <h2 className="text-xl font-medium">Ochrana vasich udaju</h2>
+                    <h2 className="text-xl font-medium">Ochrana vašich údajů</h2>
                     <p className="text-sm text-[var(--color-text-light)] mt-1">
-                      Pred zacatkem potrebujeme vas souhlas
+                      Před začátkem potřebujeme váš souhlas
                     </p>
                   </div>
 
@@ -224,11 +224,11 @@ export default function OnboardingPage() {
                         className="mt-0.5 accent-[var(--color-primary)] w-4 h-4 flex-shrink-0"
                       />
                       <span className="text-sm text-[var(--color-text)]">
-                        Souhlasim se{' '}
+                        Souhlasím se{' '}
                         <a href="/privacy" className="underline text-[var(--color-primary)]">
-                          zpracovanim osobnich udaju
+                          zpracováním osobních údajů
                         </a>{' '}
-                        (povinne)
+                        (povinné)
                       </span>
                     </label>
 
@@ -240,7 +240,7 @@ export default function OnboardingPage() {
                         className="mt-0.5 accent-[var(--color-primary)] w-4 h-4 flex-shrink-0"
                       />
                       <span className="text-sm text-[var(--color-text)]">
-                        Souhlasim se zasilanim novinek a tipu (volitelne)
+                        Souhlasím se zasíláním novinek a tipů (volitelné)
                       </span>
                     </label>
                   </div>
@@ -252,7 +252,7 @@ export default function OnboardingPage() {
                       onClick={nextStep}
                       className="w-full"
                     >
-                      Pokracovat
+                      Pokračovat
                     </Button>
                   </div>
                 </div>
@@ -273,7 +273,7 @@ export default function OnboardingPage() {
                       value={partner1}
                       onChange={(e) => setPartner1(e.target.value)}
                       className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
-                      placeholder="Jmeno"
+                      placeholder="Jméno"
                     />
                   </div>
 
@@ -284,7 +284,7 @@ export default function OnboardingPage() {
                       value={partner2}
                       onChange={(e) => setPartner2(e.target.value)}
                       className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
-                      placeholder="Jmeno"
+                      placeholder="Jméno"
                     />
                   </div>
 
@@ -311,15 +311,15 @@ export default function OnboardingPage() {
                       dateUnknown ? PRESET_ACTIVE : PRESET_INACTIVE
                     }`}
                   >
-                    Jeste nevime
+                    Ještě nevíme
                   </button>
 
                   <div className="flex gap-4 pt-2">
                     <Button type="button" variant="secondary" onClick={prevStep} className="flex-1">
-                      Zpet
+                      Zpět
                     </Button>
                     <Button type="button" variant="primary" onClick={nextStep} className="flex-1">
-                      Pokracovat
+                      Pokračovat
                     </Button>
                   </div>
                 </div>
@@ -330,7 +330,7 @@ export default function OnboardingPage() {
                 <div className="space-y-6">
                   <div className="text-center mb-6">
                     <Users className="w-12 h-12 mx-auto mb-4 text-[var(--color-primary)]" />
-                    <h2 className="text-xl font-medium text-center">Kolik cekate hostu?</h2>
+                    <h2 className="text-xl font-medium text-center">Kolik čekáte hostů?</h2>
                   </div>
 
                   <div className="space-y-3">
@@ -348,10 +348,10 @@ export default function OnboardingPage() {
 
                   <div className="flex gap-4 pt-2">
                     <Button type="button" variant="secondary" onClick={prevStep} className="flex-1">
-                      Zpet
+                      Zpět
                     </Button>
                     <Button type="button" variant="primary" onClick={nextStep} className="flex-1">
-                      Pokracovat
+                      Pokračovat
                     </Button>
                   </div>
                 </div>
@@ -362,18 +362,18 @@ export default function OnboardingPage() {
                 <div className="space-y-6">
                   <div className="text-center mb-6">
                     <MapPin className="w-12 h-12 mx-auto mb-4 text-[var(--color-primary)]" />
-                    <h2 className="text-xl font-medium text-center">Kde planujete svatbu?</h2>
+                    <h2 className="text-xl font-medium text-center">Kde plánujete svatbu?</h2>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium mb-2">Mesto nebo region</label>
+                    <label className="block text-sm font-medium mb-2">Město nebo region</label>
                     <input
                       type="text"
                       value={location}
                       onChange={(e) => setLocation(e.target.value)}
                       list="czech-cities"
                       className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
-                      placeholder="Napr. Praha"
+                      placeholder="Např. Praha"
                     />
                     <datalist id="czech-cities">
                       {CZECH_CITIES.map((city) => (
@@ -383,7 +383,7 @@ export default function OnboardingPage() {
                   </div>
 
                   <div>
-                    <p className="text-sm font-medium mb-3">Okruh hledani</p>
+                    <p className="text-sm font-medium mb-3">Okruh hledání</p>
                     <div className="grid grid-cols-4 gap-2">
                       {RADIUS_OPTIONS.map((r) => (
                         <button
@@ -402,10 +402,10 @@ export default function OnboardingPage() {
 
                   <div className="flex gap-4 pt-2">
                     <Button type="button" variant="secondary" onClick={prevStep} className="flex-1">
-                      Zpet
+                      Zpět
                     </Button>
                     <Button type="button" variant="primary" onClick={nextStep} className="flex-1">
-                      Pokracovat
+                      Pokračovat
                     </Button>
                   </div>
                 </div>
@@ -416,7 +416,7 @@ export default function OnboardingPage() {
                 <div className="space-y-6">
                   <div className="text-center mb-6">
                     <Palette className="w-12 h-12 mx-auto mb-4 text-[var(--color-primary)]" />
-                    <h2 className="text-xl font-medium text-center">Jaky styl svatby vas oslovi?</h2>
+                    <h2 className="text-xl font-medium text-center">Jaký styl svatby vás osloví?</h2>
                   </div>
 
                   <div className="space-y-3">
@@ -434,10 +434,10 @@ export default function OnboardingPage() {
 
                   <div className="flex gap-4 pt-2">
                     <Button type="button" variant="secondary" onClick={prevStep} className="flex-1">
-                      Zpet
+                      Zpět
                     </Button>
                     <Button type="button" variant="primary" onClick={nextStep} className="flex-1">
-                      Pokracovat
+                      Pokračovat
                     </Button>
                   </div>
                 </div>
@@ -448,9 +448,9 @@ export default function OnboardingPage() {
                 <div className="space-y-6">
                   <div className="text-center mb-6">
                     <Wallet className="w-12 h-12 mx-auto mb-4 text-[var(--color-primary)]" />
-                    <h2 className="text-xl font-medium text-center">Jaky mate rozpocet?</h2>
+                    <h2 className="text-xl font-medium text-center">Jaký máte rozpočet?</h2>
                     <p className="text-sm text-[var(--color-text-light)] mt-1">
-                      Volitelne -- muzete preskocit
+                      Volitelné -- můžete přeskočit
                     </p>
                   </div>
 
@@ -469,15 +469,15 @@ export default function OnboardingPage() {
 
                   <div className="flex gap-4 pt-2">
                     <Button type="button" variant="secondary" onClick={prevStep} className="flex-1">
-                      Zpet
+                      Zpět
                     </Button>
                     {!budget && (
                       <Button type="button" variant="secondary" onClick={finish} className="flex-1">
-                        Preskocit
+                        Přeskočit
                       </Button>
                     )}
                     <Button type="button" variant="primary" onClick={finish} className="flex-1">
-                      Dokoncit
+                      Dokončit
                     </Button>
                   </div>
                 </div>
