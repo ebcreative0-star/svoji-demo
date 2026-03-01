@@ -6,9 +6,9 @@ status: unknown
 last_updated: "2026-03-01T21:24:41.085Z"
 progress:
   total_phases: 7
-  completed_phases: 6
+  completed_phases: 7
   total_plans: 23
-  completed_plans: 21
+  completed_plans: 22
 ---
 
 # Project State
@@ -18,16 +18,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-01)
 
 **Core value:** Couples can plan their entire wedding from one place with AI guidance
-**Current focus:** Phase 7 -- Enhanced Onboarding (plans 01-02 complete)
+**Current focus:** Phase 8 -- AI UX and Demand Signals (phase 7 complete)
 
 ## Current Position
 
-Phase: 7 of 9 (Enhanced Onboarding)
-Plan: 02 complete (onboarding data pipeline + AI context wiring)
-Status: In progress
-Last activity: 2026-03-01 - Completed 07-02: Register page reads onboarding params, OAuth callback persists data, AI chat extended with location/style/guest context
+Phase: 7 of 9 (Enhanced Onboarding) -- COMPLETE
+Plan: 03 complete (end-to-end verification + routing/diacritics bug fixes)
+Status: Phase 7 complete, ready for Phase 8
+Last activity: 2026-03-01 - Completed 07-03: Verified full onboarding pipeline, fixed CTA routing (/register -> /onboarding), post-auth redirect (/dashboard -> /checklist), and Czech diacritics in onboarding
 
-Progress: [███░░░░░░░] ~25% (v2.0 milestone)
+Progress: [████░░░░░░] ~38% (v2.0 milestone)
 
 ## Accumulated Context
 
@@ -59,6 +59,8 @@ Key decisions for v2.0:
 - [Phase 07-enhanced-onboarding]: wedding_size kept in Couple interface as @deprecated for backward compat, superseded by guest_count_range
 - [Phase 07-enhanced-onboarding]: OAuth onboarding passthrough uses btoa(JSON.stringify(data)) in redirectTo URL -- sessionStorage not viable server-side
 - [Phase 07-enhanced-onboarding]: Email signup writes couples row before email confirmation so /auth/confirm redirects to /dashboard not /onboarding
+- [Phase 07-enhanced-onboarding]: All landing CTAs funnel through /onboarding (not /register) -- personalization is mandatory entry point
+- [Phase 07-enhanced-onboarding]: Post-auth default redirect is /checklist -- /dashboard does not exist as a standalone route
 
 ### Pending Todos
 
@@ -79,5 +81,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-01
-Stopped at: Completed 07-02-PLAN.md (onboarding data pipeline + AI context wiring)
+Stopped at: Completed 07-03-PLAN.md (verification: routing fixes + diacritics, phase 7 complete)
 Resume file: None
