@@ -5,8 +5,8 @@ export function SaasFooter() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="bg-[var(--color-text)] text-white">
-      <div className="container mx-auto px-4 py-12 lg:py-16">
+    <footer className="bg-[var(--color-primary-dark)] text-white">
+      <div className="container mx-auto px-6 sm:px-8 py-12 lg:py-16">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
           {/* Brand */}
           <div>
