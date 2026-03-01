@@ -70,28 +70,42 @@ export function Hero({ partner1, partner2, date, headline, subheadline }: HeroPr
         className="absolute inset-0 bg-[var(--color-secondary)]"
         style={{ y: disableParallax ? 0 : backgroundY }}
       >
-        {/* Subtle decorative pattern */}
+        {/* Scattered hearts */}
         <svg
-          className="absolute inset-0 w-full h-full opacity-[0.035]"
+          className="absolute inset-0 w-full h-full"
           xmlns="http://www.w3.org/2000/svg"
-          preserveAspectRatio="none"
-          viewBox="0 0 800 600"
+          viewBox="0 0 1200 900"
+          preserveAspectRatio="xMidYMid slice"
         >
           <defs>
-            <pattern id="hero-pattern" x="0" y="0" width="300" height="300" patternUnits="userSpaceOnUse">
-              {/* Soft flowing curves */}
-              <path d="M0 150 Q75 120 150 150 Q225 180 300 150" fill="none" stroke="currentColor" strokeWidth="0.5" />
-              <path d="M0 160 Q75 130 150 160 Q225 190 300 160" fill="none" stroke="currentColor" strokeWidth="0.3" />
-              {/* Gentle arcs */}
-              <path d="M50 0 Q80 50 50 100" fill="none" stroke="currentColor" strokeWidth="0.4" />
-              <path d="M250 200 Q220 250 250 300" fill="none" stroke="currentColor" strokeWidth="0.4" />
-              {/* Tiny dots */}
-              <circle cx="150" cy="75" r="1.5" fill="currentColor" opacity="0.4" />
-              <circle cx="75" cy="225" r="1" fill="currentColor" opacity="0.3" />
-              <circle cx="225" cy="225" r="1" fill="currentColor" opacity="0.3" />
-            </pattern>
+            <path id="h" d="M0-3.5C-0.5-5.5-3-5.5-3-3C-3-0.5 0 1.5 0 3.5C0 1.5 3-0.5 3-3C3-5.5 0.5-5.5 0-3.5Z" />
           </defs>
-          <rect width="100%" height="100%" fill="url(#hero-pattern)" className="text-[var(--color-primary)]" />
+          <g className="text-[var(--color-primary)]" fill="none" stroke="currentColor">
+            <use href="#h" x="95" y="70" strokeWidth="0.3" opacity="0.04" transform="rotate(12 95 70) scale(2.2)" />
+            <use href="#h" x="310" y="45" strokeWidth="0.25" opacity="0.035" transform="rotate(-8 310 45) scale(1.4)" />
+            <use href="#h" x="520" y="90" strokeWidth="0.35" opacity="0.045" transform="rotate(22 520 90) scale(2.8)" />
+            <use href="#h" x="780" y="55" strokeWidth="0.2" opacity="0.03" transform="rotate(-15 780 55) scale(1.1)" />
+            <use href="#h" x="1020" y="80" strokeWidth="0.3" opacity="0.04" transform="rotate(5 1020 80) scale(1.8)" />
+            <use href="#h" x="160" y="220" strokeWidth="0.2" opacity="0.03" transform="rotate(-20 160 220) scale(1.3)" />
+            <use href="#h" x="440" y="260" strokeWidth="0.3" opacity="0.05" transform="rotate(18 440 260) scale(3.2)" />
+            <use href="#h" x="680" y="200" strokeWidth="0.25" opacity="0.035" transform="rotate(-6 680 200) scale(1.6)" />
+            <use href="#h" x="900" y="240" strokeWidth="0.2" opacity="0.03" transform="rotate(30 900 240) scale(1.0)" />
+            <use href="#h" x="1100" y="210" strokeWidth="0.3" opacity="0.04" transform="rotate(-12 1100 210) scale(2.0)" />
+            <use href="#h" x="70" y="400" strokeWidth="0.35" opacity="0.04" transform="rotate(25 70 400) scale(2.5)" />
+            <use href="#h" x="260" y="440" strokeWidth="0.2" opacity="0.03" transform="rotate(-18 260 440) scale(1.2)" />
+            <use href="#h" x="550" y="410" strokeWidth="0.25" opacity="0.045" transform="rotate(8 550 410) scale(1.9)" />
+            <use href="#h" x="820" y="390" strokeWidth="0.3" opacity="0.035" transform="rotate(-25 820 390) scale(2.6)" />
+            <use href="#h" x="1050" y="430" strokeWidth="0.2" opacity="0.03" transform="rotate(15 1050 430) scale(1.4)" />
+            <use href="#h" x="130" y="580" strokeWidth="0.25" opacity="0.035" transform="rotate(-10 130 580) scale(1.5)" />
+            <use href="#h" x="380" y="620" strokeWidth="0.3" opacity="0.04" transform="rotate(20 380 620) scale(2.3)" />
+            <use href="#h" x="620" y="560" strokeWidth="0.2" opacity="0.03" transform="rotate(-22 620 560) scale(1.1)" />
+            <use href="#h" x="860" y="610" strokeWidth="0.35" opacity="0.045" transform="rotate(10 860 610) scale(3.0)" />
+            <use href="#h" x="1080" y="580" strokeWidth="0.25" opacity="0.035" transform="rotate(-5 1080 580) scale(1.7)" />
+            <use href="#h" x="200" y="760" strokeWidth="0.3" opacity="0.04" transform="rotate(28 200 760) scale(2.1)" />
+            <use href="#h" x="490" y="800" strokeWidth="0.2" opacity="0.03" transform="rotate(-14 490 800) scale(1.3)" />
+            <use href="#h" x="740" y="770" strokeWidth="0.25" opacity="0.04" transform="rotate(7 740 770) scale(1.8)" />
+            <use href="#h" x="980" y="810" strokeWidth="0.3" opacity="0.035" transform="rotate(-20 980 810) scale(2.4)" />
+          </g>
         </svg>
       </motion.div>
 
