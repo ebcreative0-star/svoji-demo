@@ -204,7 +204,7 @@ export function Hero() {
 
         {/* Dual CTA */}
         <div className="flex flex-row items-center justify-center gap-4 flex-wrap">
-          <Link href="/register" className={buttonVariants({ variant: 'primary', size: 'lg' })}>
+          <Link href="/onboarding" className={buttonVariants({ variant: 'primary', size: 'lg' })}>
             Vyzkoušet zdarma
             <ArrowRight className="w-5 h-5" />
           </Link>

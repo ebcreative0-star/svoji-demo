@@ -45,7 +45,7 @@ export function LandingNav() {
             >
               Přihlásit se
             </Link>
-            <Link href="/register" className={buttonVariants({ variant: 'primary', size: 'md' })}>
+            <Link href="/onboarding" className={buttonVariants({ variant: 'primary', size: 'md' })}>
               Začít zdarma
             </Link>
           </div>
@@ -80,7 +80,7 @@ export function LandingNav() {
               Přihlásit se
             </Link>
             <Link
-              href="/register"
+              href="/onboarding"
               className={buttonVariants({ variant: 'primary', size: 'md' })}
               onClick={() => setIsMenuOpen(false)}
             >

@@ -16,7 +16,7 @@ export function FinalCTA() {
             Přidejte se ke stovkám párů, které plánují svatbu bez stresu.
           </p>
           <Link
-            href="/register"
+            href="/onboarding"
             className="inline-flex items-center justify-center bg-white text-[var(--color-primary)] text-base font-medium px-8 py-4 rounded-full hover:bg-gray-100 transition-colors gap-2 min-h-[52px]"
           >
             Začít zdarma
