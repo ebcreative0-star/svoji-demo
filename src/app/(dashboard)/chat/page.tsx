@@ -26,6 +26,10 @@ export default async function ChatPage() {
             partner2: DEMO_COUPLE.partner2_name,
             weddingDate: DEMO_COUPLE.wedding_date,
             weddingSize: DEMO_COUPLE.wedding_size,
+            guestCountRange: null,
+            location: null,
+            searchRadiusKm: null,
+            weddingStyle: null,
             budget: DEMO_COUPLE.budget_total,
           }}
           initialMessages={demoMessages}
@@ -72,6 +76,10 @@ export default async function ChatPage() {
           partner2: couple.partner2_name,
           weddingDate: couple.wedding_date,
           weddingSize: couple.wedding_size,
+          guestCountRange: couple.guest_count_range,
+          location: couple.location,
+          searchRadiusKm: couple.search_radius_km,
+          weddingStyle: couple.wedding_style,
           budget: couple.budget_total,
         }}
         initialMessages={messages || []}

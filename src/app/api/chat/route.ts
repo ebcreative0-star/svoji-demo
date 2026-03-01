@@ -14,24 +14,47 @@ const anthropic = process.env.ANTHROPIC_API_KEY
 interface ChatContext {
   partner1: string;
   partner2: string;
-  weddingDate: string;
-  weddingSize: string;
+  weddingDate: string | null;
+  guestCountRange: string | null;
+  location: string | null;
+  searchRadiusKm: number | null;
+  weddingStyle: string | null;
   budget: number | null;
+  // Backward compat -- may still be sent by older clients
+  weddingSize?: string;
 }
 
 function buildSystemPrompt(context: ChatContext): string {
-  const weddingDate = new Date(context.weddingDate);
-  const daysUntilWedding = Math.ceil(
-    (weddingDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24)
-  );
-  const monthsUntilWedding = Math.ceil(daysUntilWedding / 30);
+  const dateStr = context.weddingDate
+    ? new Date(context.weddingDate).toLocaleDateString('cs-CZ')
+    : 'datum zatim neni stanoveno';
 
-  const sizeLabel =
-    context.weddingSize === 'small'
-      ? 'komorni (do 30 hostu)'
-      : context.weddingSize === 'medium'
-      ? 'stredni (30-80 hostu)'
-      : 'velka (80+ hostu)';
+  const daysUntilWedding = context.weddingDate
+    ? Math.ceil((new Date(context.weddingDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
+    : null;
+
+  const guestLabel = context.guestCountRange
+    ? context.guestCountRange + ' hostu'
+    : (context.weddingSize === 'small' ? 'do 30 hostu'
+      : context.weddingSize === 'medium' ? '30-80 hostu'
+      : context.weddingSize === 'large' ? '80+ hostu'
+      : 'neuvedeno');
+
+  const styleLabels: Record<string, string> = {
+    'tradicni': 'tradicni ceska',
+    'boho': 'boho / prirodni',
+    'opulentni': 'opulentni / luxusni',
+    'minimalisticka': 'minimalisticka',
+    'rustikalni': 'rustikalni / venkovska',
+  };
+  const styleLabel = context.weddingStyle
+    ? styleLabels[context.weddingStyle] ?? context.weddingStyle
+    : null;
+
+  const locationLine = context.location
+    ? `- Oblast: ${context.location}${context.searchRadiusKm ? ` (okruh ${context.searchRadiusKm} km)` : ''}`
+    : '';
+  const styleLine = styleLabel ? `- Styl: ${styleLabel}` : '';
 
   return `Jsi Svoji, pratelsky AI asistent pro planovani svateb v Ceske republice.
 
@@ -41,46 +64,28 @@ TVOJE ROLE:
 - Doporucujes na zaklade rozpoctu a preferenci
 - Pripominas dulezite ukoly
 - Jsi pratelsky, ale profesionalni
+- Pri rozhodovani nabizej konkretni volby (napr. "A nebo B?"), ne jen obecne rady
 
 KONTEXT PARU:
 - Jmena: ${context.partner1} a ${context.partner2}
-- Datum svatby: ${weddingDate.toLocaleDateString('cs-CZ')}
-- Zbyva: ${daysUntilWedding} dni (${monthsUntilWedding} mesicu)
-- Velikost: ${sizeLabel}
+- Datum svatby: ${dateStr}${daysUntilWedding ? ` (za ${daysUntilWedding} dni, ${Math.ceil(daysUntilWedding / 30)} mesicu)` : ''}
+- Pocet hostu: ${guestLabel}
+${locationLine}
+${styleLine}
 ${context.budget ? `- Rozpocet: ${context.budget.toLocaleString('cs-CZ')} Kc` : '- Rozpocet: neuvedeno'}
+
+PRVNI ZPRAVA (pouzij pri prvnim kontaktu):
+Zacni osobne -- pozdrav ${context.partner1} a ${context.partner2} jmenem${styleLabel ? `, zmin jejich styl (${styleLabel})` : ''}${context.location ? ` a oblast (${context.location})` : ''}, a navrhni prvni konkretni krok (napr. "Zacneme vyberem mista?").
 
 PRAVIDLA:
 - Pis cesky, pratelsky ale profesionalne
 - Davej konkretni, prakticke rady
-- Pri dotazech na ceny uvadej ceske ceny a rozpeti (napr. "fotografove v CR stoji 15-40 tisic Kc")
+- Pri dotazech na ceny uvadej ceske ceny a rozpeti
 - Nezapomen na ceske tradice a zvyklosti
 - Pokud nevis, priznej to a navrhni kde najit informace
 - Bud strucny ale informativni
 - Nepouzivej emoji prehrane
-
-PRIKLADY ODPOVEDI:
-
-Na otazku "Kolik stoji svatebni fotograf?":
-Ceny fotografu se v CR pohybuji priblizne takto:
-
-- Zakladni balicek (4-6 hodin): 15-25 tisic Kc
-- Celodenni foceni: 25-40 tisic Kc
-- Premium fotografove: 40-60 tisic Kc
-
-V cene obvykle byva: pripravy, obrad, gratulace, skupinove fotky, a nejaky cas na hostine. Album nebo fotokniha se vetsinou plati zvlast.
-
-Tip: Dobry fotograf se rezervuje 6-12 mesicu dopredu, hlavne na leto. Vzhledem k tomu, ze mate svatbu za ${monthsUntilWedding} mesicu, doporucuji zacit hledat co nejdrive.
-
-Na otazku "Co je potreba vyridit na matrice?":
-Na matriku budete potrebovat:
-
-1. Vyplneny dotaznik k uzavreni manzelstvi (dostanete na matrice)
-2. Obcanske prukazy obou snoubencu
-3. Rodne listy
-4. U rozvedenych: rozsudek o rozvodu s dolozkou pravni moci
-5. U ovdovelych: umrtni list
-
-Doporucuji zajit na matriku 2-3 mesice pred svatbou. Pokud budete mit cirkevni snatek, postup je trochu jiny - rada vysvetlim.`;
+${context.location && context.searchRadiusKm ? `- Pri doporucenych dodavatelich hledej v okruhu ${context.searchRadiusKm} km od ${context.location}` : ''}`;
 }
 
 export async function POST(request: NextRequest) {

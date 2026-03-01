@@ -19,8 +19,12 @@ interface CoupleContext {
   id: string;
   partner1: string;
   partner2: string;
-  weddingDate: string;
-  weddingSize: string;
+  weddingDate: string | null;
+  weddingSize: string | null;       // deprecated
+  guestCountRange: string | null;
+  location: string | null;
+  searchRadiusKm: number | null;
+  weddingStyle: string | null;
   budget: number | null;
 }
 
@@ -74,6 +78,10 @@ export function ChatInterface({ couple, initialMessages }: ChatInterfaceProps) {
             partner2: couple.partner2,
             weddingDate: couple.weddingDate,
             weddingSize: couple.weddingSize,
+            guestCountRange: couple.guestCountRange,
+            location: couple.location,
+            searchRadiusKm: couple.searchRadiusKm,
+            weddingStyle: couple.weddingStyle,
             budget: couple.budget,
           },
         }),
