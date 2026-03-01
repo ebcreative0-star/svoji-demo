@@ -9,8 +9,8 @@ Requirements for v2.0 B2C Product. Each maps to roadmap phases.
 
 ### Security
 
-- [ ] **SEC-01**: DEMO_MODE disabled in production middleware (all auth works for real)
-- [ ] **SEC-02**: Existing email accounts audited for unverified emails before OAuth enablement
+- [x] **SEC-01**: DEMO_MODE disabled in production middleware (all auth works for real)
+- [x] **SEC-02**: Existing email accounts audited for unverified emails before OAuth enablement
 - [ ] **SEC-03**: GDPR consent mechanism before data collection (privacy policy update + consent banner)
 
 ### Auth
@@ -123,8 +123,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| SEC-01 | Phase 5 | Pending |
-| SEC-02 | Phase 5 | Pending |
+| SEC-01 | Phase 5 | Complete |
+| SEC-02 | Phase 5 | Complete |
 | AUTH-01 | Phase 5 | Pending |
 | AUTH-02 | Phase 5 | Pending |
 | UI-01 | Phase 6 | Pending |
