@@ -39,7 +39,7 @@ export async function GET(request: NextRequest) {
           .select('id')
           .eq('id', user.id)
           .single()
-        const redirectTo = couple ? '/dashboard' : '/onboarding'
+        const redirectTo = couple ? '/checklist' : '/onboarding'
         return NextResponse.redirect(new URL(redirectTo, request.url))
       }
       return NextResponse.redirect(new URL(next, request.url))

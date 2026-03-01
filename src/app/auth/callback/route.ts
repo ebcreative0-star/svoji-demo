@@ -59,7 +59,7 @@ export async function GET(request: Request) {
         .eq('id', data.user.id)
         .single()
 
-      const redirectTo = couple ? '/dashboard' : '/onboarding'
+      const redirectTo = couple ? '/checklist' : '/onboarding'
       return NextResponse.redirect(`${origin}${redirectTo}`)
     }
   }
