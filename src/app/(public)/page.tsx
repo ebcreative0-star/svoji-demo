@@ -4,7 +4,7 @@ import { Features } from '@/components/landing/Features';
 import { SocialProof } from '@/components/landing/SocialProof';
 import { HowItWorks } from '@/components/landing/HowItWorks';
 import { FinalCTA } from '@/components/landing/FinalCTA';
-import { LandingFooter } from '@/components/landing/LandingFooter';
+import { SaasFooter } from '@/components/ui/SaasFooter';
 
 export default function LandingPage() {
   return (
@@ -15,7 +15,7 @@ export default function LandingPage() {
       <SocialProof />
       <HowItWorks />
       <FinalCTA />
-      <LandingFooter />
+      <SaasFooter />
     </div>
   );
 }
