@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: B2C Product
 status: unknown
-last_updated: "2026-03-01T20:39:51.084Z"
+last_updated: "2026-03-01T21:24:41.085Z"
 progress:
-  total_phases: 6
+  total_phases: 7
   completed_phases: 6
-  total_plans: 20
-  completed_plans: 20
+  total_plans: 23
+  completed_plans: 21
 ---
 
 # Project State
@@ -18,16 +18,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-01)
 
 **Core value:** Couples can plan their entire wedding from one place with AI guidance
-**Current focus:** Phase 6 -- UI Redesign (all 6 plans complete including UAT gap closure)
+**Current focus:** Phase 7 -- Enhanced Onboarding (plan 01 complete)
 
 ## Current Position
 
-Phase: 6 of 9 (UI Redesign)
-Plan: 06 complete (footer light background fix -- phase fully complete)
-Status: Complete
-Last activity: 2026-03-01 - Completed quick task 1: Fix footer top spacing
+Phase: 7 of 9 (Enhanced Onboarding)
+Plan: 01 complete (6-screen onboarding state machine -- GDPR + 5 steps)
+Status: In progress
+Last activity: 2026-03-01 - Completed 07-01: Onboarding state machine + DB migration
 
-Progress: [██░░░░░░░░] ~20% (v2.0 milestone)
+Progress: [███░░░░░░░] ~25% (v2.0 milestone)
 
 ## Accumulated Context
 
@@ -55,6 +55,8 @@ Key decisions for v2.0:
 - [Phase 06-ui-redesign]: SaasFooter uses --color-primary-dark (warm oklch brown) not --color-text (pure black)
 - [Phase 06-ui-redesign]: wedding_websites queried in layout.tsx, slug passed as optional prop to DashboardNav
 - [Phase 06-ui-redesign]: SaasFooter background changed to --color-secondary (warm cream) with border-t-2 separator to contrast dark FinalCTA section
+- [Phase 07-enhanced-onboarding]: Onboarding does not write to DB -- all data passed via URLSearchParams to /register
+- [Phase 07-enhanced-onboarding]: wedding_size kept in Couple interface as @deprecated for backward compat, superseded by guest_count_range
 
 ### Pending Todos
 
@@ -75,5 +77,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-01
-Stopped at: Completed 06-06-PLAN.md (Phase 06 fully complete -- all 6 plans done)
+Stopped at: Completed 07-01-PLAN.md (Phase 07 plan 01 done -- onboarding state machine)
 Resume file: None

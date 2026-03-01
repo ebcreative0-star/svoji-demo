@@ -11,7 +11,7 @@ Requirements for v2.0 B2C Product. Each maps to roadmap phases.
 
 - [x] **SEC-01**: DEMO_MODE disabled in production middleware (all auth works for real)
 - [x] **SEC-02**: Existing email accounts audited for unverified emails before OAuth enablement
-- [ ] **SEC-03**: GDPR consent mechanism before data collection (privacy policy update + consent banner)
+- [x] **SEC-03**: GDPR consent mechanism before data collection (privacy policy update + consent banner)
 
 ### Auth
 
@@ -20,12 +20,12 @@ Requirements for v2.0 B2C Product. Each maps to roadmap phases.
 
 ### Onboarding
 
-- [ ] **ONBD-01**: Step 1 -- couple names + wedding date (with "Ještě nevíme" option for date)
-- [ ] **ONBD-02**: Step 2 -- guest count (preset buttons: do 30 / 30-60 / 60-100 / 100-150 / 150+)
-- [ ] **ONBD-03**: Step 3 -- location (Czech city autocomplete) + radius slider/presets
-- [ ] **ONBD-04**: Step 4 -- wedding style (tradiční, boho, opulentní, minimalistická, rustikální)
-- [ ] **ONBD-05**: Step 5 -- budget (preset buttons, skippable)
-- [ ] **ONBD-06**: Satin fade transitions between steps with editorial visual design
+- [x] **ONBD-01**: Step 1 -- couple names + wedding date (with "Ještě nevíme" option for date)
+- [x] **ONBD-02**: Step 2 -- guest count (preset buttons: do 30 / 30-60 / 60-100 / 100-150 / 150+)
+- [x] **ONBD-03**: Step 3 -- location (Czech city autocomplete) + radius slider/presets
+- [x] **ONBD-04**: Step 4 -- wedding style (tradiční, boho, opulentní, minimalistická, rustikální)
+- [x] **ONBD-05**: Step 5 -- budget (preset buttons, skippable)
+- [x] **ONBD-06**: Satin fade transitions between steps with editorial visual design
 - [ ] **ONBD-07**: All onboarding data passed as AI assistant system prompt context
 
 ### UI Redesign
@@ -131,14 +131,14 @@ Which phases cover which requirements. Updated during roadmap creation.
 | UI-02 | Phase 6 | Complete |
 | UI-03 | Phase 6 | Complete |
 | UI-04 | Phase 6 | Complete |
-| ONBD-01 | Phase 7 | Pending |
-| ONBD-02 | Phase 7 | Pending |
-| ONBD-03 | Phase 7 | Pending |
-| ONBD-04 | Phase 7 | Pending |
-| ONBD-05 | Phase 7 | Pending |
-| ONBD-06 | Phase 7 | Pending |
+| ONBD-01 | Phase 7 | Complete |
+| ONBD-02 | Phase 7 | Complete |
+| ONBD-03 | Phase 7 | Complete |
+| ONBD-04 | Phase 7 | Complete |
+| ONBD-05 | Phase 7 | Complete |
+| ONBD-06 | Phase 7 | Complete |
 | ONBD-07 | Phase 7 | Pending |
-| SEC-03 | Phase 7 | Pending |
+| SEC-03 | Phase 7 | Complete |
 | AI-01 | Phase 8 | Pending |
 | AI-02 | Phase 8 | Pending |
 | AI-03 | Phase 8 | Pending |

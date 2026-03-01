@@ -170,6 +170,6 @@ Phases execute in numeric order: 5 → 6 → 7 → 8 → 9
 | 4. Landing Page | v1.0 | 3/3 | Complete | 2026-02-28 |
 | 5. Auth Foundation | 2/2 | Complete    | 2026-03-01 | - |
 | 6. UI Redesign | 6/6 | Complete   | 2026-03-01 | - |
-| 7. Enhanced Onboarding | v2.0 | 0/? | Not started | - |
+| 7. Enhanced Onboarding | 1/3 | In Progress|  | - |
 | 8. AI Pipeline | v2.0 | 0/? | Not started | - |
 | 9. Data Collection | v2.0 | 0/? | Not started | - |
