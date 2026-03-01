@@ -1,518 +1,783 @@
 # Architecture Research
 
-**Domain:** Design system integration — Next.js 16 App Router + Tailwind CSS 4 + Framer Motion 12
-**Researched:** 2026-02-28
-**Confidence:** HIGH (based on existing codebase analysis + official docs)
+**Domain:** Freemium SaaS — wedding planning with payments, AI pipeline, and analytics
+**Researched:** 2026-03-01
+**Confidence:** HIGH (Stripe+Supabase patterns well-documented; GoPay is REST-only, no JS SDK)
+
+---
 
 ## Standard Architecture
 
 ### System Overview
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                      Design Token Layer                          │
-│  globals.css @theme block — single source of truth              │
-│  --color-*, --font-*, --radius-*, --shadow-*, --spacing-*       │
-│  Tailwind generates utility classes from these tokens            │
-├─────────────────────────────────────────────────────────────────┤
-│                    Component Architecture                         │
-│  ┌───────────────┐  ┌──────────────┐  ┌───────────────────────┐ │
-│  │  ui/ (atoms)  │  │ sections/    │  │  dashboard/           │ │
-│  │  Button       │  │ Landing page │  │  Nav, Views           │ │
-│  │  Card         │  │ sections     │  │  Dashboard components │ │
-│  │  Input        │  └──────────────┘  └───────────────────────┘ │
-│  │  Badge        │  ┌──────────────┐                            │
-│  └───────────────┘  │ w/ (wedding) │                            │
-│                     │ Public web   │                            │
-│                     │ sections     │                            │
-│                     └──────────────┘                            │
-├─────────────────────────────────────────────────────────────────┤
-│                    Animation Layer                                │
-│  ┌────────────────────────────────────────────────────────┐     │
-│  │  AnimationWrapper (client component, reusable)          │     │
-│  │  whileInView + viewport={{ once: true }}                │     │
-│  │  Variants defined centrally in lib/animations.ts        │     │
-│  └────────────────────────────────────────────────────────┘     │
-├─────────────────────────────────────────────────────────────────┤
-│                    Font Loading Layer                             │
-│  layout.tsx → next/font/google → CSS variables injected          │
-│  --font-heading, --font-body → referenced in @theme + globals    │
-└─────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────┐
+│                          Next.js 16 App Router                       │
+│                                                                       │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────────────────┐   │
+│  │ (public)     │  │ (auth)       │  │ (dashboard)              │   │
+│  │ Landing      │  │ Login        │  │ Chat                     │   │
+│  │ /w/[slug]    │  │ Register     │  │ Checklist                │   │
+│  │              │  │ Onboarding   │  │ Budget, Guests           │   │
+│  │              │  │ /auth/cb     │  │ Upgrade      ← NEW       │   │
+│  │              │  │  ← NEW       │  │ Settings/Billing ← NEW   │   │
+│  └──────────────┘  └──────────────┘  └──────────────────────────┘   │
+│                                                                       │
+│  ┌───────────────────────────────────────────────────────────────┐   │
+│  │                      API Routes (src/app/api/)                 │   │
+│  │                                                               │   │
+│  │  EXISTING: /chat  /rsvp                                       │   │
+│  │  NEW:  /stripe/checkout  /stripe/webhook  /stripe/portal      │   │
+│  │        /gopay/create     /gopay/notify                        │   │
+│  │        /ai/classify-intent   /metrics/event                   │   │
+│  └───────────────────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────────────────┘
+         │                    │                     │
+         ▼                    ▼                     ▼
+┌──────────────────┐  ┌────────────────┐  ┌─────────────────┐
+│  Supabase        │  │  Stripe        │  │  Anthropic      │
+│  - auth + OAuth  │  │  - Checkout    │  │  - Claude Sonnet│
+│  - couples       │  │  - Webhooks    │  │    (chat)       │
+│  - subscriptions │  │  - Portal      │  │  - Claude Haiku │
+│  - demand_signals│  └────────────────┘  │    (intent cls) │
+│  - engagement    │                      └─────────────────┘
+│  - rate_limits   │  ┌────────────────┐
+└──────────────────┘  │  GoPay (CZ)    │
+                       │  - REST API    │
+                       │  - No JS SDK   │
+                       └────────────────┘
 ```
 
-### Component Responsibilities
+---
 
-| Component | Responsibility | Implementation |
-|-----------|----------------|----------------|
-| `globals.css @theme` | Token definitions — Tailwind utility generation | CSS-first, replaces tailwind.config.ts |
-| `layout.tsx` | Font loading, CSS variable injection via className | next/font/google, server component |
-| `ui/Button.tsx` | Typed button primitive, all variants | Replaces `.btn-primary`, `.btn-outline` CSS classes |
-| `ui/Card.tsx` | Surface primitive with consistent border/shadow | Token-driven, no hardcoded colors |
-| `AnimationWrapper` | Scroll-triggered animation client component wrapper | Framer Motion whileInView |
-| `lib/animations.ts` | Shared Framer Motion variants | Single definition, imported everywhere |
-| `sections/` | Landing page sections (pure layout, no logic) | Server components, wrap with AnimationWrapper |
-| `dashboard/` | App views — state-heavy, all client | Keep existing structure, reskin tokens |
-| `w/[slug]` | Public wedding web | Server-rendered, reskin tokens |
+## DB Schema Additions
 
-## Recommended Project Structure
+### Modified: `couples` table
 
-The existing structure is sound. Changes are additive — new files, not reorganization.
+Add columns to existing table — no breaking changes to current schema.
+
+```sql
+ALTER TABLE couples
+  ADD COLUMN tier VARCHAR(20) DEFAULT 'free'
+    CHECK (tier IN ('free', 'premium')),
+  ADD COLUMN stripe_customer_id VARCHAR(255) UNIQUE,
+  ADD COLUMN subscription_status VARCHAR(50),
+    -- 'active', 'canceled', 'past_due', null
+  ADD COLUMN subscription_period_end TIMESTAMP WITH TIME ZONE,
+  ADD COLUMN location_city VARCHAR(100),       -- new onboarding step 3
+  ADD COLUMN location_radius_km INT,           -- how far they search vendors
+  ADD COLUMN guest_count INT;                  -- new onboarding step 2
+```
+
+### New: `subscriptions` table
+
+Source of truth for payment state. Separate from `couples` to keep payment history on cancel/resubscribe.
+
+```sql
+CREATE TABLE subscriptions (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  couple_id UUID REFERENCES couples(id) ON DELETE CASCADE,
+  provider VARCHAR(20) NOT NULL CHECK (provider IN ('stripe', 'gopay')),
+  provider_subscription_id VARCHAR(255) UNIQUE,
+  provider_customer_id VARCHAR(255),
+  status VARCHAR(50) NOT NULL,
+    -- 'active', 'canceled', 'past_due', 'trialing'
+  plan VARCHAR(50) NOT NULL,
+    -- 'premium_monthly', 'premium_yearly'
+  current_period_start TIMESTAMP WITH TIME ZONE,
+  current_period_end TIMESTAMP WITH TIME ZONE,
+  cancel_at_period_end BOOLEAN DEFAULT false,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+CREATE INDEX idx_subscriptions_couple ON subscriptions(couple_id);
+```
+
+### New: `demand_signals` table
+
+Stores classified intents from AI conversations. Powers the vendor marketplace flywheel in v3.0.
+Denormalizes couple context at signal time — queries need historical snapshots, not live couple data.
+
+```sql
+CREATE TABLE demand_signals (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  couple_id UUID REFERENCES couples(id) ON DELETE CASCADE,
+  chat_message_id UUID REFERENCES chat_messages(id) ON DELETE SET NULL,
+  intent_category VARCHAR(100) NOT NULL,
+    -- 'photographer', 'catering', 'venue', 'music', 'florist', etc.
+  intent_subcategory VARCHAR(100),
+    -- 'outdoor', 'budget', 'premium', 'traditional', etc.
+  location_city VARCHAR(100),
+  location_radius_km INT,
+  wedding_date DATE,
+  budget_total DECIMAL(12,2),
+  guest_count INT,
+  raw_message TEXT,
+  confidence DECIMAL(4,3),   -- 0.000-1.000
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+CREATE INDEX idx_demand_signals_category ON demand_signals(intent_category);
+CREATE INDEX idx_demand_signals_location ON demand_signals(location_city);
+CREATE INDEX idx_demand_signals_couple ON demand_signals(couple_id);
+CREATE INDEX idx_demand_signals_created ON demand_signals(created_at);
+```
+
+### New: `engagement_events` table
+
+Funnel analytics and feature usage tracking. Flexible JSONB payload accommodates future event types.
+
+```sql
+CREATE TABLE engagement_events (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  couple_id UUID REFERENCES couples(id) ON DELETE CASCADE,
+  event_type VARCHAR(100) NOT NULL,
+    -- 'page_view', 'chat_message', 'checklist_complete',
+    -- 'onboarding_step', 'upgrade_view', 'upgrade_click', etc.
+  event_data JSONB,
+  session_id VARCHAR(100),
+  utm_source VARCHAR(100),
+  utm_medium VARCHAR(100),
+  utm_campaign VARCHAR(100),
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+CREATE INDEX idx_engagement_events_couple ON engagement_events(couple_id);
+CREATE INDEX idx_engagement_events_type ON engagement_events(event_type);
+CREATE INDEX idx_engagement_events_created ON engagement_events(created_at);
+```
+
+### New: `rate_limit_usage` table
+
+Daily message quota tracking for free tier. One row per (user, day).
+
+```sql
+CREATE TABLE rate_limit_usage (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  couple_id UUID REFERENCES couples(id) ON DELETE CASCADE,
+  date DATE NOT NULL DEFAULT CURRENT_DATE,
+  message_count INT DEFAULT 0,
+  UNIQUE(couple_id, date)
+);
+CREATE INDEX idx_rate_limit_couple_date ON rate_limit_usage(couple_id, date);
+
+-- Atomic increment + gate check — prevents race conditions
+CREATE OR REPLACE FUNCTION increment_and_check_rate_limit(
+  p_couple_id UUID, p_date DATE, p_limit INT
+) RETURNS BOOLEAN AS $$
+DECLARE new_count INT;
+BEGIN
+  INSERT INTO rate_limit_usage (couple_id, date, message_count)
+  VALUES (p_couple_id, p_date, 1)
+  ON CONFLICT (couple_id, date)
+  DO UPDATE SET message_count = rate_limit_usage.message_count + 1
+  RETURNING message_count INTO new_count;
+  RETURN new_count <= p_limit;
+END;
+$$ LANGUAGE plpgsql;
+```
+
+### Modified: `wedding_websites` table
+
+```sql
+-- published=true only allowed when couple.tier='premium'
+-- Enforcement: in API handler, not DB constraint (simpler to change tier rules later)
+ALTER TABLE wedding_websites
+  ADD COLUMN is_premium_feature BOOLEAN DEFAULT true;
+```
+
+---
+
+## New Components Required
+
+### New API Routes
+
+| Route | Method | What it does | Auth |
+|-------|--------|--------------|------|
+| `/api/stripe/checkout` | POST | Create Stripe Checkout session, create/reuse stripe_customer_id | Required |
+| `/api/stripe/webhook` | POST | Handle Stripe events (subscription state sync) | Stripe signature |
+| `/api/stripe/portal` | POST | Create Customer Portal session for billing management | Required |
+| `/api/gopay/create` | POST | Create GoPay payment via REST, return redirect URL | Required |
+| `/api/gopay/notify` | POST | GoPay IPN — verify payment state, update tier | GoPay signature |
+| `/api/ai/classify-intent` | POST | Internal — classify message intent, write demand_signals | Internal only |
+| `/api/metrics/event` | POST | Write to engagement_events | Optional auth |
+| `/auth/callback` | GET | Exchange OAuth code for Supabase session (Google OAuth) | None |
+
+### New Pages and UI Components
+
+| Location | Type | Purpose |
+|----------|------|---------|
+| `(dashboard)/upgrade/page.tsx` | Page | Pricing comparison + Stripe/GoPay checkout CTAs |
+| `(dashboard)/settings/billing/page.tsx` | Page | Subscription status, Customer Portal link, cancel info |
+| `components/paywall/UpgradePrompt.tsx` | Component | Inline gate — shown when free user hits premium feature |
+| `components/paywall/TierBadge.tsx` | Component | FREE / PREMIUM pill in DashboardNav |
+| `components/auth/GoogleOAuthButton.tsx` | Component | Google sign-in button using Supabase OAuth |
+| `components/onboarding/StepGuests.tsx` | Component | Onboarding step 2 — guest count input |
+| `components/onboarding/StepLocation.tsx` | Component | Onboarding step 3 — city + search radius |
+
+---
+
+## Recommended Project Structure (new files only)
 
 ```
 src/
 ├── app/
-│   ├── globals.css          # MODIFIED: replace :root colors with @theme block
-│   ├── layout.tsx           # MODIFIED: swap font imports (Playfair → new heading font)
-│   ├── page.tsx             # MODIFIED: redesigned landing page sections
-│   ├── (auth)/              # MODIFIED: reskin login, register, onboarding pages
-│   ├── (dashboard)/         # MODIFIED: reskin all dashboard views
-│   └── w/[slug]/            # MODIFIED: reskin public wedding web
-│
+│   ├── api/
+│   │   ├── stripe/
+│   │   │   ├── checkout/route.ts    # session creation
+│   │   │   ├── webhook/route.ts     # MUST use raw body (request.text())
+│   │   │   └── portal/route.ts      # customer portal session
+│   │   ├── gopay/
+│   │   │   ├── create/route.ts      # REST call to gate.gopay.cz/api
+│   │   │   └── notify/route.ts      # IPN handler
+│   │   ├── ai/
+│   │   │   └── classify-intent/route.ts  # optional — can be inline lib fn
+│   │   └── metrics/
+│   │       └── event/route.ts
+│   ├── auth/
+│   │   └── callback/route.ts        # OAuth code exchange
+│   └── (dashboard)/
+│       ├── upgrade/page.tsx
+│       └── settings/billing/page.tsx
 ├── components/
-│   ├── ui/                  # MODIFIED + EXPANDED: proper primitives
-│   │   ├── Button.tsx       # NEW: typed component replacing .btn-* CSS classes
-│   │   ├── Card.tsx         # NEW: surface primitive
-│   │   ├── Input.tsx        # NEW: form input primitive
-│   │   ├── Badge.tsx        # NEW: status/tag primitive
-│   │   ├── Footer.tsx       # EXISTING: reskin
-│   │   └── Navigation.tsx   # EXISTING: reskin (landing nav)
-│   │
-│   ├── sections/            # EXISTING: all modified for redesign
-│   │   ├── Hero.tsx
-│   │   ├── About.tsx
-│   │   ├── Gallery.tsx
-│   │   ├── Timeline.tsx
-│   │   ├── Locations.tsx
-│   │   ├── Contacts.tsx
-│   │   └── RSVP.tsx
-│   │
-│   ├── dashboard/           # EXISTING: all modified for redesign
-│   │   ├── DashboardNav.tsx
-│   │   ├── ChecklistView.tsx
-│   │   ├── BudgetView.tsx
-│   │   ├── GuestsView.tsx
-│   │   └── ChatInterface.tsx
-│   │
-│   └── motion/              # NEW: animation wrappers
-│       ├── AnimateIn.tsx    # Scroll-triggered reveal wrapper
-│       ├── AnimateStagger.tsx # Staggered children animation
-│       └── variants.ts      # Shared motion variant definitions
-│
+│   ├── paywall/
+│   │   ├── UpgradePrompt.tsx
+│   │   └── TierBadge.tsx
+│   ├── auth/
+│   │   └── GoogleOAuthButton.tsx
+│   └── onboarding/
+│       ├── StepGuests.tsx
+│       └── StepLocation.tsx
 └── lib/
-    └── (existing lib files unchanged)
+    ├── stripe.ts              # Stripe singleton
+    ├── gopay.ts               # GoPay REST helpers (token + payment)
+    ├── tier.ts                # isPremium(), checkFeatureAccess() helpers
+    ├── intent-classifier.ts   # Claude haiku prompt + intent parser
+    └── supabase/
+        └── admin.ts           # Service-role client (for webhooks)
+
+supabase/migrations/
+├── 004_subscriptions.sql
+├── 005_demand_signals.sql
+├── 006_engagement_events.sql
+└── 007_rate_limits.sql
 ```
 
-### Structure Rationale
-
-- **`@theme` in globals.css:** Tailwind 4 CSS-first config. No tailwind.config.ts needed. Tokens declared once, utility classes auto-generated, CSS variables available at runtime.
-- **`components/motion/`:** Isolates all Framer Motion client-component concerns. Server components import and wrap with these — avoids sprinkling `'use client'` across every section.
-- **`components/ui/` expanded:** Typed React primitives replace one-off utility class strings like `className="btn-primary !text-base !px-8"`. Consistent API, single place to update.
+---
 
 ## Architectural Patterns
 
-### Pattern 1: CSS-First Design Tokens via `@theme`
+### Pattern 1: Webhook as Single Source of Truth (Stripe)
 
-**What:** Replace the current `:root { --color-primary: ... }` block with a Tailwind 4 `@theme` block. This makes tokens available both as CSS variables AND as Tailwind utility classes (`bg-primary`, `text-primary`, etc.).
+**What:** Never trust the Checkout success redirect to update subscription state. The webhook is the only place that writes `couples.tier` and `subscriptions`.
 
-**When to use:** All color, spacing, radius, and shadow tokens that need Tailwind utilities. Keep `:root` only for non-Tailwind values (safe-area insets, section-padding).
+**When to use:** Always. Success page redirects can fail if the user closes the tab. Stripe guarantees webhook delivery with retries.
 
-**Trade-offs:** Tailwind 4 `@theme` generates utility classes automatically — you get both `var(--color-primary)` in CSS and `bg-primary` in className. The downside is that `@theme` variables cannot reference other CSS variables defined outside `@theme`, so keep the token set self-contained.
-
-**Example:**
-```css
-/* globals.css */
-
-@import "tailwindcss";
-
-@theme {
-  /* Colors */
-  --color-primary: #6B5E4E;
-  --color-primary-light: #897465;
-  --color-primary-dark: #4E4539;
-  --color-secondary: #F7F4F0;
-  --color-accent: #C9A97A;
-  --color-surface: #FFFFFF;
-  --color-border: #E8E3DB;
-  --color-text: #1A1A1A;
-  --color-text-muted: #6B6B6B;
-
-  /* Typography */
-  --font-heading: var(--font-heading-loaded), 'Georgia', serif;
-  --font-body: var(--font-body-loaded), 'system-ui', sans-serif;
-  --font-size-xs: 0.75rem;
-  --font-size-sm: 0.875rem;
-  --font-size-base: 1rem;
-  --font-size-lg: 1.125rem;
-  --font-size-xl: 1.25rem;
-  --font-size-2xl: 1.5rem;
-  --font-size-3xl: 1.875rem;
-  --font-size-4xl: 2.25rem;
-  --font-size-5xl: 3rem;
-
-  /* Radius */
-  --radius-sm: 0.5rem;
-  --radius-md: 0.75rem;
-  --radius-lg: 1rem;
-  --radius-xl: 1.5rem;
-  --radius-2xl: 2rem;
-  --radius-full: 9999px;
-
-  /* Shadows */
-  --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.08);
-  --shadow-md: 0 4px 16px 0 rgb(0 0 0 / 0.08);
-  --shadow-lg: 0 8px 32px 0 rgb(0 0 0 / 0.12);
-}
-
-/* Non-token globals — stay in :root */
-:root {
-  --section-padding: 6rem;
-  --section-padding-mobile: 4rem;
-  --safe-area-inset-bottom: env(safe-area-inset-bottom, 0px);
-}
-```
-
-### Pattern 2: Font Loading — CSS Variable Bridge
-
-**What:** Next.js `next/font` injects font classes on `<html>`. The font variable name must bridge to the `@theme` token. Use a two-step naming: `next/font` produces `--font-heading-loaded`, `@theme` references it in `--font-heading`.
-
-**When to use:** Always — this is the correct Next.js 16 font pattern.
-
-**Trade-offs:** No font flash, zero layout shift, self-hosted from Google Fonts CDN at build time. The bridge variable approach means changing the font is a one-line change in layout.tsx.
-
-**Example:**
-```typescript
-// layout.tsx
-import { Inter, DM_Serif_Display } from "next/font/google";
-
-const inter = Inter({
-  subsets: ["latin", "latin-ext"],
-  variable: "--font-body-loaded",   // feeds into @theme --font-body
-  display: "swap",
-});
-
-const dmSerif = DM_Serif_Display({
-  subsets: ["latin", "latin-ext"],
-  weight: "400",
-  variable: "--font-heading-loaded", // feeds into @theme --font-heading
-  display: "swap",
-});
-
-export default function RootLayout({ children }) {
-  return (
-    <html lang="cs" className={`${inter.variable} ${dmSerif.variable}`}>
-      <body>{children}</body>
-    </html>
-  );
-}
-```
-
-### Pattern 3: Animation Wrapper Components
-
-**What:** Framer Motion requires `'use client'`. Server components (all App Router pages by default) cannot use it directly. Create thin client wrapper components that accept `children` and apply motion — server components stay server, animations still work.
-
-**When to use:** Any scroll-triggered reveal animation on landing page sections, dashboard cards, public wedding web.
-
-**Trade-offs:** Slight indirection. The benefit is keeping RSC benefits (streamed HTML, no client JS for static content) while still having animations. Critical for SEO — content renders in initial HTML, animation is progressive enhancement.
-
-**Example:**
-```typescript
-// components/motion/AnimateIn.tsx
-'use client';
-
-import { motion } from 'framer-motion';
-import { ReactNode } from 'react';
-
-interface AnimateInProps {
-  children: ReactNode;
-  delay?: number;
-  variant?: 'fadeUp' | 'fadeIn' | 'slideLeft';
-  className?: string;
-}
-
-const variants = {
-  fadeUp: {
-    hidden: { opacity: 0, y: 24 },
-    visible: { opacity: 1, y: 0 },
-  },
-  fadeIn: {
-    hidden: { opacity: 0 },
-    visible: { opacity: 1 },
-  },
-  slideLeft: {
-    hidden: { opacity: 0, x: -24 },
-    visible: { opacity: 1, x: 0 },
-  },
-};
-
-export function AnimateIn({
-  children,
-  delay = 0,
-  variant = 'fadeUp',
-  className,
-}: AnimateInProps) {
-  return (
-    <motion.div
-      initial="hidden"
-      whileInView="visible"
-      viewport={{ once: true, margin: '-80px' }}
-      transition={{ duration: 0.5, delay, ease: [0.22, 1, 0.36, 1] }}
-      variants={variants[variant]}
-      className={className}
-    >
-      {children}
-    </motion.div>
-  );
-}
-```
+**Trade-offs:** Slight activation delay (usually under 5 seconds). Premium UI may render before webhook fires on the success page — poll `tier` on the success redirect or show a "activating..." state.
 
 ```typescript
-// Usage in server component (page.tsx section)
-import { AnimateIn } from '@/components/motion/AnimateIn';
+// src/app/api/stripe/webhook/route.ts
+import Stripe from 'stripe';
+import { stripe } from '@/lib/stripe';
+import { createAdminClient } from '@/lib/supabase/admin';
 
-// No 'use client' needed here
-export default function HeroSection() {
-  return (
-    <section>
-      <AnimateIn>
-        <h1>Naplánujte svatbu bez stresu</h1>
-      </AnimateIn>
-      <AnimateIn delay={0.1}>
-        <p>Subtitle text...</p>
-      </AnimateIn>
-    </section>
-  );
-}
-```
+export async function POST(request: Request) {
+  const body = await request.text(); // raw body — required for sig verification
+  const sig = request.headers.get('stripe-signature')!;
 
-### Pattern 4: Typed UI Primitives
-
-**What:** Replace one-off Tailwind utility strings and CSS classes (`.btn-primary`, `className="btn-primary !text-base !px-8"`) with typed React components. All styling logic lives in the component, callers just use props.
-
-**When to use:** Any element that appears more than twice with consistent behavior (Button, Card, Input, Badge).
-
-**Trade-offs:** More files upfront, but eliminates style drift. The current codebase has `!important` overrides on `.btn-primary` which is a signal the CSS-class approach is already breaking down.
-
-**Example:**
-```typescript
-// components/ui/Button.tsx
-import { forwardRef } from 'react';
-import { cn } from '@/lib/utils';
-
-interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'outline' | 'ghost';
-  size?: 'sm' | 'md' | 'lg';
-  asChild?: boolean;
-}
-
-const variantClasses = {
-  primary: 'bg-primary text-white hover:bg-primary-light',
-  outline: 'border border-primary text-primary hover:bg-primary hover:text-white',
-  ghost: 'text-text-muted hover:text-primary hover:bg-secondary',
-};
-
-const sizeClasses = {
-  sm: 'px-4 py-2 text-sm',
-  md: 'px-6 py-3 text-sm',
-  lg: 'px-8 py-4 text-base',
-};
-
-export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ variant = 'primary', size = 'md', className, children, ...props }, ref) => {
-    return (
-      <button
-        ref={ref}
-        className={cn(
-          'inline-flex items-center justify-center rounded-full font-medium',
-          'min-h-[44px] transition-all duration-200',
-          'focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2',
-          '-webkit-tap-highlight-color-transparent',
-          variantClasses[variant],
-          sizeClasses[size],
-          className
-        )}
-        {...props}
-      >
-        {children}
-      </button>
+  let event: Stripe.Event;
+  try {
+    event = stripe.webhooks.constructEvent(
+      body, sig, process.env.STRIPE_WEBHOOK_SECRET!
     );
+  } catch {
+    return new Response('Invalid signature', { status: 400 });
   }
-);
+
+  const supabase = createAdminClient(); // service_role bypasses RLS
+
+  if (
+    event.type === 'customer.subscription.created' ||
+    event.type === 'customer.subscription.updated'
+  ) {
+    const sub = event.data.object as Stripe.Subscription;
+    const isActive = sub.status === 'active' || sub.status === 'trialing';
+
+    await supabase.from('couples')
+      .update({
+        tier: isActive ? 'premium' : 'free',
+        subscription_status: sub.status,
+        subscription_period_end: new Date(sub.current_period_end * 1000).toISOString(),
+      })
+      .eq('stripe_customer_id', sub.customer as string);
+
+    await supabase.from('subscriptions').upsert({
+      couple_id: /* resolved via stripe_customer_id lookup */ '',
+      provider: 'stripe',
+      provider_subscription_id: sub.id,
+      status: sub.status,
+      plan: sub.items.data[0]?.price.lookup_key ?? 'premium_monthly',
+      current_period_end: new Date(sub.current_period_end * 1000).toISOString(),
+    }, { onConflict: 'provider_subscription_id' });
+  }
+
+  if (event.type === 'customer.subscription.deleted') {
+    const sub = event.data.object as Stripe.Subscription;
+    await supabase.from('couples')
+      .update({ tier: 'free', subscription_status: 'canceled' })
+      .eq('stripe_customer_id', sub.customer as string);
+  }
+
+  return new Response('ok');
+}
 ```
+
+### Pattern 2: Fire-and-Forget Intent Classification
+
+**What:** After saving a chat message, trigger intent classification asynchronously. The user response is returned immediately — classification runs in the background.
+
+**When to use:** AI intent classification and demand signal logging. These are analytics, never user-facing.
+
+**Trade-offs:** Classification can fail silently. Acceptable. If signals are missing for some messages, the analytics are slightly incomplete — far better than degrading chat UX.
+
+**Intent taxonomy for Czech wedding domain:**
+`photographer`, `videographer`, `venue`, `catering`, `music`, `florist`, `car`, `officiant`, `honeymoon`, `dress`, `invitations`, `cake`, `hair_makeup`, `budget_advice`, `checklist_advice`, `legal`, `general`
+
+```typescript
+// src/app/api/chat/route.ts — modified section after saving messages
+await supabase.from('chat_messages').insert([
+  { couple_id: coupleId, role: 'user', content: message },
+  { couple_id: coupleId, role: 'assistant', content: assistantMessage },
+]);
+
+// Fire-and-forget — never await, never block the response
+void classifyAndLogIntent({
+  coupleId,
+  message,
+  coupleContext: context,
+});
+
+return NextResponse.json({ message: assistantMessage });
+
+// ─── src/lib/intent-classifier.ts ───────────────────────────────────
+const INTENT_PROMPT = `
+Classify the following wedding planning message into one intent category.
+Respond with JSON only: { "category": string, "subcategory": string | null, "confidence": number }
+Categories: photographer, videographer, venue, catering, music, florist,
+car, officiant, honeymoon, dress, invitations, cake, hair_makeup,
+budget_advice, checklist_advice, legal, general
+`;
+
+export async function classifyAndLogIntent({ coupleId, message, coupleContext }) {
+  try {
+    const result = await anthropic.messages.create({
+      model: 'claude-haiku-20240307',
+      max_tokens: 80,
+      system: INTENT_PROMPT,
+      messages: [{ role: 'user', content: message }],
+    });
+    const parsed = JSON.parse(result.content[0].text);
+    if (parsed.confidence > 0.6) {
+      const supabase = createAdminClient();
+      await supabase.from('demand_signals').insert({
+        couple_id: coupleId,
+        intent_category: parsed.category,
+        intent_subcategory: parsed.subcategory,
+        confidence: parsed.confidence,
+        location_city: coupleContext.locationCity,
+        wedding_date: coupleContext.weddingDate,
+        budget_total: coupleContext.budget,
+        guest_count: coupleContext.guestCount,
+        raw_message: message,
+      });
+    }
+  } catch {
+    // Silent — analytics, never critical
+  }
+}
+```
+
+### Pattern 3: Server-Side Tier Gate
+
+**What:** Check `couple.tier` in Server Components and API route handlers. Client-side checks are UI only — never security boundaries.
+
+**When to use:** Any feature behind the paywall: wedding website publishing, any future premium-only views.
+
+**Trade-offs:** One extra field loaded on every dashboard request (negligible — already querying couples table).
+
+```typescript
+// src/lib/tier.ts
+import { Couple } from '@/lib/types';
+
+export function isPremium(couple: Couple): boolean {
+  return (
+    couple.tier === 'premium' &&
+    couple.subscription_status === 'active' &&
+    (couple.subscription_period_end === null ||
+      new Date(couple.subscription_period_end) > new Date())
+  );
+}
+
+export function checkFeatureAccess(couple: Couple, feature: 'wedding_web_publish') {
+  const gates: Record<string, (c: Couple) => boolean> = {
+    wedding_web_publish: isPremium,
+  };
+  return gates[feature]?.(couple) ?? true;
+}
+
+// src/app/(dashboard)/layout.tsx — load tier alongside couple data
+// Server Component:
+const { data: couple } = await supabase
+  .from('couples')
+  .select('partner1_name, partner2_name, tier, subscription_status, subscription_period_end, onboarding_completed')
+  .eq('id', user.id)
+  .single();
+
+// Pass tier to client via a React Context or props
+```
+
+### Pattern 4: DB-Based Rate Limiting (no Redis)
+
+**What:** Use `rate_limit_usage` + a Postgres function for atomic increment + check. One extra write per chat message. No external service needed at this scale.
+
+**When to use:** Free tier 15 messages/day limit. Upgrade to Upstash Redis when DAU exceeds ~2000 active chat users.
+
+**Trade-offs:** One DB round-trip added to the chat API. At early scale this is under 5ms on Supabase. The Postgres function is atomic — no race conditions from concurrent requests.
+
+```typescript
+// src/app/api/chat/route.ts — add before calling Claude
+async function checkRateLimit(coupleId: string, tier: string): Promise<boolean> {
+  if (tier === 'premium') return true;
+  const today = new Date().toISOString().split('T')[0];
+  const { data } = await supabase.rpc('increment_and_check_rate_limit', {
+    p_couple_id: coupleId,
+    p_date: today,
+    p_limit: 15,
+  });
+  return data === true;
+}
+
+// In route handler:
+const { data: couple } = await supabase.from('couples')
+  .select('tier, subscription_status')
+  .eq('id', user.id)
+  .single();
+
+const allowed = await checkRateLimit(coupleId, couple.tier);
+if (!allowed) {
+  return NextResponse.json(
+    { error: 'Překročili jste denní limit 15 zpráv. Přejděte na Premium pro neomezený přístup.' },
+    { status: 429 }
+  );
+}
+```
+
+### Pattern 5: Google OAuth Callback Route
+
+**What:** Supabase handles the OAuth redirect flow. The app needs one new route `/auth/callback` to exchange the code for a session.
+
+**When to use:** Google OAuth login. Required for any Supabase OAuth provider.
+
+```typescript
+// src/app/auth/callback/route.ts
+import { createClient } from '@/lib/supabase/server';
+import { NextResponse } from 'next/server';
+
+export async function GET(request: Request) {
+  const { searchParams, origin } = new URL(request.url);
+  const code = searchParams.get('code');
+  const next = searchParams.get('next') ?? '/onboarding';
+
+  if (code) {
+    const supabase = await createClient();
+    const { error } = await supabase.auth.exchangeCodeForSession(code);
+    if (!error) {
+      // Check if onboarding completed — redirect accordingly
+      return NextResponse.redirect(`${origin}${next}`);
+    }
+  }
+  return NextResponse.redirect(`${origin}/login?error=oauth`);
+}
+
+// src/components/auth/GoogleOAuthButton.tsx
+'use client';
+import { createClient } from '@/lib/supabase/client';
+
+export function GoogleOAuthButton() {
+  async function handleGoogleLogin() {
+    const supabase = createClient();
+    await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: `${window.location.origin}/auth/callback` },
+    });
+  }
+  return (
+    <button onClick={handleGoogleLogin} className="...">
+      Přihlásit se přes Google
+    </button>
+  );
+}
+```
+
+---
 
 ## Data Flow
 
-### Theme Token Flow
+### Payment Flow (Stripe)
 
 ```
-globals.css @theme block
-    ↓ (Tailwind generates utilities at build)
-CSS custom properties in :root (browser exposes these)
+User clicks "Upgrade" in dashboard
     ↓
-layout.tsx injects font variables via next/font className on <html>
+POST /api/stripe/checkout
+    → Read couple.stripe_customer_id — create if null, persist if new
+    → stripe.checkout.sessions.create({
+        mode: 'subscription',
+        customer: stripeCustomerId,
+        line_items: [{ price: PRICE_ID }],
+        metadata: { coupleId },
+        success_url: '/dashboard?upgraded=1',
+        cancel_url: '/dashboard/upgrade',
+      })
+    → Return { url }
     ↓
-All components consume via:
-  - Tailwind utility: bg-primary, text-text-muted
-  - CSS variable: var(--color-primary) for inline styles, gradients
-  - Component prop: <Button variant="primary">
+Client: window.location.href = url (redirect to Stripe hosted page)
+    ↓
+User pays on Stripe
+    ↓
+Stripe → POST /api/stripe/webhook (customer.subscription.created)
+    → Verify Stripe-Signature header
+    → Update couples.tier = 'premium'
+    → Upsert subscriptions row
+    ↓
+User lands on /dashboard?upgraded=1
+    → Server Component re-reads couple.tier = 'premium'
+    → Renders premium UI
 ```
 
-### Animation Trigger Flow
+### GoPay Flow (Czech alternative)
 
 ```
-User scrolls → Viewport intersection observed (IntersectionObserver via Framer)
+POST /api/gopay/create
+    → Fetch GoPay OAuth2 token (client_credentials grant)
+      POST https://gate.gopay.cz/api/oauth2/token
+    → Create payment
+      POST https://gate.gopay.cz/api/payments
+      { payer, amount, currency: 'CZK', order_description, ... }
+    → Return { gw_url }
     ↓
-AnimateIn/AnimateStagger whileInView fires
+Client redirects to GoPay payment page
     ↓
-Framer Motion applies CSS transforms (GPU-composited, no reflow)
+GoPay POSTs to /api/gopay/notify (IPN)
+    → Verify by querying payment state:
+      GET https://gate.gopay.cz/api/payments/{id}
+    → On state=PAID: update couples.tier='premium', insert subscriptions row
     ↓
-viewport={{ once: true }} — animation does not replay on scroll-back
+User returns to /dashboard?gopay=paid
 ```
 
-### Font Loading Flow
+Note: GoPay recurring subscriptions require separate "recurrence" setup. For v2.0, treat GoPay as annual one-time payment only. Stripe handles recurring monthly/yearly plans.
+
+### AI Intent Classification Flow
 
 ```
-Build time: next/font downloads Google Font, generates @font-face
+User sends chat message
     ↓
-layout.tsx: inter.variable + dmSerif.variable classNames on <html>
-    ↓
-Browser: CSS variable --font-body-loaded and --font-heading-loaded available
-    ↓
-@theme: --font-heading references --font-heading-loaded
-    ↓
-globals.css h1-h6: font-family: var(--font-heading) applied
+POST /api/chat (existing route — modified)
+    → Auth check (existing)
+    → Rate limit check  ← NEW
+      If free tier AND count >= 15 → 429 response
+    → Build system prompt (existing)
+    → Call Claude Sonnet for response (existing)
+    → Save user + assistant messages to chat_messages (existing)
+    → void classifyAndLogIntent(...)  ← NEW fire-and-forget
+    → Return chat response to client (same timing as before)
+    ↓ (async, non-blocking, ~200-500ms later)
+classifyAndLogIntent()
+    → Call Claude Haiku with intent classification prompt
+    → Parse JSON response: { category, subcategory, confidence }
+    → If confidence > 0.6:
+      INSERT demand_signals (with denormalized couple context)
 ```
 
-## Integration Points
+### Engagement Metrics Flow
 
-### Existing Architecture — What Changes vs What Stays
+```
+Client component action (page view, button click, onboarding step, upgrade click)
+    ↓
+POST /api/metrics/event
+    { event_type, event_data, session_id, utm_source, utm_medium, utm_campaign }
+    → Reads user from session if authenticated (optional — some events pre-auth)
+    → INSERT engagement_events
+    → Return 200
 
-| Element | Status | Change |
-|---------|--------|--------|
-| `app/globals.css` `:root` color block | MODIFIED | Migrate colors to `@theme`, keep spacing/safe-area in `:root` |
-| `app/layout.tsx` font imports | MODIFIED | Replace `Playfair_Display` with chosen heading font |
-| `.btn-primary`, `.btn-outline` CSS classes | DEPRECATED | Replace with `<Button>` component. Remove from globals.css after migration. |
-| `.animate-fade-in-up` CSS keyframe | DEPRECATED | Replace with Framer Motion AnimateIn wrapper |
-| `var(--color-*)` inline styles in components | KEPT AS-IS or migrated | `var(--color-primary)` still works after @theme migration. Can migrate to Tailwind utilities incrementally. |
-| `DashboardNav` | MODIFIED | Reskin colors, font classes |
-| All dashboard views | MODIFIED | Reskin — no structural change |
-| Auth pages | MODIFIED | Reskin + layout improvements |
-| `w/[slug]` public web | MODIFIED | Reskin all sections |
-| Supabase integration | UNTOUCHED | Not in scope |
-| Route structure | UNTOUCHED | No route changes |
+UTM capture (landing page):
+    → LandingNav/Hero reads ?utm_* from URL on mount
+    → Stores in sessionStorage
+    → On registration: send 'registration' event with utm fields
+```
 
-### New Components Needed
+### Google OAuth Flow
 
-| Component | Path | Priority | Notes |
-|-----------|------|----------|-------|
-| `AnimateIn` | `components/motion/AnimateIn.tsx` | P0 | Needed before any landing page section work |
-| `AnimateStagger` | `components/motion/AnimateStagger.tsx` | P1 | For feature grids, benefit lists |
-| `Button` | `components/ui/Button.tsx` | P0 | Replace .btn-* everywhere |
-| `Card` | `components/ui/Card.tsx` | P1 | Dashboard cards, feature cards |
-| `Input` | `components/ui/Input.tsx` | P1 | Auth forms, RSVP form |
-| `Badge` | `components/ui/Badge.tsx` | P2 | Checklist status, guest RSVP status |
-| `cn` util | `lib/utils.ts` | P0 | `clsx` + `tailwind-merge` for className composition |
+```
+User clicks "Přihlásit se přes Google"
+    ↓
+GoogleOAuthButton.tsx → supabase.auth.signInWithOAuth({ provider: 'google' })
+    ↓
+Browser redirects to Google consent screen
+    ↓
+Google redirects back to /auth/callback?code=xxx
+    ↓
+/auth/callback route: supabase.auth.exchangeCodeForSession(code)
+    → Creates Supabase user if new (auto-inserts into auth.users)
+    → Sets session cookie
+    ↓
+Check if couple row exists (onboarding_completed)
+    → New user: redirect to /onboarding
+    → Returning user: redirect to /dashboard
+```
 
-### Internal Boundaries
+---
 
-| Boundary | Communication | Notes |
-|----------|---------------|-------|
-| Server components ↔ AnimateIn | children prop pattern | Server renders content, AnimateIn wraps for animation |
-| @theme tokens ↔ Tailwind utilities | Auto-generated by Tailwind 4 | `--color-primary` → `bg-primary`, `text-primary` |
-| next/font ↔ @theme fonts | CSS variable bridge | `--font-heading-loaded` injected by next/font, consumed in @theme |
-| Dashboard layout ↔ views | `pt-16` main, fixed nav | Existing pattern, keep — just reskin |
+## New vs. Modified: Complete List
 
-## Build Order (Dependency-Aware)
+### Modified (existing files change)
 
-The design system has hard dependencies. Build in this order to avoid rework:
+| File | What changes |
+|------|--------------|
+| `src/app/api/chat/route.ts` | Add rate limit check; add fire-and-forget `void classifyAndLogIntent()` after save |
+| `src/app/(dashboard)/layout.tsx` | Load `couple.tier + subscription_status`; remove `isDemoMode = true` hardcode; pass tier to client via context |
+| `src/components/providers/Providers.tsx` | Add `TierContext.Provider` so client components can read tier without prop drilling |
+| `src/lib/types.ts` | Add `tier`, `stripe_customer_id`, `subscription_status`, `subscription_period_end`, `location_city`, `location_radius_km`, `guest_count` to `Couple`; add `Subscription`, `DemandSignal`, `EngagementEvent` interfaces |
+| `src/middleware.ts` | Remove `DEMO_MODE = true`; activate real session refresh logic |
+| `src/app/(auth)/onboarding/page.tsx` | Expand from 3 to 4 steps using StepGuests and StepLocation components |
+| `src/app/(public)/w/[slug]/page.tsx` | Show "preview mode" banner for unpublished sites; enforce `published=true` for public access |
+| `src/app/(dashboard)/settings/page.tsx` | Add billing section or link to `/settings/billing` |
+| `src/components/dashboard/DashboardNav.tsx` | Add `TierBadge` component |
 
-**Stage 1 — Foundation (no existing components broken)**
-1. Update `globals.css`: migrate `:root` colors to `@theme`, add new color palette, add new token namespaces (radius, shadow). Old `var(--color-*)` references in existing components still resolve — zero breakage.
-2. Update `layout.tsx`: swap font imports. Replace `Playfair_Display` with chosen heading font. The `--font-heading` CSS variable chain means all `font-serif` usage in the DOM gets the new font automatically.
-3. Create `lib/utils.ts` with `cn()` helper.
-4. Create `components/motion/AnimateIn.tsx` and `AnimateStagger.tsx`.
+### New (net-new files)
 
-**Stage 2 — UI Primitives**
-5. Create `components/ui/Button.tsx` — typed primitive.
-6. Create `components/ui/Card.tsx`.
-7. Create `components/ui/Input.tsx`.
+| File | Purpose |
+|------|---------|
+| `src/app/auth/callback/route.ts` | OAuth code exchange |
+| `src/app/api/stripe/checkout/route.ts` | Checkout session creation |
+| `src/app/api/stripe/webhook/route.ts` | Subscription state sync (raw body required) |
+| `src/app/api/stripe/portal/route.ts` | Customer Portal session |
+| `src/app/api/gopay/create/route.ts` | GoPay payment creation |
+| `src/app/api/gopay/notify/route.ts` | GoPay IPN handler |
+| `src/app/api/metrics/event/route.ts` | Engagement event logging |
+| `src/app/(dashboard)/upgrade/page.tsx` | Pricing / upgrade page |
+| `src/app/(dashboard)/settings/billing/page.tsx` | Subscription management |
+| `src/components/paywall/UpgradePrompt.tsx` | Inline paywall gate component |
+| `src/components/paywall/TierBadge.tsx` | FREE/PREMIUM indicator in nav |
+| `src/components/auth/GoogleOAuthButton.tsx` | Google OAuth trigger button |
+| `src/components/onboarding/StepGuests.tsx` | Onboarding step 2 |
+| `src/components/onboarding/StepLocation.tsx` | Onboarding step 3 |
+| `src/lib/stripe.ts` | Stripe singleton (`new Stripe(process.env.STRIPE_SECRET_KEY!)`) |
+| `src/lib/gopay.ts` | GoPay REST helpers: `getToken()`, `createPayment()`, `getPaymentState()` |
+| `src/lib/tier.ts` | `isPremium()`, `checkFeatureAccess()` |
+| `src/lib/intent-classifier.ts` | `classifyAndLogIntent()` with Claude Haiku |
+| `src/lib/supabase/admin.ts` | Service-role client for webhooks and server-side writes that bypass RLS |
+| `supabase/migrations/004_subscriptions.sql` | subscriptions table + RLS |
+| `supabase/migrations/005_demand_signals.sql` | demand_signals table + RLS |
+| `supabase/migrations/006_engagement_events.sql` | engagement_events table + RLS |
+| `supabase/migrations/007_rate_limits.sql` | rate_limit_usage table + atomic Postgres function |
 
-**Stage 3 — Landing Page**
-8. Redesign `app/page.tsx` using new tokens + AnimateIn + Button primitive. Remove all `.btn-primary !important` overrides.
-
-**Stage 4 — Auth**
-9. Redesign login, register, onboarding pages using Input + Button primitives.
-
-**Stage 5 — Dashboard**
-10. Reskin `DashboardNav`, then each view (ChecklistView, BudgetView, GuestsView, ChatInterface). Card primitive usable here.
-
-**Stage 6 — Public Wedding Web**
-11. Reskin all `components/sections/` components. AnimateIn usable on all of them.
-12. Reskin `w/[slug]/page.tsx`.
-
-**Stage 7 — Cleanup**
-13. Remove deprecated `.btn-primary`, `.btn-outline`, `.animate-fade-in-up` from `globals.css` once no references remain.
-
-## Anti-Patterns
-
-### Anti-Pattern 1: Mixing @theme and tailwind.config.ts
-
-**What people do:** Keep a `tailwind.config.ts` with `theme.extend.colors` while also adding colors to `@theme` in CSS.
-
-**Why it's wrong:** Tailwind 4 dropped the JS config file as the primary mechanism. Running both creates duplicate utility classes with different names and confuses which source wins. The project has no `tailwind.config.ts` — keep it that way.
-
-**Do this instead:** All tokens in `@theme` in `globals.css`. Single source of truth.
-
-### Anti-Pattern 2: `'use client'` on Section Components
-
-**What people do:** Add `'use client'` to every section component that needs animation, effectively making the entire landing page a client bundle.
-
-**Why it's wrong:** Eliminates RSC benefits. Full HTML is not streamed — it's JS-rendered on client. SEO impact on slow connections. Bundle size grows with every animation import.
-
-**Do this instead:** Keep sections as server components. Wrap content with `<AnimateIn>` and `<AnimateStagger>` client components. The boundary is at the animation wrapper, not the section.
-
-### Anti-Pattern 3: Hardcoded Colors in Component Files
-
-**What people do:** Continue the existing pattern of `text-[var(--color-primary)]` or `style={{ color: '#8B7355' }}` inline in components rather than using generated Tailwind utilities.
-
-**Why it's wrong:** After the @theme migration, `bg-primary` and `text-primary` work directly. Hardcoded hex strings mean a palette change requires grep-and-replace across all files.
-
-**Do this instead:** Use Tailwind utilities generated from @theme tokens: `bg-primary`, `text-text-muted`, `border-border`, `shadow-md`. Reserve `var(--color-*)` only for CSS contexts where Tailwind utilities can't be used (gradients in CSS, pseudo-element content).
-
-### Anti-Pattern 4: Animating Layout-Affecting Properties
-
-**What people do:** Animate `height`, `padding`, `margin`, or `width` with Framer Motion for reveal effects.
-
-**Why it's wrong:** These properties trigger reflow on every frame. On mobile Safari, this causes jank and dropped frames — especially on the public wedding web where guests may be on older phones.
-
-**Do this instead:** Animate only `opacity` and `transform` (translateY, scale). These are GPU-composited and never cause reflow. The `fadeUp` variant in AnimateIn uses `y: 24` (transform), not `marginTop`.
-
-### Anti-Pattern 5: !important Overrides on Design System Classes
-
-**What people do:** The current codebase already shows this: `className="btn-primary !text-base !px-8 !py-4"`.
-
-**Why it's wrong:** Signals the abstraction is wrong. If callers need to override, the component API is insufficient.
-
-**Do this instead:** The `Button` component `size` prop handles this. `<Button size="lg">` applies the right padding without overrides.
+---
 
 ## Scaling Considerations
 
-This is a design-only milestone — no architectural scaling concerns. For completeness:
-
 | Scale | Architecture Adjustments |
 |-------|--------------------------|
-| 0-1k users | Current monolith is fine. Design system changes have no scaling impact. |
-| 1k-100k users | No design system changes needed. Supabase connection pooling is the first bottleneck. |
-| 100k+ users | CDN caching for the public wedding web pages becomes relevant. |
+| 0-500 active users | Current approach fine. DB rate limiting is adequate. No queues needed. |
+| 500-5k active users | Add Upstash Redis for rate limiting to reduce DB write pressure. Stripe webhooks may need idempotency key tracking. |
+| 5k-50k active users | Separate analytics writes. Consider Posthog/Plausible for engagement_events instead of rolling your own. Intent classification cost may need batching. |
+| 50k+ | demand_signals becomes a dedicated analytics service. Event streaming (Kafka/Supabase Realtime) for real-time signals. |
+
+### Scaling Priorities
+
+1. **First bottleneck: chat API** — two Claude calls per message (Sonnet + Haiku) doubles AI cost. Haiku is cheap (~$0.00025/1k tokens) but at scale consider batching classification with a queue.
+2. **Second bottleneck: engagement_events writes** — high frequency if tracking page views. Partition by month early (`CREATE TABLE engagement_events_2026_03 PARTITION OF ...`) or move to an external analytics tool.
+
+---
+
+## Anti-Patterns
+
+### Anti-Pattern 1: Trusting Client-Side Tier Checks
+
+**What people do:** Read tier from React context, hide premium UI, assume that's enough protection.
+**Why it's wrong:** Any user can override client state. Premium features (publishing wedding web) must also be gated server-side in the API handler.
+**Do this instead:** Check `isPremium(couple)` in Server Components and API routes. Client checks are UI polish only.
+
+### Anti-Pattern 2: Awaiting Intent Classification in Chat Handler
+
+**What people do:** `await classifyAndLogIntent(...)` before returning the chat response.
+**Why it's wrong:** Adds 200-800ms latency to every chat message. Users perceive the AI as slow.
+**Do this instead:** `void classifyAndLogIntent(...)` — fire and forget. It is analytics, never user-facing.
+
+### Anti-Pattern 3: Parsing Request Body as JSON in Stripe Webhook
+
+**What people do:** Let Next.js auto-parse `request.body` as JSON in the webhook handler.
+**Why it's wrong:** Stripe signature verification requires the raw body bytes. JSON serialization/deserialization changes the exact byte sequence.
+**Do this instead:** `const body = await request.text()` before `stripe.webhooks.constructEvent()`.
+
+### Anti-Pattern 4: Creating Stripe Customer on Every Checkout
+
+**What people do:** Always call `stripe.customers.create()` in the checkout handler without checking existing ID.
+**Why it's wrong:** Creates duplicate customer records. Makes billing history fragmented.
+**Do this instead:** Read `couples.stripe_customer_id` first. If null, create and persist. If exists, reuse.
+
+### Anti-Pattern 5: Using Supabase Anon Client in Webhook Handlers
+
+**What people do:** Use the public browser-side Supabase client (anon key) in `/api/stripe/webhook`.
+**Why it's wrong:** Webhook requests are unauthenticated (no user session cookie). RLS blocks all writes.
+**Do this instead:** Use `createAdminClient()` (service_role key) in all webhook handlers. Never expose the service_role key to the browser.
+
+---
+
+## Integration Points: External Services
+
+| Service | Integration Pattern | Key Gotcha |
+|---------|---------------------|------------|
+| Stripe | Hosted Checkout + webhook for state sync | Raw body required; never trust redirect for tier update |
+| GoPay | Custom REST client with OAuth2 client_credentials | No JS SDK; poll payment state on IPN; recurring = complex |
+| Google OAuth | Supabase built-in provider + `/auth/callback` route | Redirect URL registered in both Google Cloud Console AND Supabase dashboard |
+| Anthropic (chat) | Existing — claude-sonnet for responses | Keep as-is |
+| Anthropic (intent) | New — claude-haiku for classification | Fire-and-forget; parse as JSON; fail silently |
+| Supabase Auth | Existing — add Google provider + admin client | Service-role key only server-side, never in browser |
+
+---
+
+## Build Order (Dependency-Driven)
+
+Build in this order — each step unblocks the next:
+
+1. **DB migrations 004-007** — all new features depend on the schema
+2. **`src/lib/supabase/admin.ts`** — webhooks and server-side writes depend on this
+3. **`src/lib/tier.ts`** — paywall gates depend on this; build once, use everywhere
+4. **Update `src/lib/types.ts`** — all new code needs updated Couple interface
+5. **Google OAuth** (`/auth/callback`, `GoogleOAuthButton`) — auth improvement, no payment dependency; unblocks user acquisition work in parallel
+6. **Enhanced onboarding** (4 steps) — depends on schema additions (location, guest_count)
+7. **Remove `isDemoMode = true`** from layout and middleware — unblocks real auth flow
+8. **Stripe integration** (checkout + webhook + portal + `lib/stripe.ts`) — core monetization; must be live before paywall gates
+9. **Freemium tier gates** (`UpgradePrompt`, tier checks in layout, wedding web paywall) — depends on Stripe being live and returning real `couple.tier`
+10. **Rate limiting** (free tier 15 msg/day) — depends on `rate_limit_usage` table and `increment_and_check_rate_limit` Postgres function
+11. **AI intent classification** (fire-and-forget in chat route, `intent-classifier.ts`) — depends on chat route stability; independent of payments
+12. **Demand signal logging** — depends on intent classification
+13. **Engagement metrics** (`/api/metrics/event`, UTM capture) — mostly independent; add after core flows are stable
+14. **GoPay** — last; more complex REST integration, CZ-specific; Stripe proves the payment model first
+
+---
 
 ## Sources
 
-- [Tailwind CSS v4 Theme Variables](https://tailwindcss.com/docs/theme) — official docs, HIGH confidence
-- [Tailwind CSS v4.0 Release](https://tailwindcss.com/blog/tailwindcss-v4) — official blog, HIGH confidence
-- [Next.js Font Optimization](https://nextjs.org/docs/app/getting-started/fonts) — official docs, HIGH confidence
-- [Framer Motion useScroll](https://www.framer.com/motion/use-scroll/) — official docs, HIGH confidence
-- [Framer Motion Scroll Animations](https://www.framer.com/motion/scroll-animations/) — official docs, HIGH confidence
-- [Building a Production Design System with Tailwind CSS v4](https://dev.to/saswatapal/building-a-production-design-system-with-tailwind-css-v4-1d9e) — MEDIUM confidence
+- Stripe Next.js App Router integration: [Stripe + Next.js 15 Complete Guide](https://www.pedroalonso.net/blog/stripe-nextjs-complete-guide-2025/)
+- Stripe + Supabase webhook sync: [Supabase Stripe Webhooks Docs](https://supabase.com/docs/guides/functions/examples/stripe-webhooks)
+- Stripe + Supabase subscription starter: [KolbySisk/next-supabase-stripe-starter](https://github.com/KolbySisk/next-supabase-stripe-starter)
+- Supabase Google OAuth: [Login with Google](https://supabase.com/docs/guides/auth/social-login/auth-google)
+- Supabase Next.js Auth Quickstart: [Supabase Docs](https://supabase.com/docs/guides/auth/quickstarts/nextjs)
+- GoPay REST API: [GoPay Technical Documentation](https://doc.gopay.com/)
+- Supabase rate limiting patterns: [Rate Limiting Edge Functions](https://supabase.com/docs/guides/functions/examples/rate-limiting)
+- Vercel subscription payments reference: [nextjs-subscription-payments](https://github.com/vercel/nextjs-subscription-payments)
 
 ---
-*Architecture research for: Design system integration — Next.js 16 + Tailwind 4 + Framer Motion 12*
-*Researched: 2026-02-28*
+
+*Architecture research for: Svoji v2.0 — freemium, payments, AI pipeline, engagement*
+*Researched: 2026-03-01*

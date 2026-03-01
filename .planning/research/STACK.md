@@ -1,136 +1,97 @@
 # Stack Research
 
-**Domain:** Premium SaaS design overhaul — wedding planning app (Czech market)
-**Researched:** 2026-02-28
-**Confidence:** HIGH (core decisions verified via official docs + npm; font pairings MEDIUM via community sources)
+**Domain:** B2C Freemium SaaS — payments, auth, AI pipeline, analytics (Czech market)
+**Researched:** 2026-03-01
+**Confidence:** HIGH for Stripe + Supabase OAuth + PostHog; MEDIUM for GoPay (no official Node SDK); MEDIUM for AI intent pipeline (depends on existing Claude integration)
 
 ---
 
-## Context: What Already Exists
+## Context: Already Installed (Do Not Re-Research)
 
-Do not re-install or reconfigure:
-
-| Already Installed | Version | Status |
-|-------------------|---------|--------|
+| Package | Version | Status |
+|---------|---------|--------|
 | Next.js | 16.1.6 | Keep |
 | Tailwind CSS | ^4 | Keep |
-| Framer Motion | ^12.34.3 | Keep — use more aggressively |
+| Framer Motion | ^12.34.3 | Keep |
 | React | 19.2.3 | Keep |
-| Inter (next/font) | — | Keep as body font |
-| Lucide React | ^0.575.0 | Keep |
+| @supabase/supabase-js | ^2.98.0 | Keep — OAuth provider added via Supabase dashboard config only |
+| @supabase/ssr | ^0.8.0 | Keep |
+| @anthropic-ai/sdk | ^0.78.0 | Keep — extend for intent classification |
+| react-hook-form + zod | 7.x + 4.x | Keep — reuse for new onboarding steps |
+| lenis | ^1.3.17 | Keep |
 
 ---
 
-## Recommended Additions
+## New Stack Additions for v2.0
 
-### Core Technologies
+### Payments
 
-| Technology | Version | Purpose | Why Recommended |
-|------------|---------|---------|-----------------|
-| lenis | 1.3.17 | Smooth scroll physics | Native browser scroll feels janky on premium sites. Lenis adds momentum-based scroll that makes the whole experience feel polished. ~2kb gzipped, works with Framer Motion's useScroll, officially supports React 19 + Next.js 15/16. Replaces nothing, enhances everything. |
-| tw-animate-css | 1.4.0 | CSS animation utilities (Tailwind 4 compatible) | `tailwindcss-animate` (the shadcn default) is a v3 JS plugin — incompatible with Tailwind 4's CSS-first architecture. `tw-animate-css` is the v4-native replacement: pure CSS, imported directly into globals.css, provides `animate-in`/`animate-out` with fade/slide/zoom variants. Needed for entry animations on modals, dropdowns, and page elements. |
+| Technology | Version | Purpose | Why |
+|------------|---------|---------|-----|
+| stripe | ^20.4.0 | Server-side Stripe SDK — create checkout sessions, manage subscriptions, handle webhooks | Current major version; pinned to API 2026-02-25. Stripe fully supports CZK, Czech Republic card payments (Visa/MC), SCA/PSD2 compliance, recurring billing. No peer dependency conflicts with Next.js 16 + React 19. |
+| @stripe/stripe-js | ^8.8.0 | Load Stripe.js client — required for EmbeddedCheckout | Lazy-loads Stripe.js from Stripe CDN. Required when using `EmbeddedCheckoutProvider`. Never expose the secret key client-side — this package only needs the publishable key. |
+| @stripe/react-stripe-js | ^3.x | React components: `EmbeddedCheckoutProvider`, `EmbeddedCheckout` | Embedded Checkout (ui_mode: 'embedded') keeps the user on your domain, handles PCI compliance. Required version ≥3.0.0 for embedded component support. |
 
-### Typography (font swap only — no new package)
+**GoPay decision:** No official Node.js SDK from gopaycommunity. All community packages (gopay-js, gopay-node, gopay-nodejs) are 2-7 years old with no active maintenance. GoPay's REST API is well-documented but would require building a custom wrapper. Given that Stripe fully supports CZK, Czech card payments, SCA compliance, and subscription billing — use Stripe only for v2.0. GoPay can be added in v3.0 if user research shows local bank transfer (FIO, Raiffeisen) demand.
 
-| Decision | Details | Why |
-|----------|---------|-----|
-| Replace Playfair Display | Use **Cormorant Garamond** (Google Fonts, free) | Playfair is overused in wedding — Cormorant is a high-contrast display serif inspired by 16th-century Garamond. More distinctive, still premium. Load via `next/font/google` already available in the project. Use `display: swap`. |
-| Keep Inter | Body font — already installed | Inter is optimal for dashboards and functional UI. Don't change it. |
-| Body alternative if Inter feels too corporate | **Plus Jakarta Sans** | Slightly warmer than Inter, same excellent screen rendering, geometric forms. Drop-in replacement via `next/font/google`. Consider only if redesign feels too cold. |
+### Authentication (Google OAuth)
 
-Font pairing: `Cormorant Garamond` (headings, hero text, editorial moments) + `Inter` (all UI, body copy, forms).
+No new package needed. Supabase Auth already supports Google OAuth natively via `signInWithOAuth()`. Implementation is purely configuration:
 
-### Design Tokens (no new package — native Tailwind 4 feature)
+1. Supabase Dashboard → Authentication → Providers → Enable Google
+2. Google Cloud Console → Create OAuth 2.0 Client ID → add Supabase callback URL
+3. Add `app/auth/callback/route.ts` to exchange auth code for session
+4. Call `supabase.auth.signInWithOAuth({ provider: 'google' })` from existing auth flow
 
-Tailwind 4 already supports design tokens natively via `@theme` in CSS. No library needed. The full color palette lives in `globals.css`:
+The existing `@supabase/ssr` + `@supabase/supabase-js` packages handle all of this. Zero new dependencies.
 
-```css
-@import "tailwindcss";
+### Analytics and Engagement Metrics
 
-@theme {
-  /* Color palette — warm premium, not rustic */
-  --color-champagne-50: oklch(0.98 0.01 80);
-  --color-champagne-100: oklch(0.95 0.02 78);
-  --color-champagne-200: oklch(0.90 0.04 75);
-  --color-champagne-500: oklch(0.72 0.08 72);
-  --color-champagne-900: oklch(0.30 0.04 68);
+| Technology | Version | Purpose | Why |
+|------------|---------|---------|-----|
+| posthog-js | ^1.x | Engagement metrics, UTM tracking, funnel analysis, feature flags | 1M events/month free on cloud — more than enough for early-stage. Native Next.js App Router support. Handles UTM parameter capture automatically. Product analytics (event funnels, retention) is what's needed, not just traffic analytics. Self-hostable later if privacy requirements change. Alternative (Mixpanel) is also strong but PostHog's developer experience and free tier are better for this stage. |
 
-  --color-blush-50: oklch(0.98 0.01 10);
-  --color-blush-300: oklch(0.85 0.06 15);
-  --color-blush-500: oklch(0.72 0.10 14);
+**UTM tracking:** PostHog captures UTM parameters automatically on `posthog.capture('$pageview')`. No additional library needed.
 
-  --color-stone-50: oklch(0.98 0.005 100);
-  --color-stone-900: oklch(0.20 0.01 95);
+**Demand signal logging:** Use Supabase directly — insert rows to a `demand_signals` table from the existing chat API route. No new library needed. PostHog for aggregate engagement, Supabase for structured demand data tied to user records.
 
-  /* Motion tokens — consistent across Framer Motion and CSS */
-  --duration-fast: 150ms;
-  --duration-normal: 300ms;
-  --duration-slow: 500ms;
-  --ease-out: cubic-bezier(0, 0, 0.2, 1);
-  --ease-spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+### AI Intent Classification
 
-  /* Typography */
-  --font-display: "Cormorant Garamond", Georgia, serif;
-  --font-body: "Inter", system-ui, sans-serif;
+No new package. The existing `@anthropic-ai/sdk` handles this. Intent classification is a structured output problem — call Claude with a Zod-validated response schema via the `tools` API to extract intent category from chat messages.
 
-  /* Radius */
-  --radius-card: 1.25rem;
-  --radius-button: 0.625rem;
-}
+Pattern: during the existing chat route handling, pass the user message through a lightweight classification call (model: `claude-haiku-3-5` for cost) that returns one of a fixed enum of intent categories (vendor_inquiry, budget_question, timeline_stress, checklist_help, general_question). Store the category alongside the chat message in Supabase.
+
+Do NOT add the Vercel AI SDK — it would duplicate the existing Anthropic SDK integration and add unnecessary abstraction.
+
+### Rate Limiting (Free Tier — 15 messages/day)
+
+No new package. Implement in Supabase using the existing `chat_messages` table:
+
+```sql
+-- Count today's messages for a user before allowing new ones
+SELECT COUNT(*) FROM chat_messages
+WHERE couple_id = $1
+AND created_at > now() - interval '1 day'
+AND role = 'user';
 ```
 
-OKLCH is Tailwind 4's native color format — perceptually uniform, wider gamut on P3 displays. Use it for the entire custom palette.
+Check this count in the existing `app/api/chat/route.ts` before calling Claude. Return 429 if limit exceeded. Store user tier in the `couples` table — premium users skip the check.
 
----
-
-## Scroll Animation Strategy
-
-Framer Motion already installed handles all scroll-triggered animations. The pattern for this project:
-
-| Use Case | Tool | Pattern |
-|----------|------|---------|
-| Element enter on scroll | Framer Motion `whileInView` | `initial={{ opacity: 0, y: 20 }}` + `whileInView={{ opacity: 1, y: 0 }}` + `viewport={{ once: true }}` |
-| Parallax / scroll-linked values | Framer Motion `useScroll` + `useTransform` | Attach to section refs |
-| Scroll progress indicator | Framer Motion `useScroll` | `scrollYProgress` on window |
-| Smooth scroll physics | Lenis | Wrap root layout, integrates with Framer Motion |
-| CSS-only entrance (modals, dropdowns) | `tw-animate-css` | `animate-in fade-in-0 slide-in-from-bottom-4` |
-
-Do NOT add GSAP. It adds 30kb+ and creates two competing animation systems. Framer Motion handles everything needed for this project scope.
-
-CSS scroll-driven animations (native browser) are tempting but Firefox support is incomplete as of early 2026 — Framer Motion's `useScroll` is the safe cross-browser choice.
+No Redis, no upstash, no rate limiting library needed at this scale.
 
 ---
 
 ## Installation
 
 ```bash
-# New additions only
-npm install lenis
+# Payments
+npm install stripe @stripe/stripe-js @stripe/react-stripe-js
 
-# Dev / CSS tooling
-npm install tw-animate-css
+# Analytics
+npm install posthog-js
 ```
 
-Then in `app/globals.css`:
-```css
-@import "tailwindcss";
-@import "tw-animate-css";
-
-@theme { /* ...tokens above... */ }
-```
-
-Lenis setup in `app/layout.tsx`:
-```tsx
-import { ReactLenis } from 'lenis/react'
-
-export default function RootLayout({ children }) {
-  return (
-    <ReactLenis root options={{ lerp: 0.1, duration: 1.2 }}>
-      {children}
-    </ReactLenis>
-  )
-}
-```
+No new dev dependencies required.
 
 ---
 
@@ -138,13 +99,13 @@ export default function RootLayout({ children }) {
 
 | Recommended | Alternative | Why Not |
 |-------------|-------------|---------|
-| Cormorant Garamond | DM Serif Display | Cormorant has more character range and optical weights; DM Serif is flat by comparison |
-| Cormorant Garamond | Libre Baskerville | Too heavy, web-text feel rather than display |
-| Lenis | No smooth scroll | Default browser scroll feels abrupt on landing pages; Lenis is the lightest correct fix |
-| Lenis | GSAP ScrollSmoother | Requires GSAP Club license for production use; 30kb overhead vs 2kb |
-| tw-animate-css | tailwindcss-animate | tailwindcss-animate is a v3 JS plugin, breaks with Tailwind 4 |
-| Framer Motion whileInView | AOS (Animate on Scroll) | AOS is a separate system — redundant when Framer Motion is already installed |
-| @theme tokens | CSS-in-JS (styled-components, etc.) | Zero compatibility with Tailwind 4 utility classes; contradicts the existing stack |
+| Stripe | GoPay | No maintained Node.js SDK from official gopaycommunity org; Stripe supports CZK + SCA + Czech card payments fully |
+| Stripe | Paddle | Paddle is Merchant of Record model (handles taxes) — valuable but more overhead; Stripe is simpler for v2.0 |
+| PostHog | Mixpanel | Both are strong; PostHog has better free tier (1M events/month), native Next.js docs, open-source, self-hostable |
+| PostHog | Google Analytics 4 | GA4 is traffic analytics, not product analytics — can't track feature usage funnels or engagement per user |
+| Embedded Checkout | Stripe Elements (custom form) | Embedded Checkout requires less code, handles SCA/PSD2 automatically, Stripe handles PCI compliance |
+| Supabase rate limiting | Upstash Redis | Redis adds infrastructure complexity; Supabase SQL is sufficient at this user volume |
+| Claude for intent classification | Fine-tuned classifier | Far too early to justify training data collection; Claude claude-haiku-3-5 is cheap and immediate |
 
 ---
 
@@ -152,13 +113,107 @@ export default function RootLayout({ children }) {
 
 | Avoid | Why | Use Instead |
 |-------|-----|-------------|
-| GSAP | 30kb+ bundle hit, creates two animation systems alongside Framer Motion | Framer Motion `useScroll` + `useTransform` |
-| React Spring | Third animation library with different API — split mental model | Framer Motion already covers the use cases |
-| Styled Components / Emotion | CSS-in-JS breaks Tailwind 4's CSS-first model, adds runtime cost | Tailwind `@theme` tokens + `cn()` utility |
-| Radix UI / shadcn | Adds significant component overhead; this is a design overhaul, not a component library migration | Custom components with Tailwind 4 |
-| Adobe Fonts / Typekit | Paid, adds external network request | Google Fonts via `next/font` (self-hosted, zero layout shift, free) |
-| ScrollMagic | Unmaintained, jQuery-era library | Framer Motion `useScroll` |
-| tailwindcss-animate | Incompatible with Tailwind 4 (v3 JS plugin only) | `tw-animate-css` |
+| gopay-js / gopay-node / gopay-nodejs | All community packages, last updated 2-7 years ago, no types, no maintenance | Stripe (Czech market compatible) |
+| Vercel AI SDK | Duplicates existing @anthropic-ai/sdk integration; abstracts away direct tool-use API needed for intent classification | @anthropic-ai/sdk directly |
+| Upstash / Redis | Overkill for rate limiting at early-stage user counts | Supabase SQL count query in API route |
+| next-auth | Project already uses Supabase Auth; adding next-auth creates two auth systems | Supabase OAuth provider config |
+| Prisma | Project uses Supabase client directly (no ORM); Prisma adds migration complexity on top of existing Supabase migrations | Supabase client + raw SQL |
+| Stripe Customer Portal (full setup) | Correct for v3.0 when self-serve subscription management is needed; premature in v2.0 with small subscriber base | Manual subscription management via Supabase dashboard |
+
+---
+
+## Integration Architecture
+
+### Stripe Subscription Flow
+
+```
+User clicks "Upgrade" → Server Action creates Checkout Session (mode: subscription, ui_mode: embedded)
+→ Client renders EmbeddedCheckout inside modal
+→ User pays → Stripe fires webhook to /api/webhooks/stripe
+→ Webhook handler verifies signature → updates couples.tier = 'premium' in Supabase
+→ User sees premium features unlocked
+```
+
+Required env vars:
+- `STRIPE_SECRET_KEY` — server only
+- `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` — client (safe)
+- `STRIPE_WEBHOOK_SECRET` — server only (webhook signature verification)
+
+### Google OAuth Flow
+
+```
+User clicks "Pokračovat s Google" → signInWithOAuth({ provider: 'google', redirectTo: '/auth/callback' })
+→ Redirect to Google consent screen
+→ Google redirects to Supabase callback URL → Supabase exchanges code for session
+→ Supabase redirects to app/auth/callback/route.ts → exchangeCodeForSession()
+→ Redirect to /onboarding (new user) or /dashboard (returning user)
+```
+
+No new env vars — uses existing `NEXT_PUBLIC_SUPABASE_URL` + `NEXT_PUBLIC_SUPABASE_ANON_KEY`.
+
+### PostHog Initialization (App Router pattern)
+
+```tsx
+// app/providers.tsx (client component)
+'use client'
+import posthog from 'posthog-js'
+import { PostHogProvider } from 'posthog-js/react'
+import { useEffect } from 'react'
+
+export function PHProvider({ children }) {
+  useEffect(() => {
+    posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY!, {
+      api_host: 'https://eu.posthog.com', // EU data residency
+      capture_pageview: false,            // handle manually with usePathname
+      capture_pageleave: true,
+    })
+  }, [])
+  return <PostHogProvider client={posthog}>{children}</PostHogProvider>
+}
+```
+
+Required env vars:
+- `NEXT_PUBLIC_POSTHOG_KEY` — client (safe)
+
+Use EU host (`eu.posthog.com`) for GDPR compliance since the user base is Czech/EU.
+
+### Intent Classification Pipeline
+
+```tsx
+// Inside existing app/api/chat/route.ts, after receiving user message:
+
+const classification = await anthropic.messages.create({
+  model: 'claude-haiku-3-5-20241022',
+  max_tokens: 64,
+  tools: [{
+    name: 'classify_intent',
+    description: 'Classify wedding planning chat message intent',
+    input_schema: {
+      type: 'object',
+      properties: {
+        intent: {
+          type: 'string',
+          enum: ['vendor_inquiry', 'budget_question', 'timeline_stress', 'checklist_help', 'general_question']
+        },
+        location_mentioned: { type: 'string' },
+        vendor_category: { type: 'string' }
+      },
+      required: ['intent']
+    }
+  }],
+  tool_choice: { type: 'tool', name: 'classify_intent' },
+  messages: [{ role: 'user', content: userMessage }]
+})
+
+// Insert demand signal if vendor-related
+if (classification.intent === 'vendor_inquiry') {
+  await supabase.from('demand_signals').insert({
+    couple_id, intent, vendor_category, location_mentioned, raw_message: userMessage
+  })
+}
+```
+
+Run classification concurrently with the main Claude response (Promise.all) to not add latency. claude-haiku-3-5 is ~10x cheaper than Sonnet — cost negligible.
 
 ---
 
@@ -166,42 +221,54 @@ export default function RootLayout({ children }) {
 
 | Package | Compatible With | Notes |
 |---------|-----------------|-------|
-| lenis@1.3.17 | React 19, Next.js 15/16 | Use `lenis/react` subpath for ReactLenis component; add `'use client'` to wrapper |
-| tw-animate-css@1.4.0 | Tailwind CSS 4 | Import via CSS `@import`, not JS `plugins[]` |
-| Cormorant Garamond | next/font/google (already in project) | Use `weight: ['300', '400', '500', '600']`, `style: ['normal', 'italic']`, `subsets: ['latin']` |
-| Framer Motion@12 | React 19, Next.js 16 | Already installed; `whileInView` + `useScroll` are stable |
+| stripe@20.4.0 | Node.js 14+, TypeScript 5 | No React dependency; server-only |
+| @stripe/stripe-js@8.8.0 | React 19, Next.js 16 | Use dynamic import to avoid SSR issues |
+| @stripe/react-stripe-js@3.x | React 19 | EmbeddedCheckout requires stripe-js ≥5.2.0 |
+| posthog-js@1.x | React 19, Next.js App Router | Use 'use client' wrapper in providers.tsx |
 
 ---
 
-## Tailwind 4 CSS Features Available Without Libraries
+## Supabase Schema Additions Needed
 
-These are already available in the existing Tailwind 4 install — no additions needed:
+```sql
+-- couples table: add tier column
+ALTER TABLE couples ADD COLUMN tier TEXT NOT NULL DEFAULT 'free' CHECK (tier IN ('free', 'premium'));
+ALTER TABLE couples ADD COLUMN stripe_customer_id TEXT;
+ALTER TABLE couples ADD COLUMN stripe_subscription_id TEXT;
 
-| Feature | How to Use | Use Case |
-|---------|-----------|----------|
-| `@theme` design tokens | Define in globals.css | Color palette, spacing, motion timing |
-| OKLCH color space | `oklch(0.72 0.08 72)` values in `@theme` | Richer, perceptually uniform colors |
-| `@custom-variant` | `@custom-variant dark (&:where([data-theme="dark"] *))` | Theme switching without rebuild |
-| `@utility` | Define custom utility classes | One-off component helpers |
-| CSS `color-mix()` | `color-mix(in oklch, var(--color-blush-500) 20%, white)` | Tints and shades inline |
-| `backdrop-blur-*` | Already a utility | Frosted glass cards |
-| `text-balance` | `text-balance` class | Heading line wrapping |
+-- demand signals table (new)
+CREATE TABLE demand_signals (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  couple_id UUID REFERENCES couples(id) ON DELETE CASCADE,
+  intent TEXT NOT NULL,
+  vendor_category TEXT,
+  location_mentioned TEXT,
+  raw_message TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Enable RLS
+ALTER TABLE demand_signals ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "couples can read own signals" ON demand_signals FOR SELECT USING (auth.uid() = couple_id);
+-- Insert via service role key in API route (bypasses RLS)
+```
 
 ---
 
 ## Sources
 
-- [Tailwind CSS v4.0 Official Blog](https://tailwindcss.com/blog/tailwindcss-v4) — OKLCH colors, @theme tokens, CSS-first config
-- [Tailwind CSS Theme Variables Docs](https://tailwindcss.com/docs/theme) — @theme directive behavior
-- [Motion (Framer Motion) Scroll Animations](https://motion.dev/docs/react-scroll-animations) — useScroll, whileInView patterns
-- [Lenis GitHub](https://github.com/darkroomengineering/lenis) — version, React 19 support, Next.js integration
-- [tw-animate-css GitHub](https://github.com/Wombosvideo/tw-animate-css) — Tailwind v4 replacement for tailwindcss-animate
-- [next/font Optimization Docs](https://nextjs.org/docs/app/getting-started/fonts) — self-hosting, zero layout shift
-- [Cormorant Garamond — Google Fonts](https://fonts.google.com/specimen/Cormorant+Garamond) — weights, character set
-- [GSAP vs Motion comparison](https://motion.dev/docs/gsap-vs-motion) — bundle size, use case boundaries
-- [Can I Use — animation-timeline scroll()](https://caniuse.com/mdn-css_properties_animation-timeline_scroll) — Firefox support gap confirming JS fallback needed
+- [stripe npm](https://www.npmjs.com/package/stripe) — v20.4.0, verified current
+- [Stripe Czech Republic payments](https://stripe.com/resources/more/payments-in-czech-republic) — CZK, SCA/PSD2 support confirmed
+- [Stripe Billing subscriptions](https://stripe.com/en-cz/billing) — recurring subscription support confirmed
+- [Build embedded checkout — Stripe Docs](https://docs.stripe.com/checkout/embedded/quickstart) — EmbeddedCheckout pattern
+- [Supabase Auth Google provider](https://supabase.com/docs/guides/auth/social-login/auth-google) — no new package needed, config only
+- [PostHog Next.js App Router docs](https://posthog.com/docs/libraries/next-js) — providers.tsx pattern, App Router support
+- [PostHog pricing](https://posthog.com/pricing) — 1M events/month free tier confirmed
+- [GoPay gopaycommunity GitHub](https://github.com/gopaycommunity) — no official Node.js SDK
+- gopay-js last publish: 2 years ago (LOW confidence for production use)
+- @stripe/react-stripe-js — EmbeddedCheckout requires v3.0.0+
 
 ---
 
-*Stack research for: Svoji design overhaul (v1.0)*
-*Researched: 2026-02-28*
+*Stack research for: Svoji v2.0 B2C (payments, OAuth, AI pipeline, analytics)*
+*Researched: 2026-03-01*

@@ -1,233 +1,311 @@
 # Pitfalls Research
 
-**Domain:** Visual redesign of existing Next.js SaaS (wedding planning app)
-**Researched:** 2026-02-28
-**Confidence:** HIGH
+**Domain:** Adding freemium tiers, payments (Stripe/GoPay), Google OAuth, AI intent classification, and demand signal logging to existing Next.js + Supabase wedding SaaS
+**Researched:** 2026-03-01
+**Confidence:** HIGH (payments/OAuth/RLS), MEDIUM (GoPay specifics, AI pipeline), LOW (GoPay webhook reliability specifics — no public post-mortems found)
+
+---
 
 ## Critical Pitfalls
 
-### Pitfall 1: CSS Custom Property Rename Leaves 196 Silent Failures
+### Pitfall 1: Webhook Race Condition — User Sees Stale "Free" Status After Payment
 
 **What goes wrong:**
-The entire codebase uses `var(--color-primary)` inline in Tailwind's arbitrary value syntax: `text-[var(--color-primary)]`, `bg-[var(--color-secondary)]` etc. There are 196 such references across 20+ files. If you rename or restructure the CSS variables in `globals.css` without updating every reference, components silently fall back to nothing — no errors, no warnings, just transparent/white elements. The dashboard nav, buttons, checklist, budget, guests, and public web all reference these variables directly.
+User completes Stripe/GoPay checkout and is redirected to the success page. The frontend immediately calls the API to check subscription status, but the payment webhook hasn't arrived yet (typical delay: 1-5 seconds). The user is shown "free tier" even though they just paid. They may double-click, refresh, or abandon — assuming payment failed.
 
 **Why it happens:**
-Tailwind 4 uses CSS-first configuration (no `tailwind.config.ts` exists). Colors live in `:root {}` in `globals.css`. When redesigning, the natural move is to update the root variables — but the inline `[var(--color-*)]` references in JSX aren't caught by TypeScript or ESLint.
+Webhooks are asynchronous and not guaranteed to arrive before the user's browser. Developers assume the `successUrl` redirect and webhook arrival are synchronized. They are not.
 
 **How to avoid:**
-Strategy A (safest): Keep all existing variable names, only change their values. `--color-primary` becomes the new color, not a new name. Zero JSX changes needed.
-Strategy B (if renaming): Do a project-wide find-and-replace for each renamed variable before the dev server runs. Script it: `grep -r "var(--color-old-name" src/ --include="*.tsx" -l` — then batch replace.
-Prefer Strategy A. The variable names are generic enough (`primary`, `secondary`, `accent`) that they survive a palette change without renaming.
+On the `success` redirect page, synchronously query the payment provider API (Stripe SDK: `stripe.checkout.sessions.retrieve(session_id)`) to verify payment status immediately, then update the `subscription_tier` in Supabase before rendering the page. Use the webhook as an idempotent backup, not the primary signal. Add exponential-backoff polling (3 retries, 2s intervals) as a fallback.
+
+Stripe-specific: listen to `customer.subscription.created` and `invoice.paid` (the latter covers all billing scenarios). GoPay-specific: check `state: PAID` via GET `/api/payments/{id}` on redirect, since GoPay's notify URL (webhook) arrives after the return URL.
 
 **Warning signs:**
-- After updating globals.css, `text-[var(--color-primary)]` elements render in black (inherit) instead of the expected color
-- No browser console errors — the failure is purely visual
-- Run `grep -r "var(--color-" src/ --include="*.tsx" | wc -l` before and after — count should stay stable
+- Users reporting "paid but still on free tier"
+- Success page shows freemium content immediately after checkout
+- No polling or sync fetch on the `?success=true` redirect page
 
 **Phase to address:**
-Design System phase (first). Establish variable rename policy before touching any component.
+Payment integration phase. Must be verified end-to-end before any tier enforcement goes live.
 
 ---
 
-### Pitfall 2: Font Swap Causes Layout Shift and FOUT Across All Headings
+### Pitfall 2: Tier Enforcement Only in Middleware — RLS Left Open
 
 **What goes wrong:**
-`layout.tsx` loads Playfair Display via `next/font/google` with `display: "swap"`. Every `h1`–`h6` in the app falls back to `Georgia, serif` until the font loads. When Playfair Display is replaced with a new heading font (e.g., a variable font or different weight/width), the fallback geometry almost always differs from the new font — triggering Cumulative Layout Shift on initial render. This is visible as a "jump" on headings, which is especially bad on the landing page hero where the heading is large.
+Freemium access is enforced in Next.js middleware (checking `subscription_tier` from session) but RLS policies in Supabase are left permissive. A user manipulates the session cookie or calls Supabase directly (the anon key is public) and accesses premium data. The svatební web endpoint and premium API routes are protected by middleware, but direct Supabase calls bypass the entire Next.js layer.
 
 **Why it happens:**
-`display: "swap"` is correct for performance but means the fallback font renders first. The new font's character width, cap height, and line-height differ from the fallback. Next.js `next/font` does support `adjustFontFallback` (automatically generates `size-adjust`, `ascent-override`, etc.) but only works reliably when you pass `adjustFontFallback: true` explicitly. If omitted, fallback metrics are guessed.
+Middleware feels like "the" security layer because it's the most visible. Supabase's JavaScript client is accessible to any client-side code with the anon key. Developers forget that RLS is the only defense against direct database access.
 
 **How to avoid:**
-1. When adding the new font in `layout.tsx`, pass `adjustFontFallback: true` on the new font declaration.
-2. Also update the CSS fallback stack in `globals.css`: the `h1-h6` rule has `'Playfair Display', Georgia, serif` hardcoded — this must be updated to match the new font's fallback.
-3. For the `.font-serif` utility class, same update needed.
-4. Test CLS using Chrome DevTools Performance panel with network throttle on the landing page hero.
+Implement defense in depth:
+1. RLS as the ground truth: add a `subscription_tier` column to the `couples` table and write RLS policies that restrict premium-only operations based on it.
+2. Middleware as UX: redirect free users away from premium pages for experience, but don't rely on it for data security.
+3. API routes: verify tier server-side in every route that returns or mutates premium data.
 
-**Warning signs:**
-- Heading text visibly jumps/reflows on page load, especially on slow connections
-- Lighthouse CLS score above 0.1
-- `font-family: 'Playfair Display', Georgia, serif` still appearing in computed styles after redesign
-
-**Phase to address:**
-Typography phase. First commit that changes the font must also update both `layout.tsx` (adjustFontFallback) and `globals.css` (h1-h6 fallback stack).
-
----
-
-### Pitfall 3: Framer Motion on Server Components (Next.js 16 App Router)
-
-**What goes wrong:**
-The project uses Next.js 16 App Router. By default, all components are React Server Components (RSC). Framer Motion's `motion.*` components require client-side JS and cannot run in RSC context. If you add `motion.div` to a component that doesn't have `'use client'` at the top, you get a cryptic runtime error: "You're importing a component that needs X. It only works in a Client Component but none of its parents are marked with 'use client'."
-
-The bigger trap: marking a large page-level component as `'use client'` just to add one animation propagates the client boundary too far up, disabling RSC benefits (server-side data fetching, reduced bundle) for the entire subtree.
-
-**Why it happens:**
-Developers add animations to existing page components without checking whether they're RSC. The error only surfaces at runtime, not at build time. And the "fix" of adding `'use client'` to the parent feels obvious but is architecturally wrong.
-
-**How to avoid:**
-Wrap animations in small dedicated client components. Pattern:
-```tsx
-// components/ui/AnimatedSection.tsx
-'use client'
-import { motion } from 'framer-motion'
-export function AnimatedSection({ children, ...props }) {
-  return <motion.div {...props}>{children}</motion.div>
-}
+Example RLS policy for premium-gated public web publishing:
+```sql
+CREATE POLICY "only_premium_can_publish" ON wedding_sites
+  FOR UPDATE USING (
+    auth.uid() = couple_id AND
+    (SELECT subscription_tier FROM couples WHERE id = couple_id) = 'premium'
+  );
 ```
-Page-level RSC passes content as children into the client animation wrapper. Server components stay server components. Only the animation shell is client.
 
 **Warning signs:**
-- Runtime error mentioning "client component" boundary
-- A page-level component being marked `'use client'` only because it contains an animation
-- Bundle size jump after adding animations (indicates too-wide client boundary)
+- RLS policies are `FOR ALL USING (auth.uid() = couple_id)` with no tier check
+- Middleware is the only place where `subscription_tier` is checked
+- Direct Supabase queries from client components bypass the tier gate
 
 **Phase to address:**
-Animation phase. Establish the AnimatedSection wrapper pattern as the standard before implementing any scroll-triggered animations.
+Freemium tier system phase (must precede payment integration). Database schema and RLS must be correct before any payment UI ships.
 
 ---
 
-### Pitfall 4: Framer Motion Layout Animations Cause Jank on Dashboard Views
+### Pitfall 3: Google OAuth Creates Duplicate Accounts for Existing Email Auth Users
 
 **What goes wrong:**
-`layoutId` and `layout` props in Framer Motion trigger browser layout recalculation on every render. In the dashboard's ChecklistView, BudgetView, and GuestsView — which re-render on each data mutation (checklist item toggle, budget entry add) — a `layout` prop on a list item causes the browser to recalculate layout for every sibling simultaneously. On mid-range Android phones this manifests as 100-300ms freezes during list interactions.
+A user registered with `jan@example.com` via email/password. Later they click "Sign in with Google" using the same Google account (`jan@example.com`). Supabase Auth's automatic identity linking should merge them — but only if the email was verified. If the original email/password account was registered without verifying the email, Supabase cannot safely auto-link and creates a second account. The user now has two `couples` records with split data history.
 
 **Why it happens:**
-`layout` animations look cheap in dev (fast machine, small dataset). Real users have 20-50 checklist items, slower CPUs, and often have background tabs open. The layout recalculation is synchronous and cannot be cancelled.
+The current v0 auth flow (email/password) may have been built with email confirmation disabled (common in early prototyping). Users with unconfirmed email addresses cannot benefit from automatic identity linking. The distinction is invisible to users but fatal for data integrity.
 
 **How to avoid:**
-- Use `layout` animations only on landing/auth pages (marketing content, rarely changes).
-- For dashboard list items: use CSS `transition` on `transform` and `opacity` instead of Framer Motion `layout`. CSS transitions are compositor-thread only and don't trigger layout.
-- If Framer Motion is needed in dashboard lists (e.g., item add/remove with AnimatePresence), animate `height` with `initial={{ height: 0 }}` / `animate={{ height: 'auto' }}` rather than using `layout`.
-- Test on Chrome DevTools with CPU throttle 4x before shipping any dashboard animation.
+1. Before shipping Google OAuth, enable email confirmation in Supabase Auth settings and verify existing users have confirmed emails.
+2. Check for existing users with unconfirmed emails: `SELECT COUNT(*) FROM auth.users WHERE email_confirmed_at IS NULL`. Handle them before launch.
+3. In the sign-in UI, if Google OAuth fails with a duplicate account error, surface a clear message: "Tento e-mail je registrován. Přihlaš se e-mailem nebo potvrď svůj účet."
+4. After Google OAuth succeeds, check if `auth.user.identities` has both `email` and `google` entries to confirm linking worked.
 
 **Warning signs:**
-- DevTools Performance panel shows "Layout" blocks exceeding 16ms during user interactions
-- List feels "sticky" when toggling checklist items or adding budget entries
-- FPS drops below 60 during any animation in dashboard
+- Two `couples` rows with same email prefix after a user tries both auth methods
+- Users losing their checklist/budget data after "signing in again"
+- `auth.identities` table has multiple rows for the same user with different providers
 
 **Phase to address:**
-Dashboard redesign phase. Animations here require explicit performance gate: test with 50 checklist items on throttled CPU before considering it done.
+Google OAuth phase. Run the unconfirmed email audit before enabling OAuth in production.
 
 ---
 
-### Pitfall 5: AnimatePresence Exit Animations Block Navigation
+### Pitfall 4: Rate Limiting Free Tier Across Multiple Devices / Sessions
 
 **What goes wrong:**
-Framer Motion's `AnimatePresence` runs exit animations before unmounting components. If a page transition or auth redirect wraps components in `AnimatePresence` with an `exit` animation, the user experiences a 300-600ms delay before navigation completes. For auth flows (login → dashboard redirect), this reads as "the app is slow" even though it's intentional animation. On fast networks where Supabase auth resolves in 200ms, a 400ms exit animation means the total perceived auth time doubles.
+The 15 messages/day free tier limit is checked per-request against a counter in Supabase. A user opens the app on three browser tabs simultaneously and fires messages. Because each tab fires before the count updates (race condition), they send 45 messages in the time it takes for the counter to increment. Or, a determined user clears cookies and re-registers to reset the counter.
 
 **Why it happens:**
-Exit animations feel great on the landing page but get applied globally. Router-level `AnimatePresence` in `layout.tsx` affects all navigations including utility ones (auth redirect, logout).
+Simple `SELECT count WHERE date = today` + `INSERT` is not atomic. Concurrent requests read the same count (14) and all decide "under limit", then all increment. Counter-based rate limiting without atomic increments fails under concurrency.
 
 **How to avoid:**
-- Keep `AnimatePresence` scoped to specific UI patterns (modals, drawers, toast notifications) not page transitions.
-- For page-level transitions: animate `enter` only (fade/slide in) with no `exit`. Pages unmount immediately but mount with a subtle entrance. This is imperceptible and avoids the exit delay.
-- If exit animations are used on landing sections: keep `duration` under 200ms.
-- Never wrap Supabase auth callbacks or server-redirect paths in exit animations.
+Use a Postgres function with `RETURNING` to atomically increment and check:
+```sql
+-- Atomic increment, returns new count
+UPDATE message_counts
+SET count = count + 1
+WHERE couple_id = $1 AND date = CURRENT_DATE
+RETURNING count;
+```
+If no row exists yet, INSERT with `ON CONFLICT DO UPDATE`. Call this via a server-side API route only (never client-side). The API route returns 429 if the returned count exceeds 15.
+
+For re-registration abuse: rate limit by device fingerprint or IP at the Supabase Edge Function level (Upstash Redis works well here).
 
 **Warning signs:**
-- Navigation feels sluggish after animations are added
-- Auth redirect from login to dashboard takes visibly longer than before
-- `exit` prop appears on components that are direct children of router-level `AnimatePresence`
+- Users occasionally getting more than 15 messages per day
+- `SELECT COUNT(*) FROM chat_messages WHERE couple_id = X AND created_at > today` sometimes returns 16-20 even after the limit should have kicked in
+- No atomic transaction around the limit check + message insert
 
 **Phase to address:**
-Animation phase. Establish a rule: exit animations only in modals and drawers, never on page-level transitions.
+Rate limiting phase, before or alongside freemium tier system. Must be tested with concurrent requests (use Artillery or k6).
 
 ---
 
-### Pitfall 6: Tailwind 4 CSS-First Config Breaks If globals.css Import Order Changes
+### Pitfall 5: DEMO_MODE Flag Left Enabled in Middleware — All Auth Bypassed in Production
 
 **What goes wrong:**
-Tailwind 4 uses `@tailwind base; @tailwind components; @tailwind utilities;` in `globals.css`. The custom `:root` variables, button styles (`.btn-primary`, `.btn-outline`), and utility classes (`.section-padding`, `.container`, `.animate-fade-in-up`) are defined after the `@tailwind` directives. If during redesign someone adds a new CSS file import, restructures globals.css into multiple files, or changes the import order, Tailwind's generated utilities can override the custom classes or the custom classes can override Tailwind's — depending on specificity and order.
+The current `src/lib/supabase/middleware.ts` has `const DEMO_MODE = true` hardcoded, which skips all authentication checks. When shipping tier enforcement, rate limiting, and payment gates, every route is wide open to unauthenticated requests. Premium feature gates, rate limits, and tier checks in downstream API routes assume the middleware validated the user — but it never did.
 
 **Why it happens:**
-Tailwind 4 processes CSS differently from v3. The `@layer` mechanism works differently. Developers split CSS into multiple files for organization, not realizing that import order determines specificity.
+This is a leftover from the dev prototype. It's easy to miss because the app "works" with it on. The risk only materializes in production when auth is actually enforced.
 
 **How to avoid:**
-- Keep all custom CSS in a single `globals.css` file for this project (it's not large enough to warrant splitting).
-- Any new design tokens go into the `:root` block in `globals.css` — not a separate file.
-- If a second CSS file is ever needed, import it via `@import` inside `globals.css`, not separately in `layout.tsx`.
-- New utility classes should use `@layer utilities {}` to participate correctly in Tailwind's cascade.
+Before any v2.0 feature development starts, flip `DEMO_MODE = false` and implement proper Supabase SSR session validation in the middleware. The actual implementation pattern from Supabase docs:
+```typescript
+import { createServerClient } from '@supabase/ssr'
+// ... validate session, refresh tokens, redirect unauthenticated users
+```
+This is a prerequisite for all other v2.0 features. No payment gate, rate limit, or tier check is meaningful while DEMO_MODE is active.
 
 **Warning signs:**
-- Custom button styles stop working after adding a new CSS import
-- `.container` class behaves differently than expected (Tailwind also has a `container` utility)
-- Specificity battles: needing `!important` to override styles
+- `DEMO_MODE = true` in middleware.ts
+- Unauthenticated GET to `/dashboard` returns 200 instead of redirecting to `/login`
+- `supabase.auth.getUser()` in API routes returns null but requests still succeed
 
 **Phase to address:**
-Design System phase. The `.container` naming conflict with Tailwind's built-in is a pre-existing issue — rename to `.content-container` during redesign to avoid confusion.
+Auth/onboarding phase — first thing. Gate everything else behind this fix.
 
 ---
 
-### Pitfall 7: Inconsistent Visual State During Phased Rollout
+### Pitfall 6: GoPay Requires Sandbox Testing Before Go-Live, Contact Required
 
 **What goes wrong:**
-If redesign is done page by page (landing first, then auth, then dashboard), users who are already authenticated skip the landing page entirely. They land directly in the dashboard. If dashboard ships last, authenticated users see "new landing, old dashboard" indefinitely — creating a jarring inconsistency that reads as a broken product. The public wedding web (`/w/[slug]`) is seen by guests who never see the dashboard, so its visual consistency with the new aesthetic matters independently.
+GoPay's integration requires contacting their technical team (`integrace@gopay.cz`) to verify inline gateway settings before going live. Developers build the full integration against the sandbox, go to flip the switch to production, and discover the go-live requires a manual approval step that takes 1-5 business days. Launch schedule slips.
 
 **Why it happens:**
-Redesign phases naturally follow the user funnel (marketing → auth → dashboard). But returning users bypass the funnel.
+Unlike Stripe (self-serve go-live), GoPay has a merchant approval process. The API credentials differ between sandbox and production. Documentation mentions this but it's easy to miss when focused on technical integration.
 
 **How to avoid:**
-- Treat the design system (colors, fonts, spacing) as Phase 0. Define all new tokens before touching any component.
-- Once the design system is in place, update `globals.css` CSS variables globally — this propagates the new palette to all pages simultaneously, even if component-level redesign is phased.
-- The "all pages look different" problem is solved if the color palette and typography switch atomically.
-- Component-level polish can be phased, but the base design system should ship as a single atomic change.
+Contact GoPay for production credentials and go-live approval at the start of the payment integration phase, not at the end. Plan for a 5-business-day buffer. Test with Stripe first if timeline is tight — Stripe is fully self-serve.
+
+If Stripe is chosen instead of GoPay: Stripe supports CZK natively and Czech payment methods (BLIK, Sofort). Czech businesses can create a Stripe account and go live immediately without manual approval.
 
 **Warning signs:**
-- Old mocha brown appearing on dashboard while landing uses new palette
-- Playfair Display headings remaining on auth pages while landing shows new font
-- The public wedding web `/w/[slug]` still has old aesthetic after marketing page redesign
+- GoPay credentials are sandbox-only and production merchant ID has not been requested
+- Go-live date is set but GoPay production approval hasn't started
+- No email thread with `integrace@gopay.cz`
 
 **Phase to address:**
-Design System phase (must precede all other phases). Global token swap is a one-file change to `globals.css` that de-risks visual inconsistency.
+Payment integration phase. Start GoPay approval process on day 1 of the phase, not at the end.
 
 ---
 
-### Pitfall 8: Color Contrast Failures on New Premium Palette
+### Pitfall 7: Webhook Idempotency Not Implemented — Duplicate Tier Upgrades or Downgrades
 
 **What goes wrong:**
-"Warm premium" palettes trend toward soft beige backgrounds with golden/cream text — combinations that frequently fail WCAG AA contrast (4.5:1 for normal text). The current palette has this risk: `--color-text-light: #5C5C5C` on `--color-secondary: #FAF8F5` is borderline (~5.5:1, passes AA but not AAA). A new premium palette with lighter backgrounds or lighter text tones can easily drop below 4.5:1 without anyone noticing until tested.
+Stripe (and GoPay) guarantee "at-least-once" webhook delivery. The same `customer.subscription.created` or `payment.PAID` event can arrive twice. Without idempotency checks, processing a payment event twice could double-credit an account, send a welcome email twice, or — in the opposite direction — if a cancel event is processed twice in the wrong order, a paying user gets downgraded to free.
 
 **Why it happens:**
-Color tools like Figma and browser dev tools show colors visually — and to human eyes, light beige + off-white cream "looks fine." Contrast ratio is a mathematical computation that doesn't match intuition for warm tones.
+Webhook handlers are written to process one event. The "at-least-once" guarantee is a footnote. Under normal conditions, duplicates are rare so the bug never surfaces in testing.
 
 **How to avoid:**
-Before finalizing any color pair, check contrast at https://webaim.org/resources/contrastchecker/ or use browser DevTools accessibility panel.
-Required minimums:
-- Body text on background: 4.5:1
-- Large headings (18px+ bold): 3:1
-- UI elements (buttons, inputs): 3:1
-Focus ring color (`--color-primary` is currently used for all focus outlines) must also maintain 3:1 against the element's background.
+Store processed webhook event IDs in a `webhook_events` table:
+```sql
+CREATE TABLE webhook_events (
+  id TEXT PRIMARY KEY,  -- Stripe event ID or GoPay payment ID
+  processed_at TIMESTAMPTZ DEFAULT NOW()
+);
+```
+At the start of each handler: `INSERT INTO webhook_events (id) VALUES ($1) ON CONFLICT DO NOTHING RETURNING id`. If nothing is returned, the event was already processed — skip and return 200.
 
 **Warning signs:**
-- Chrome DevTools accessibility panel flags elements with "insufficient color contrast"
-- The new accent color looks "soft and premium" on Figma but fails contrast check in browser
-- Gray placeholder text in forms fails against new input background
+- No `webhook_events` or equivalent idempotency table in the schema
+- Webhook handler directly updates `subscription_tier` without checking if event was processed before
+- Duplicate welcome emails or tier change notifications reported
 
 **Phase to address:**
-Design System phase. Each new color variable must have its contrast ratio documented against the backgrounds it's used on.
+Payment integration phase. Implement before first end-to-end payment test.
 
 ---
 
-### Pitfall 9: Mobile Safari Animation Bugs with Framer Motion
+### Pitfall 8: AI Intent Classification Fired on Every Message — Latency and Cost Spike
 
 **What goes wrong:**
-Mobile Safari (iOS) has known issues with certain CSS properties when used via Framer Motion: `backdropFilter` in animated elements causes rendering artifacts; `position: fixed` elements inside animated containers lose fixed positioning during animations; `overflow: hidden` on animated parents clips child elements incorrectly during enter/exit on iOS 16 and below. The nav uses `bg-white/95 backdrop-blur-md` (backdrop filter) — animating near or around this element on iOS is risky.
+Intent classification is added as a secondary Claude API call on every chat message to categorize user intent (e.g., "venue inquiry", "catering question", "budget concern"). With 15 free messages/day across all users, even modest traffic generates a large number of classification calls. Each classification call adds 300-800ms to chat response latency. Users experience noticeably slower responses compared to v0.
 
 **Why it happens:**
-WebKit's compositing layer management differs from Chromium. Framer Motion uses `transform: translateZ(0)` (will-change promotion) internally which triggers new stacking contexts. On iOS, this interacts badly with `backdrop-filter` and `position: fixed`.
+Intent classification feels lightweight. In prototypes with 10 users it is. At 100 concurrent active conversations it becomes a cost and latency problem.
 
 **How to avoid:**
-- Do not animate the navigation bar itself — keep it static.
-- For scroll-triggered animations on landing sections: use `opacity` and `translateY` only (compositor-friendly). Avoid `scale` animations on elements that contain `backdrop-filter`.
-- Test on actual iOS device (not simulator) before shipping animation work. The simulator uses Mac's Chromium-based WebView in some modes.
-- Add `will-change: transform` manually only when there's a proven performance benefit — don't add it preemptively to every animated element.
+Run intent classification asynchronously, decoupled from the chat response path:
+1. Chat API route returns the assistant message immediately (as today).
+2. A background job (Supabase Edge Function or a queued task) processes the message for intent classification after the response is sent.
+3. Demand signals are written to the `demand_signals` table asynchronously.
+
+Users never wait for classification. Latency is unchanged. Cost is isolated to the background job budget.
+
+For the classification itself: use a cheap/fast model (Claude Haiku or a small local classifier) rather than Sonnet. The input is short (one user message), the taxonomy is small (~10 categories), and accuracy requirements are low (this data feeds future vendor pitches, not real-time decisions).
 
 **Warning signs:**
-- Fixed nav disappears or "jumps" during page scroll on iPhone
-- Blurred glass effect elements show rendering artifacts during animation
-- Content clips or overflow behaves differently on iPhone vs desktop
+- Classification call is `await`ed before the HTTP response is sent
+- Chat response latency increased after adding classification
+- Classification uses `claude-sonnet-*` instead of `claude-haiku-*`
 
 **Phase to address:**
-Animation phase. iOS Safari must be in the test matrix from day one.
+AI pipeline phase. Design the async pattern from the start; never block the user-facing response on classification.
+
+---
+
+### Pitfall 9: Demand Signal Data Is Useless Without Structured Schema Designed Upfront
+
+**What goes wrong:**
+Demand signals are logged as raw JSON blobs: `{ message: "...", timestamp: "...", coupleId: "..." }`. Six months later, when building the vendor marketplace (v3.0), the data cannot be queried: "How many Prague couples asked about photographers in the last 3 months?" requires full-text search on raw JSON rather than indexed queries on structured fields.
+
+**Why it happens:**
+"We'll figure out the schema later" is a common data collection antipattern. Logging raw data feels comprehensive but delivers no analytical value without structure.
+
+**How to avoid:**
+Design the demand signal schema now, even though the vendor marketplace is v3.0. Minimum required fields:
+```sql
+CREATE TABLE demand_signals (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  couple_id UUID REFERENCES couples(id),
+  detected_at TIMESTAMPTZ DEFAULT NOW(),
+  category TEXT NOT NULL,           -- 'fotograf', 'catering', 'kapela', 'misto', etc.
+  region TEXT,                      -- 'Praha', 'Brno', null if not mentioned
+  budget_range TEXT,                -- 'budget', 'mid', 'premium', null
+  raw_message TEXT,                 -- original user message for audit
+  confidence NUMERIC(3,2),          -- 0.0-1.0 from classifier
+  source TEXT DEFAULT 'chat'        -- 'chat', 'checklist', 'budget'
+);
+CREATE INDEX ON demand_signals(category, region, detected_at);
+```
+
+**Warning signs:**
+- Demand signals stored as JSONB without a structured schema
+- No `category` or `region` column (or equivalent indexed field)
+- No index on the table — full scans required for any analytics query
+
+**Phase to address:**
+AI pipeline / demand signal logging phase. Schema design is the first task; logging implementation second.
+
+---
+
+### Pitfall 10: GDPR — Behavioral Data Logging Without Explicit Consent in Czech Republic
+
+**What goes wrong:**
+Demand signal logging, chat history storage, engagement metrics, and UTM tracking all process personal data (chat content, user behavior, IP addresses). Under GDPR as applied in Czech Republic (Act No. 110/2019 Coll.), logging AI conversation content for commercial purposes (future vendor targeting) requires either explicit consent or a legitimate interest basis that can withstand scrutiny. Collecting this data silently and using it for vendor outreach without disclosure is a compliance violation.
+
+**Why it happens:**
+Developers treat analytics and demand signals as "just logs." GDPR applies to any data that can be linked to an identified individual — and `couple_id` makes chat messages directly linkable.
+
+**How to avoid:**
+1. Privacy policy must explicitly disclose: chat message analysis for service improvement and (future) vendor recommendations.
+2. For demand signals: legitimate interest basis is defensible if data is used to improve the product, but requires a Legitimate Interest Assessment (LIA). If data will be sold or shared with vendors, explicit consent is required.
+3. Engagement metrics: use aggregated/anonymized metrics where possible. Per-user engagement tracking requires disclosure.
+4. Chat history retention: define and enforce a retention period (e.g., 12 months) with automated deletion.
+5. On onboarding or in settings: make it clear that AI conversations are stored and used to improve recommendations.
+
+**Warning signs:**
+- Privacy policy does not mention AI conversation analysis
+- No data retention policy for chat messages or demand signals
+- Demand signal logging starts silently without any user-facing disclosure
+- UTM tracking fires on landing page without cookie consent banner
+
+**Phase to address:**
+Freemium/onboarding phase. Legal copy and consent flows must ship before demand signal logging or engagement tracking goes live.
+
+---
+
+### Pitfall 11: Free Tier Limits Enforced Client-Side or Via UX Only
+
+**What goes wrong:**
+The "15 messages/day" limit and the "svatební web is premium" gate are enforced by hiding UI elements or showing upgrade prompts in the frontend. A motivated user inspects the API, calls `/api/chat` directly with their auth token, and bypasses the limit entirely. The svatební web publish endpoint is called directly, bypassing the "premium only" modal.
+
+**Why it happens:**
+Frontend enforcement is fast to implement and sufficient for honest users. It feels complete during development. The API is assumed to be "internal."
+
+**How to avoid:**
+Every tier limit and gate must be enforced in the API route or Supabase RLS:
+- `/api/chat` route: check message count server-side before calling Claude. Return 429 with `{ error: "Denní limit dosažen", upgradeUrl: "/pricing" }`.
+- `/api/wedding-site/publish` route: check `subscription_tier === 'premium'` before publishing. RLS policy also blocks direct Supabase mutation.
+- Frontend enforcement is UX, not security. Both layers must exist.
+
+**Warning signs:**
+- The only place `subscription_tier` is checked before a feature is used is in a React component
+- API routes call Claude or mutate premium data without verifying tier
+- No 402 or 429 responses from any API endpoint during load testing of free user paths
+
+**Phase to address:**
+Freemium tier system phase. API-level enforcement must be in place before the premium UX is built.
 
 ---
 
@@ -235,97 +313,113 @@ Animation phase. iOS Safari must be in the test matrix from day one.
 
 | Shortcut | Immediate Benefit | Long-term Cost | When Acceptable |
 |----------|-------------------|----------------|-----------------|
-| Hardcoding new hex colors in JSX instead of CSS variables | Faster one-off styling | Creates a second source of truth; breaks global palette changes | Never — add to `:root` always |
-| Using `!important` to override specificity conflicts | Unblocks immediately | Makes future CSS changes unpredictable; specificity debt compounds | Never in design system code |
-| Skipping `adjustFontFallback` on new font | One less line of config | CLS on every page load until someone diagnoses it | Never |
-| Marking page-level RSC as `'use client'` for one animation | Fixes error immediately | Disables RSC for entire subtree, increases bundle size | Never — use AnimatedSection wrapper |
-| Adding `layout` prop to all list items for "polished" reorder | Looks smooth in dev | Jank on mobile with real data volumes | Never in dashboard views |
-| Disabling animations globally with `transition: none` to "fix" a bug | Removes visual problem | Hides real issue; removes intentional animations too | MVP only, never in shipped product |
+| DEMO_MODE flag left on | Auth skipped during dev | All security features inert in production | Dev only, must flip before any v2.0 feature is tested |
+| Storing webhook events without idempotency key | Simpler handler | Double-processing events on retry causes data corruption | Never |
+| Client-side tier enforcement only | Faster to build | Free users bypass limits via direct API calls | Never for security-relevant limits |
+| Intent classification blocking chat response | Simpler code path | Adds 300-800ms perceived latency | Prototype only |
+| Raw JSON demand signals | Flexible at log time | Unqueryable for v3.0 vendor analytics | Never — schema first |
+| Skip GDPR disclosure "until launch" | Unblocks feature dev | Legal liability; Czech DPA can fine before launch | Never |
+| Rate limit by session only, not user ID | Faster to implement | Users bypass by opening new session | Never for paid tier limits |
 
 ## Integration Gotchas
 
 | Integration | Common Mistake | Correct Approach |
 |-------------|----------------|------------------|
-| next/font with new heading font | Forgetting to update `globals.css` h1-h6 fallback stack after changing font in `layout.tsx` | Update both files atomically: `layout.tsx` font declaration + `globals.css` h1-h6 rule + `.font-serif` class |
-| Framer Motion + Next.js App Router | Importing `motion` in RSC without `'use client'` | Create client wrapper components; keep page components as RSC |
-| Tailwind 4 + custom CSS classes | Naming custom class `.container` (conflicts with Tailwind's built-in container) | Rename to `.content-container` or use `@layer components {}` with careful specificity |
-| Supabase auth redirects + AnimatePresence | Wrapping auth redirect targets in exit animations causing perceived slowness | Never add exit animations on components that are the destination of programmatic navigation |
-| CSS variables in Tailwind arbitrary values | Renaming a CSS variable breaks all `[var(--old-name)]` references silently | Keep variable names stable; change values only; or run batch replace script |
+| Stripe Checkout | Relying on webhook for first status update | Sync-fetch session status from Stripe API on `?success=true` redirect; use webhook as backup |
+| GoPay | Starting implementation, testing sandbox, then contacting GoPay for production access | Contact `integrace@gopay.cz` on day 1 for production merchant account; 5-day approval window |
+| Supabase Google OAuth | Adding Google OAuth without auditing existing users for unverified emails | Run `SELECT COUNT(*) FROM auth.users WHERE email_confirmed_at IS NULL` first; handle existing unverified accounts |
+| Supabase RLS for tiers | Writing RLS as `FOR ALL USING (auth.uid() = couple_id)` without tier checks | Add tier check to premium-data policies; `subscription_tier` must be queryable within RLS context |
+| Claude API for classification | Using Sonnet for intent classification | Use Haiku model for classification (same task, 5x cheaper, 2x faster) |
+| Supabase rate limiting | Using `SELECT COUNT(*)` then `INSERT` for rate limits | Use atomic `UPDATE ... RETURNING count` in a single SQL statement to prevent race conditions |
 
 ## Performance Traps
 
 | Trap | Symptoms | Prevention | When It Breaks |
 |------|----------|------------|----------------|
-| Framer Motion `layout` on dashboard list items | Freezes during checklist toggle, guest add | Use CSS transitions in dashboard views; reserve Framer Motion for marketing pages | 20+ list items on mobile CPU |
-| Animating `backdrop-filter` elements | Rendering artifacts, battery drain on iOS | Keep backdrop-filter elements static; animate surrounding elements only | Always on iOS Safari |
-| Loading multiple Google Font weights unnecessarily | Slower font load, FOUT on slow connections | Load only the weights actually used (e.g., 400 and 600 only) | Always affects initial paint |
-| `useAnimation` + complex stagger sequences on scroll | Page freezes when scrolling fast through landing sections | Use `whileInView` with simple fade/translateY; test with fast scroll gesture | Mobile with 10+ staggered items |
-| `will-change: transform` on every animated element | Excessive GPU memory usage | Add `will-change` only to elements that animate continuously (spinners, progress bars) | Low-memory mobile devices |
+| Intent classification in chat response path | Chat responses 300-800ms slower than v0 | Move classification to async background job | Immediately at any traffic level |
+| Supabase RLS with JOIN to `couples.subscription_tier` on every query | Slow queries on all premium-gated tables | Add `subscription_tier` to JWT claims via Supabase Auth hook to avoid per-row JOIN | 1000+ rows in chat_messages |
+| Eager subscription status check on every page load | Supabase queried on every navigation | Cache `subscription_tier` in session/cookie, refresh only on payment events | High-frequency navigation patterns |
+| Demand signal table without indexes | Analytics queries for vendor pitch prep run full scans | Index `(category, region, detected_at)` from creation | 10,000+ demand signal rows |
 
 ## Security Mistakes
 
-Not applicable to this milestone — design-only changes, no new data flows or auth logic.
+| Mistake | Risk | Prevention |
+|---------|------|------------|
+| Stripe webhook endpoint without signature verification | Malicious actor sends fake "payment succeeded" events, upgrades users without payment | Always verify `stripe.webhooks.constructEvent(body, sig, secret)` before processing |
+| GoPay payment verification without checking `state: PAID` | Redirect URL spoofing — attacker constructs a success URL without actual payment | Always verify payment state via GoPay API GET, never trust URL parameters alone |
+| Supabase anon key exposed + RLS not enforcing tiers | Direct database calls from browser bypass all middleware tier checks | RLS is mandatory for any premium data gate; anon key is always public |
+| `service_role` key used in client components | Bypasses all RLS, grants full database access to browser | `service_role` key only in server-side code (API routes, Edge Functions) |
+| User session containing `subscription_tier` without server validation | Tier claim in cookie can be tampered with | Always re-validate tier from DB in API routes for premium operations |
 
 ## UX Pitfalls
 
 | Pitfall | User Impact | Better Approach |
 |---------|-------------|-----------------|
-| Animations that play every visit, not just first | Returning users feel slowed down navigating familiar UI | Scroll-triggered animations only fire once per session; micro-interactions on hover/click fire every time |
-| Exit animations on login form during auth wait | User clicks "Přihlásit se", sees fade-out, thinks something went wrong | Keep form visible while auth is in progress; show loading state in-place |
-| New premium palette loses Czech cultural warmth | Product feels cold/corporate for wedding context | Warm undertones (cream, rose, gold) must survive the "premium" direction — don't go pure cool gray |
-| Public wedding web style diverges from dashboard | Guests see a different aesthetic than couple expects | Public web redesign in same phase as or before dashboard; same design tokens |
-| Touch targets shrink during icon-only mobile nav | Taps miss on small phones, frustrating mobile users | Keep existing 44px minimum touch targets; don't sacrifice them for visual minimalism |
-| Reduced motion ignored | Users with vestibular disorders get animations they opted out of | Add `useReducedMotion()` from Framer Motion to every AnimatedSection wrapper |
+| Showing generic "Upgrade" CTA without context | Users don't know what they're upgrading to gain | Show specific blocked feature: "Zveřejni svůj svatební web — přejdi na Premium" |
+| Blocking free users from seeing the svatební web at all | No motivation to upgrade; users churn | Show full preview in free tier, blur/lock the "Zveřejnit" action specifically |
+| Asking for payment before onboarding is complete | Friction before value is demonstrated | Free tier first, upgrade prompt after user has populated checklist and budget |
+| OAuth button with no indication of what data is accessed | Czech users are privacy-aware; vague OAuth prompts reduce trust | Add copy: "Použijeme pouze tvůj e-mail a jméno. Nic jiného." |
+| Rate limit message with no upgrade path | Users hit 15-message limit and have nowhere to go | Rate limit response includes direct link to pricing page; "Chceš pokračovat? Odemkni Premium." |
+| Onboarding flow reset when Google OAuth is added | Existing email users who link Google lose their onboarding context | Preserve onboarding data tied to `couple_id`, which persists through identity linking |
 
 ## "Looks Done But Isn't" Checklist
 
-- [ ] **Color system:** All 196 `[var(--color-*)]` references verified against new palette — run `grep -r "var(--color-" src/ --include="*.tsx"` and spot check 10 random results in browser
-- [ ] **Font replacement:** `layout.tsx` updated AND `globals.css` h1-h6 rule AND `.font-serif` class — all three, not just layout.tsx
-- [ ] **Contrast ratios:** New color pairs (text/bg, button/bg, input/bg) checked with WebAIM contrast checker — document the ratios
-- [ ] **Reduced motion:** Every `motion.*` component wrapped in a check via `useReducedMotion()` or AnimatedSection handles it centrally
-- [ ] **Mobile Safari tested:** Scroll animations, navigation, backdrop-blur elements — tested on real device or BrowserStack iOS Safari
-- [ ] **Public wedding web:** `/w/[slug]` pages updated to new design — they are independently styled and easily overlooked
-- [ ] **Dashboard views all updated:** ChecklistView, BudgetView, GuestsView, ChatInterface — all in `src/components/dashboard/` require separate attention
-- [ ] **Focus states updated:** `globals.css` focus-visible rule uses `--color-primary` — if primary changes, focus rings auto-update, but verify they still have 3:1 contrast against page background
-- [ ] **Build succeeds:** `next build` runs clean with no TypeScript errors or ESLint warnings after redesign
+- [ ] **DEMO_MODE disabled:** `src/lib/supabase/middleware.ts` has `DEMO_MODE = false` and real session validation — verify unauthenticated GET to `/dashboard` returns 302 to `/login`
+- [ ] **Webhook idempotency:** `webhook_events` table exists; all handlers check for duplicate event IDs before processing
+- [ ] **Webhook race condition:** Success redirect page syncs payment status directly from Stripe/GoPay API, not waiting for webhook
+- [ ] **RLS tier enforcement:** Premium-gated Supabase tables have RLS policies that check `subscription_tier`, not just `auth.uid() = couple_id`
+- [ ] **API-level rate limit:** `/api/chat` returns 429 with atomic counter check for free users at 15 messages; not just UI-gated
+- [ ] **Google OAuth email audit:** All existing `auth.users` have `email_confirmed_at IS NOT NULL` before OAuth is enabled in production
+- [ ] **GoPay production approval:** Merchant account approved or Stripe chosen as alternative — not sandbox-only at launch
+- [ ] **Demand signal schema:** `demand_signals` table has `category`, `region`, `budget_range`, `confidence` columns and indexes — not raw JSON
+- [ ] **GDPR disclosure:** Privacy policy updated to disclose chat analysis, demand signal logging, engagement metrics; cookie consent for UTM
+- [ ] **Classification async:** Intent classification does NOT add to chat response latency — verify with timing logs that response returns before classification runs
+- [ ] **Tier limits server-enforced:** Direct API call from curl with a free-tier auth token cannot exceed rate limits or access premium features
 
 ## Recovery Strategies
 
 | Pitfall | Recovery Cost | Recovery Steps |
 |---------|---------------|----------------|
-| CSS variable rename broke 196 references | MEDIUM | Run `grep -r "var(--old-name)" src/` to find all affected files; batch replace; verify in browser |
-| New font causes CLS regression | LOW | Add `adjustFontFallback: true` to font declaration in layout.tsx; update globals.css fallback stack |
-| Framer Motion in RSC causing build error | LOW | Add `'use client'` to the specific component; then immediately refactor to AnimatedSection wrapper pattern |
-| Layout animations janking dashboard on mobile | MEDIUM | Remove `layout` prop from dashboard list items; replace with CSS `transition: opacity 0.2s, transform 0.2s` |
-| Color contrast failures discovered late | LOW | Adjust lightness of the failing token in globals.css; contrast changes propagate everywhere |
-| AnimatePresence exit blocking navigation | LOW | Remove `exit` prop from page-level animated components; keep only in modals/drawers |
+| Duplicate accounts from OAuth linking failure | HIGH | Identify split couples rows; merge data manually; deduplicate auth.identities; notify affected users |
+| Webhook event processed twice (subscription state corrupted) | MEDIUM | Add idempotency table retroactively; write migration to detect and fix duplicate state changes; implement correct handler |
+| Rate limit race condition — users sent 30+ messages | LOW | Add atomic SQL update retroactively; audit past message counts for anomalies |
+| GoPay production approval not started — launch blocked | HIGH | Switch to Stripe (self-serve, supports CZK, Czech cards); GoPay can be added later |
+| Demand signals logged as raw JSON — unqueryable | MEDIUM | Write migration to parse and normalize existing JSON into structured columns; add indexes |
+| GDPR complaint filed before consent flow added | HIGH | Add consent flow immediately; conduct Data Protection Impact Assessment; document legitimate interest bases |
+| DEMO_MODE in production — auth bypassed | CRITICAL | Hotfix: flip flag, deploy immediately; audit logs for unauthorized access during exposure window |
 
 ## Pitfall-to-Phase Mapping
 
 | Pitfall | Prevention Phase | Verification |
 |---------|------------------|--------------|
-| CSS variable rename breaks 196 references | Phase 1: Design System | After globals.css update, visual check of nav, buttons, checklist in browser |
-| Font swap FOUT and CLS | Phase 1: Design System (typography) | Lighthouse CLS score below 0.1 on landing page |
-| Framer Motion in RSC | Phase 3: Animations | Build succeeds (`next build`); no `'use client'` on page-level components |
-| Layout animation jank in dashboard | Phase 4: Dashboard redesign | CPU throttle 4x test with 50 checklist items; FPS stays above 30 |
-| AnimatePresence blocking navigation | Phase 3: Animations | Login → dashboard redirect is not slower than before animations |
-| Tailwind CSS specificity / import order | Phase 1: Design System | Custom button classes override Tailwind utilities as expected |
-| Visual inconsistency during phased rollout | Phase 1: Design System (atomic token swap) | After Phase 1 commit, palette is consistent across all pages simultaneously |
-| Color contrast failures | Phase 1: Design System | All new color pairs documented with contrast ratios |
-| Mobile Safari animation bugs | Phase 3: Animations | iOS Safari test for nav, backdrop-blur elements, scroll animations |
-| Mobile inconsistency (reduced motion) | Phase 3: Animations | Test with macOS/iOS "Reduce Motion" enabled — no animations visible |
+| DEMO_MODE auth bypass | Phase: Auth/onboarding (first) | Unauthenticated request to `/dashboard` returns 302; curl test with no cookie |
+| RLS not enforcing tiers | Phase: Freemium tier system | Direct supabase-js call from browser with free-tier token cannot publish wedding site |
+| API-level rate limit missing | Phase: Freemium tier system | curl POST to `/api/chat` 16 times with free-tier token — 16th returns 429 |
+| Google OAuth duplicate accounts | Phase: Google OAuth | Audit `auth.users` before enabling; test with existing email/password user linking Google |
+| Webhook race condition | Phase: Payment integration | Manual test: complete checkout, immediately load success page before webhook arrives |
+| Webhook idempotency missing | Phase: Payment integration | Replay same Stripe event twice in CLI; verify `subscription_tier` not changed twice |
+| GoPay approval delay | Phase: Payment integration (start of) | Merchant account email sent to GoPay on phase day 1 |
+| Classification blocking response | Phase: AI pipeline | Timing log shows chat response returns before classification completes |
+| Demand signal schema underdesigned | Phase: AI pipeline (schema first) | Query "top vendor categories in Praha last 30 days" returns indexed result under 100ms |
+| GDPR — behavioral logging without consent | Phase: Freemium/onboarding | Privacy policy reviewed; cookie consent fires before UTM tracking; demand logging disclosed |
+| Client-side only tier enforcement | Phase: Freemium tier system | curl with free-tier bearer token returns 402 from premium endpoints |
 
 ## Sources
 
-- Framer Motion v12 docs: https://motion.dev/docs
-- Next.js 16 App Router: https://nextjs.org/docs/app/building-your-application/rendering/client-components
-- Tailwind CSS 4 migration notes: https://tailwindcss.com/docs/upgrade-guide
-- next/font documentation: https://nextjs.org/docs/app/api-reference/components/font
-- WebAIM Contrast Checker: https://webaim.org/resources/contrastchecker/
-- WCAG 2.1 contrast criteria: https://www.w3.org/WAI/WCAG21/Understanding/contrast-minimum.html
-- Framer Motion useReducedMotion: https://motion.dev/docs/react-use-reduced-motion
-- Direct codebase analysis: 20+ source files in src/ examined, 196 CSS variable references counted
+- Stripe webhook race condition: https://www.pedroalonso.net/blog/stripe-webhooks-solving-race-conditions/
+- Stripe SaaS freemium billing: https://www.indiehackers.com/post/how-to-build-a-saas-freemium-billing-flow-with-stripe-billing-805a6a63cd
+- Stripe webhooks with subscriptions: https://docs.stripe.com/billing/subscriptions/webhooks
+- Stripe Czech Republic: https://stripe.com/en-de/resources/more/payments-in-czech-republic
+- GoPay technical docs: https://doc.gopay.com/
+- Supabase identity linking: https://supabase.com/docs/guides/auth/auth-identity-linking
+- Supabase RLS performance: https://supabase.com/docs/guides/troubleshooting/rls-performance-and-best-practices-Z5Jjwv
+- Supabase Google OAuth: https://supabase.com/docs/guides/auth/social-login/auth-google
+- GDPR Czech Republic: https://www.termsfeed.com/blog/czech-republic-gdpr/
+- Czech Cookie Law: https://secureprivacy.ai/blog/czech-cookie-law
+- Intent classification pitfalls: https://www.vellum.ai/blog/how-to-build-intent-detection-for-your-chatbot
+- AI chatbot implementation challenges: https://www.peerbits.com/blog/ai-chatbot-implementation-challenges-and-solution.html
+- Direct codebase analysis: `src/middleware.ts`, `src/lib/supabase/middleware.ts`, `src/app/api/chat/route.ts`, `src/lib/types.ts`
 
 ---
-*Pitfalls research for: Svoji — visual redesign of existing Next.js 16 SaaS*
-*Researched: 2026-02-28*
+*Pitfalls research for: Svoji v2.0 — freemium tiers, payments, Google OAuth, AI pipeline, demand signals*
+*Researched: 2026-03-01*
