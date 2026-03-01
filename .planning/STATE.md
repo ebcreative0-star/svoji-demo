@@ -18,14 +18,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-01)
 
 **Core value:** Couples can plan their entire wedding from one place with AI guidance
-**Current focus:** Phase 5 -- Auth Foundation (Plan 01 complete, Plan 02 next)
+**Current focus:** Phase 5 -- Auth Foundation (Plans 01+02 complete, Plan 03 next)
 
 ## Current Position
 
 Phase: 5 of 9 (Auth Foundation)
-Plan: 01 complete, 02 next
+Plan: 02 complete, 03 next
 Status: In progress
-Last activity: 2026-03-01 -- 05-01 complete (demo mode removal, SEC-01/SEC-02 done)
+Last activity: 2026-03-01 -- 05-02 complete (OAuth callback routes, premium auth pages, AUTH-01/AUTH-02 done)
 
 Progress: [█░░░░░░░░░] ~10% (v2.0 milestone)
 
@@ -62,5 +62,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-01
-Stopped at: Completed 05-01-PLAN.md -- demo mode removal + SEC-02 audit script, user verified checkpoint
+Stopped at: Completed 05-02-PLAN.md -- OAuth callback routes + premium auth pages, user verified checkpoint
 Resume file: None

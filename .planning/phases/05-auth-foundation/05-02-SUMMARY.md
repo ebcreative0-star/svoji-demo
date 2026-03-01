@@ -50,7 +50,7 @@ requirements-completed:
   - AUTH-02
 
 # Metrics
-duration: ~2min (auto tasks only; checkpoint pending human verification)
+duration: ~2min
 completed: 2026-03-01
 ---
 
@@ -60,10 +60,10 @@ completed: 2026-03-01
 
 ## Performance
 
-- **Duration:** ~2 min (auto tasks)
+- **Duration:** ~2 min
 - **Started:** 2026-03-01
-- **Completed:** 2026-03-01 (auto tasks; checkpoint pending)
-- **Tasks:** 2 auto complete + 1 checkpoint awaiting human verification
+- **Completed:** 2026-03-01
+- **Tasks:** 3 (2 auto + 1 checkpoint, all complete)
 - **Files created/modified:** 4
 
 ## Accomplishments
@@ -78,7 +78,7 @@ completed: 2026-03-01
 
 1. **Task 1: Create /auth/callback and /auth/confirm route handlers** - `f0b074e` (feat)
 2. **Task 2: Rebuild login and register pages with Google OAuth + premium card layout** - `1b38d2f` (feat)
-3. **Task 3: Checkpoint human-verify** - Awaiting user verification
+3. **Task 3: Checkpoint human-verify** - Approved by user 2026-03-01
 
 ## Files Created/Modified
 
@@ -125,4 +125,4 @@ All created/modified files verified to exist and contain expected content.
 
 ---
 *Phase: 05-auth-foundation*
-*Completed: 2026-03-01 (auto tasks complete, checkpoint pending)*
+*Completed: 2026-03-01*
