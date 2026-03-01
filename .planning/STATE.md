@@ -18,16 +18,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-01)
 
 **Core value:** Couples can plan their entire wedding from one place with AI guidance
-**Current focus:** Phase 5 -- Auth Foundation (Plans 01+02 complete, Plan 03 next)
+**Current focus:** Phase 6 -- UI Redesign (all 4 plans complete, verification pending)
 
 ## Current Position
 
-Phase: 5 of 9 (Auth Foundation)
-Plan: 02 complete, 03 next
-Status: In progress
-Last activity: 2026-03-01 -- 05-02 complete (OAuth callback routes, premium auth pages, AUTH-01/AUTH-02 done)
+Phase: 6 of 9 (UI Redesign)
+Plan: 04 complete, verification next
+Status: Verifying
+Last activity: 2026-03-01 -- 06-04 complete (parallax, design tokens, navigation, all sections polished)
 
-Progress: [█░░░░░░░░░] ~10% (v2.0 milestone)
+Progress: [██░░░░░░░░] ~20% (v2.0 milestone)
 
 ## Accumulated Context
 
@@ -48,6 +48,10 @@ Key decisions for v2.0:
 - [Phase 05-auth-foundation]: getUser() used in middleware (not getSession()) -- server-side JWT validation requires network call to Supabase
 - [Phase 05-auth-foundation]: NEXT_PUBLIC_DEMO_MODE env var drives isDemoMode() -- build guard prevents production use
 - [Phase 05-auth-foundation]: exchangeCodeForSession() for PKCE OAuth -- both /auth/callback and /auth/confirm do independent new-vs-returning detection via couples table
+- [Phase 06-ui-redesign]: SaasFooter separate from wedding page Footer.tsx
+- [Phase 06-ui-redesign]: Parallax disabled on mobile and prefers-reduced-motion
+- [Phase 06-ui-redesign]: Checkboxes kept as raw HTML (no primitive) with accent-color
+- [Phase 06-ui-redesign]: DashboardNav gains optional slug prop for "Web pro hosty" link
 
 ### Pending Todos
 
@@ -62,5 +66,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-01
-Stopped at: Completed 05-02-PLAN.md -- OAuth callback routes + premium auth pages, user verified checkpoint
+Stopped at: Phase 06 execution complete, verification pending
 Resume file: None
