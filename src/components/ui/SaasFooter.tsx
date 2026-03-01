@@ -5,29 +5,29 @@ export function SaasFooter() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="bg-[var(--color-primary-dark)] text-white">
+    <footer className="bg-[var(--color-secondary)] text-[var(--color-text)] border-t-2 border-[var(--color-border)]">
       <div className="container mx-auto px-6 sm:px-8 py-12 lg:py-16">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
           {/* Brand */}
           <div>
-            <Link href="/" className="text-2xl font-heading text-white">
+            <Link href="/" className="text-2xl font-heading text-[var(--color-text)]">
               Svoji
             </Link>
-            <p className="mt-3 text-sm text-white/70 leading-relaxed">
+            <p className="mt-3 text-sm text-[var(--color-text-light)] leading-relaxed">
               Plánování svatby s AI asistentem
             </p>
           </div>
 
           {/* Legal */}
           <div>
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-white/50 mb-4">
+            <h3 className="text-sm font-semibold uppercase tracking-wider text-[var(--color-text-light)] mb-4">
               Právní informace
             </h3>
             <ul className="space-y-3">
               <li>
                 <Link
                   href="/tos"
-                  className="text-sm text-white/70 hover:text-white transition-colors"
+                  className="text-sm text-[var(--color-text-light)] hover:text-[var(--color-text)] transition-colors"
                 >
                   Obchodní podmínky
                 </Link>
@@ -35,7 +35,7 @@ export function SaasFooter() {
               <li>
                 <Link
                   href="/privacy"
-                  className="text-sm text-white/70 hover:text-white transition-colors"
+                  className="text-sm text-[var(--color-text-light)] hover:text-[var(--color-text)] transition-colors"
                 >
                   Ochrana soukromí
                 </Link>
@@ -45,14 +45,14 @@ export function SaasFooter() {
 
           {/* Social */}
           <div>
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-white/50 mb-4">
+            <h3 className="text-sm font-semibold uppercase tracking-wider text-[var(--color-text-light)] mb-4">
               Sledujte nás
             </h3>
             <a
               href="https://instagram.com/svoji.cz"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 text-sm text-white/70 hover:text-white transition-colors"
+              className="inline-flex items-center gap-2 text-sm text-[var(--color-text-light)] hover:text-[var(--color-text)] transition-colors"
             >
               <Instagram className="w-5 h-5" />
               <span>Instagram</span>
@@ -61,14 +61,14 @@ export function SaasFooter() {
 
           {/* Contact */}
           <div>
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-white/50 mb-4">
+            <h3 className="text-sm font-semibold uppercase tracking-wider text-[var(--color-text-light)] mb-4">
               Kontakt
             </h3>
             <ul className="space-y-3">
               <li>
                 <Link
                   href="/contact"
-                  className="text-sm text-white/70 hover:text-white transition-colors"
+                  className="text-sm text-[var(--color-text-light)] hover:text-[var(--color-text)] transition-colors"
                 >
                   Kontaktujte nás
                 </Link>
@@ -76,7 +76,7 @@ export function SaasFooter() {
               <li>
                 <a
                   href="mailto:info@svoji.cz"
-                  className="inline-flex items-center gap-2 text-sm text-white/70 hover:text-white transition-colors"
+                  className="inline-flex items-center gap-2 text-sm text-[var(--color-text-light)] hover:text-[var(--color-text)] transition-colors"
                 >
                   <Mail className="w-4 h-4" />
                   <span>info@svoji.cz</span>
@@ -87,7 +87,7 @@ export function SaasFooter() {
         </div>
 
         {/* Bottom bar */}
-        <div className="border-t border-white/10 mt-10 pt-8 text-center text-sm text-white/50">
+        <div className="border-t border-[var(--color-border)] mt-10 pt-8 text-center text-sm text-[var(--color-text-light)]">
           &copy; {year} Svoji.cz. Všechna práva vyhrazena.
         </div>
       </div>
