@@ -69,7 +69,35 @@ export function Hero({ partner1, partner2, date, headline, subheadline }: HeroPr
       <motion.div
         className="absolute inset-0 bg-[var(--color-secondary)]"
         style={{ y: disableParallax ? 0 : backgroundY }}
-      />
+      >
+        {/* Decorative botanical SVG pattern */}
+        <svg
+          className="absolute inset-0 w-full h-full opacity-[0.06]"
+          xmlns="http://www.w3.org/2000/svg"
+          preserveAspectRatio="none"
+          viewBox="0 0 800 600"
+        >
+          <defs>
+            <pattern id="botanical" x="0" y="0" width="200" height="200" patternUnits="userSpaceOnUse">
+              {/* Flowing branch */}
+              <path d="M20 180 Q60 140 100 160 Q140 180 180 140" fill="none" stroke="currentColor" strokeWidth="1.2" />
+              {/* Leaves */}
+              <path d="M60 145 Q50 125 65 130 Q55 140 60 145Z" fill="currentColor" />
+              <path d="M100 158 Q110 138 95 143 Q105 153 100 158Z" fill="currentColor" />
+              <path d="M140 165 Q130 145 145 150 Q135 160 140 165Z" fill="currentColor" />
+              {/* Gentle curve top */}
+              <path d="M0 40 Q40 20 80 50 Q120 80 160 30 Q180 10 200 40" fill="none" stroke="currentColor" strokeWidth="0.8" />
+              {/* Small leaf accents */}
+              <path d="M40 28 Q35 15 45 22 Q38 28 40 28Z" fill="currentColor" />
+              <path d="M120 55 Q115 42 125 49 Q118 55 120 55Z" fill="currentColor" />
+              {/* Wispy spiral */}
+              <circle cx="160" cy="100" r="15" fill="none" stroke="currentColor" strokeWidth="0.6" />
+              <path d="M160 85 Q175 95 165 110 Q155 100 160 85Z" fill="currentColor" opacity="0.5" />
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#botanical)" className="text-[var(--color-primary)]" />
+        </svg>
+      </motion.div>
 
       <div className="container text-center relative z-10 py-20">
         {/* Names */}
