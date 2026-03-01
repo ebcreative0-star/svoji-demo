@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: B2C Product
 status: unknown
-last_updated: "2026-03-01T19:15:42.174Z"
+last_updated: "2026-03-01T19:53:27.283Z"
 progress:
   total_phases: 6
   completed_phases: 6
-  total_plans: 18
-  completed_plans: 18
+  total_plans: 19
+  completed_plans: 19
 ---
 
 # Project State
@@ -18,14 +18,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-01)
 
 **Core value:** Couples can plan their entire wedding from one place with AI guidance
-**Current focus:** Phase 6 -- UI Redesign (all 4 plans complete, verification pending)
+**Current focus:** Phase 6 -- UI Redesign (all 5 plans complete including UAT gap closure)
 
 ## Current Position
 
 Phase: 6 of 9 (UI Redesign)
-Plan: 04 complete, verification next
-Status: Verifying
-Last activity: 2026-03-01 -- 06-04 complete (parallax, design tokens, navigation, all sections polished)
+Plan: 05 complete (UAT gap closure -- phase fully complete)
+Status: Complete
+Last activity: 2026-03-01 -- 06-05 complete (SaasFooter palette fix + DashboardNav slug prop for guest link)
 
 Progress: [██░░░░░░░░] ~20% (v2.0 milestone)
 
@@ -52,6 +52,8 @@ Key decisions for v2.0:
 - [Phase 06-ui-redesign]: Parallax disabled on mobile and prefers-reduced-motion
 - [Phase 06-ui-redesign]: Checkboxes kept as raw HTML (no primitive) with accent-color
 - [Phase 06-ui-redesign]: DashboardNav gains optional slug prop for "Web pro hosty" link
+- [Phase 06-ui-redesign]: SaasFooter uses --color-primary-dark (warm oklch brown) not --color-text (pure black)
+- [Phase 06-ui-redesign]: wedding_websites queried in layout.tsx, slug passed as optional prop to DashboardNav
 
 ### Pending Todos
 
@@ -66,5 +68,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-01
-Stopped at: Phase 06 execution complete, verification pending
+Stopped at: Completed 06-05-PLAN.md (Phase 06 fully complete)
 Resume file: None
