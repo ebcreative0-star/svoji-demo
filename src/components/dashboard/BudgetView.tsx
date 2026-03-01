@@ -2,8 +2,9 @@
 
 import { useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
+import { motion } from 'framer-motion';
 import { Plus, Trash2, Check, X, PiggyBank } from 'lucide-react';
-import { Button, Card, Badge } from '@/components/ui';
+import { Button, Card, Badge, Input, Select } from '@/components/ui';
 
 interface BudgetItem {
   id: string;
@@ -115,7 +116,7 @@ export function BudgetView({ items: initialItems, totalBudget, coupleId }: Budge
   })).filter((group) => group.items.length > 0);
 
   return (
-    <div>
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.2 }}>
       {/* Overview cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
         <Card>
@@ -183,37 +184,33 @@ export function BudgetView({ items: initialItems, totalBudget, coupleId }: Budge
           <Card>
             <Card.Body>
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
-                <select
+                <Select
                   value={newItem.category}
                   onChange={(e) => setNewItem({ ...newItem, category: e.target.value })}
-                  className="px-3 py-2 border rounded-lg"
                 >
                   {BUDGET_CATEGORIES.map((cat) => (
                     <option key={cat.value} value={cat.value}>
                       {cat.icon} {cat.label}
                     </option>
                   ))}
-                </select>
-                <input
+                </Select>
+                <Input
                   type="text"
                   placeholder="Název položky"
                   value={newItem.name}
                   onChange={(e) => setNewItem({ ...newItem, name: e.target.value })}
-                  className="px-3 py-2 border rounded-lg"
                 />
-                <input
+                <Input
                   type="number"
                   placeholder="Odhad (Kč)"
                   value={newItem.estimated_cost}
                   onChange={(e) => setNewItem({ ...newItem, estimated_cost: e.target.value })}
-                  className="px-3 py-2 border rounded-lg"
                 />
-                <input
+                <Input
                   type="number"
                   placeholder="Skutečná cena (Kč)"
                   value={newItem.actual_cost}
                   onChange={(e) => setNewItem({ ...newItem, actual_cost: e.target.value })}
-                  className="px-3 py-2 border rounded-lg"
                 />
               </div>
               <div className="flex gap-2">
@@ -309,6 +306,6 @@ export function BudgetView({ items: initialItems, totalBudget, coupleId }: Budge
           ))}
         </div>
       )}
-    </div>
+    </motion.div>
   );
 }

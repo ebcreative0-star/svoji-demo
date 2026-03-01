@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
+import { motion } from 'framer-motion';
 import {
   Plus,
   Trash2,
@@ -14,7 +15,7 @@ import {
   Download,
   Search,
 } from 'lucide-react';
-import { Button, Card, Badge } from '@/components/ui';
+import { Button, Card, Badge, Input, Select } from '@/components/ui';
 
 const RSVP_INTENT: Record<string, 'success' | 'warning' | 'danger'> = {
   confirmed: 'success',
@@ -149,7 +150,7 @@ export function GuestsView({ guests: initialGuests, coupleId }: GuestsViewProps)
   };
 
   return (
-    <div>
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.2 }}>
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
         <Card>
@@ -218,27 +219,27 @@ export function GuestsView({ guests: initialGuests, coupleId }: GuestsViewProps)
 
         <div className="flex-1 min-w-[200px]">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-            <input
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--color-text-light)]" />
+            <Input
               type="text"
               placeholder="Hledat hosty..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border rounded-lg"
+              className="pl-10"
             />
           </div>
         </div>
 
-        <select
+        <Select
           value={filterStatus}
           onChange={(e) => setFilterStatus(e.target.value)}
-          className="px-3 py-2 border rounded-lg"
+          className="w-auto"
         >
           <option value="all">Všichni</option>
           <option value="confirmed">Potvrzení</option>
           <option value="pending">Čekající</option>
           <option value="declined">Odmítnutí</option>
-        </select>
+        </Select>
       </div>
 
       {/* Add form */}
@@ -247,49 +248,44 @@ export function GuestsView({ guests: initialGuests, coupleId }: GuestsViewProps)
           <Card.Body>
             <h3 className="font-medium mb-4">Nový host</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-              <input
+              <Input
                 type="text"
                 placeholder="Jméno *"
                 value={newGuest.name}
                 onChange={(e) => setNewGuest({ ...newGuest, name: e.target.value })}
-                className="px-3 py-2 border rounded-lg"
               />
-              <input
+              <Input
                 type="email"
                 placeholder="Email"
                 value={newGuest.email}
                 onChange={(e) => setNewGuest({ ...newGuest, email: e.target.value })}
-                className="px-3 py-2 border rounded-lg"
               />
-              <input
+              <Input
                 type="tel"
                 placeholder="Telefon"
                 value={newGuest.phone}
                 onChange={(e) => setNewGuest({ ...newGuest, phone: e.target.value })}
-                className="px-3 py-2 border rounded-lg"
               />
-              <input
+              <Input
                 type="text"
                 placeholder="Skupina (např. Rodina nevěsty)"
                 value={newGuest.group_name}
                 onChange={(e) => setNewGuest({ ...newGuest, group_name: e.target.value })}
-                className="px-3 py-2 border rounded-lg"
               />
-              <input
+              <Input
                 type="text"
                 placeholder="Dietní požadavky"
                 value={newGuest.dietary_requirements}
                 onChange={(e) => setNewGuest({ ...newGuest, dietary_requirements: e.target.value })}
-                className="px-3 py-2 border rounded-lg"
               />
               <label className="flex items-center gap-2 px-3 py-2">
                 <input
                   type="checkbox"
                   checked={newGuest.plus_one}
                   onChange={(e) => setNewGuest({ ...newGuest, plus_one: e.target.checked })}
-                  className="w-4 h-4"
+                  className="w-4 h-4 accent-[var(--color-primary)]"
                 />
-                <span>S doprovodem (+1)</span>
+                <span className="text-sm text-[var(--color-text)]">S doprovodem (+1)</span>
               </label>
             </div>
             <div className="flex gap-2">
@@ -406,6 +402,6 @@ export function GuestsView({ guests: initialGuests, coupleId }: GuestsViewProps)
           </table>
         </Card>
       )}
-    </div>
+    </motion.div>
   );
 }

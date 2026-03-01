@@ -4,6 +4,7 @@ import { useState, useTransition } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { format, differenceInDays, isPast, isToday } from 'date-fns';
 import { cs } from 'date-fns/locale';
+import { motion } from 'framer-motion';
 import {
   Check,
   Circle,
@@ -18,7 +19,7 @@ import {
   type TaskCategory,
   type TaskPriority,
 } from '@/lib/checklist-generator';
-import { Button, Card, Badge } from '@/components/ui';
+import { Button, Card, Badge, Select } from '@/components/ui';
 
 const CATEGORY_INTENT: Record<TaskCategory, 'success' | 'warning' | 'danger' | 'info' | 'neutral'> = {
   venue: 'info',
@@ -114,7 +115,7 @@ export function ChecklistView({ items: initialItems, weddingDate }: ChecklistVie
   };
 
   return (
-    <div>
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.2 }}>
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6 mb-4 sm:mb-6 lg:mb-8">
         <StatCard
@@ -162,15 +163,15 @@ export function ChecklistView({ items: initialItems, weddingDate }: ChecklistVie
 
         <div className="flex items-center gap-2 text-sm text-[var(--color-text-light)]">
           <Filter className="w-4 h-4" />
-          <select
+          <Select
             value={groupBy}
             onChange={(e) => setGroupBy(e.target.value as GroupBy)}
-            className="bg-white border rounded-lg px-2 py-1.5"
+            className="w-auto"
           >
             <option value="date">Podle data</option>
             <option value="category">Podle kategorie</option>
             <option value="priority">Podle priority</option>
-          </select>
+          </Select>
         </div>
       </div>
 
@@ -216,7 +217,7 @@ export function ChecklistView({ items: initialItems, weddingDate }: ChecklistVie
           {filter === 'completed' ? 'Zatím žádné splněné úkoly' : 'Všechny úkoly splněny! 🎉'}
         </div>
       )}
-    </div>
+    </motion.div>
   );
 }
 
