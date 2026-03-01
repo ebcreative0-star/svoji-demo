@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
+import { useSearchParams } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui';
 import { Card } from '@/components/ui';
@@ -29,6 +30,14 @@ const GoogleIcon = () => (
   </svg>
 );
 
+const BUDGET_MAP: Record<string, number> = {
+  'do-100': 100000,
+  '100-200': 150000,
+  '200-350': 275000,
+  '350-500': 425000,
+  '500+': 600000,
+};
+
 export default function RegisterPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -38,14 +47,38 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const supabase = createClient();
+  const searchParams = useSearchParams();
+
+  const budgetParam = searchParams.get('budget') || '';
+  const onboardingData = {
+    partner1_name: searchParams.get('p1') || '',
+    partner2_name: searchParams.get('p2') || '',
+    wedding_date: searchParams.get('date') || null,
+    guest_count_range: searchParams.get('guests') || null,
+    location: searchParams.get('location') || null,
+    search_radius_km: searchParams.get('radius') ? parseInt(searchParams.get('radius')!) : null,
+    wedding_style: searchParams.get('style') || null,
+    budget_total: BUDGET_MAP[budgetParam] ?? null,
+    gdpr_consent_at: searchParams.get('gdpr') || null,
+    marketing_consent: searchParams.get('marketing') === '1',
+  };
+
+  const hasOnboardingData = Boolean(onboardingData.partner1_name);
 
   const handleGoogleSignIn = async () => {
     setGoogleLoading(true);
     setError('');
+
+    // Pass onboarding data through OAuth callback via encoded param
+    const callbackUrl = new URL('/auth/callback', window.location.origin);
+    if (hasOnboardingData) {
+      callbackUrl.searchParams.set('onboarding', btoa(JSON.stringify(onboardingData)));
+    }
+
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
+        redirectTo: callbackUrl.toString(),
       },
     });
     if (error) {
@@ -87,6 +120,18 @@ export default function RegisterPage() {
       return;
     }
 
+    // Persist onboarding data immediately after signup (before email confirmation)
+    if (hasOnboardingData) {
+      const { data: signUpData } = await supabase.auth.getUser();
+      if (signUpData.user) {
+        await supabase.from('couples').upsert({
+          id: signUpData.user.id,
+          ...onboardingData,
+          onboarding_completed: true,
+        });
+      }
+    }
+
     setSuccessMessage('Ověřovací email byl odeslán. Zkontrolujte svou schránku.');
     setLoading(false);
   };
@@ -114,6 +159,12 @@ export default function RegisterPage() {
                 Vytvořte si účet a začněte plánovat
               </p>
             </div>
+
+            {hasOnboardingData && (
+              <p className="text-sm text-[var(--color-text-light)] text-center mb-4">
+                Plánujete svatbu jako {onboardingData.partner1_name} a {onboardingData.partner2_name}
+              </p>
+            )}
 
             {error && (
               <div className="border-l-2 border-red-400 bg-red-50/70 text-red-700 px-4 py-3 rounded-r-lg text-sm mb-4">
