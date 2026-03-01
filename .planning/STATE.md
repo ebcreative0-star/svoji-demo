@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: B2C Product
 status: unknown
-last_updated: "2026-03-01T15:50:13.522Z"
+last_updated: "2026-03-01T15:53:55.852Z"
 progress:
   total_phases: 5
-  completed_phases: 4
+  completed_phases: 5
   total_plans: 14
-  completed_plans: 13
+  completed_plans: 14
 ---
 
 # Project State
@@ -47,6 +47,7 @@ Key decisions for v2.0:
 - Onboarding is 5 steps (added wedding style step vs original 4 steps)
 - [Phase 05-auth-foundation]: getUser() used in middleware (not getSession()) -- server-side JWT validation requires network call to Supabase
 - [Phase 05-auth-foundation]: NEXT_PUBLIC_DEMO_MODE env var drives isDemoMode() -- build guard prevents production use
+- [Phase 05-auth-foundation]: exchangeCodeForSession() for PKCE OAuth -- both /auth/callback and /auth/confirm do independent new-vs-returning detection via couples table
 
 ### Pending Todos
 

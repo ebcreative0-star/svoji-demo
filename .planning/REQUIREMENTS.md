@@ -15,8 +15,8 @@ Requirements for v2.0 B2C Product. Each maps to roadmap phases.
 
 ### Auth
 
-- [ ] **AUTH-01**: User can register/login via Google OAuth (Supabase built-in)
-- [ ] **AUTH-02**: Google OAuth correctly links with existing email accounts (no duplicates)
+- [x] **AUTH-01**: User can register/login via Google OAuth (Supabase built-in)
+- [x] **AUTH-02**: Google OAuth correctly links with existing email accounts (no duplicates)
 
 ### Onboarding
 
@@ -125,8 +125,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 |-------------|-------|--------|
 | SEC-01 | Phase 5 | Complete |
 | SEC-02 | Phase 5 | Complete |
-| AUTH-01 | Phase 5 | Pending |
-| AUTH-02 | Phase 5 | Pending |
+| AUTH-01 | Phase 5 | Complete |
+| AUTH-02 | Phase 5 | Complete |
 | UI-01 | Phase 6 | Pending |
 | UI-02 | Phase 6 | Pending |
 | UI-03 | Phase 6 | Pending |
