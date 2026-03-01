@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { motion } from 'framer-motion';
 import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui';
 import { Card } from '@/components/ui';
@@ -97,7 +98,12 @@ export default function RegisterPage() {
         background: 'radial-gradient(ellipse at top, var(--color-secondary) 0%, var(--color-background) 70%)',
       }}
     >
-      <div className="w-full max-w-md">
+      <motion.div
+        className="w-full max-w-md"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, ease: 'easeOut' }}
+      >
         <Card className="shadow-lg">
           <Card.Body className="p-8 sm:p-10">
             <div className="text-center mb-8">
@@ -110,13 +116,13 @@ export default function RegisterPage() {
             </div>
 
             {error && (
-              <div className="bg-red-50 text-red-600 px-4 py-3 rounded-lg text-sm mb-4">
+              <div className="border-l-2 border-red-400 bg-red-50/70 text-red-700 px-4 py-3 rounded-r-lg text-sm mb-4">
                 {error}
               </div>
             )}
 
             {successMessage && (
-              <div className="bg-green-50 text-green-700 px-4 py-3 rounded-lg text-sm mb-4">
+              <div className="border-l-2 border-green-400 bg-green-50/70 text-green-700 px-4 py-3 rounded-r-lg text-sm mb-4">
                 {successMessage}
               </div>
             )}
@@ -192,7 +198,7 @@ export default function RegisterPage() {
             </p>
           </Card.Body>
         </Card>
-      </div>
+      </motion.div>
     </div>
   );
 }
