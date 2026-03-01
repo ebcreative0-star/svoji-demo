@@ -5,9 +5,16 @@ export interface Couple {
   partner1_name: string;
   partner2_name: string;
   wedding_date: string | null;
+  /** @deprecated Use guest_count_range instead */
   wedding_size: 'small' | 'medium' | 'large' | null;
+  guest_count_range: string | null;
+  location: string | null;
+  search_radius_km: number | null;
+  wedding_style: string | null;
   budget_total: number | null;
   onboarding_completed: boolean;
+  gdpr_consent_at: string | null;
+  marketing_consent: boolean;
   created_at: string;
 }
 
