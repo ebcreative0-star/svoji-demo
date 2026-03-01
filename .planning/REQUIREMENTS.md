@@ -26,7 +26,7 @@ Requirements for v2.0 B2C Product. Each maps to roadmap phases.
 - [x] **ONBD-04**: Step 4 -- wedding style (tradiční, boho, opulentní, minimalistická, rustikální)
 - [x] **ONBD-05**: Step 5 -- budget (preset buttons, skippable)
 - [x] **ONBD-06**: Satin fade transitions between steps with editorial visual design
-- [ ] **ONBD-07**: All onboarding data passed as AI assistant system prompt context
+- [x] **ONBD-07**: All onboarding data passed as AI assistant system prompt context
 
 ### UI Redesign
 
@@ -137,7 +137,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | ONBD-04 | Phase 7 | Complete |
 | ONBD-05 | Phase 7 | Complete |
 | ONBD-06 | Phase 7 | Complete |
-| ONBD-07 | Phase 7 | Pending |
+| ONBD-07 | Phase 7 | Complete |
 | SEC-03 | Phase 7 | Complete |
 | AI-01 | Phase 8 | Pending |
 | AI-02 | Phase 8 | Pending |
