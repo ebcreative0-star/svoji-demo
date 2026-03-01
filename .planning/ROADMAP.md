@@ -124,10 +124,12 @@ Plans:
   2. The "Ještě nevíme" date option and skippable budget step work correctly without blocking onboarding completion
   3. After completing onboarding, the AI chat greets the user with a personalized message that references their names, wedding date, guest count, location, and style
   4. A user is shown a GDPR consent notice and must accept it before any personal data collection begins
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 07-01: TBD
+- [ ] 07-01-PLAN.md -- DB migration + Couple type update + onboarding page rewrite (GDPR + 5 steps with crossfade transitions)
+- [ ] 07-02-PLAN.md -- Register page reads onboarding params + persists data + AI system prompt extension with new fields
+- [ ] 07-03-PLAN.md -- Visual and functional verification of complete onboarding-to-AI-chat flow
 
 #### Phase 8: AI Pipeline
 **Goal**: AI chat routes through Kilo gateway, classifies user intent asynchronously, and enforces rate limits without blocking responses
