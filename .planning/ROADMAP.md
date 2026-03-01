@@ -127,8 +127,8 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 07-01-PLAN.md -- DB migration + Couple type update + onboarding page rewrite (GDPR + 5 steps with crossfade transitions)
-- [ ] 07-02-PLAN.md -- Register page reads onboarding params + persists data + AI system prompt extension with new fields
+- [x] 07-01-PLAN.md -- DB migration + Couple type update + onboarding page rewrite (GDPR + 5 steps with crossfade transitions)
+- [x] 07-02-PLAN.md -- Register page reads onboarding params + persists data + AI system prompt extension with new fields
 - [ ] 07-03-PLAN.md -- Visual and functional verification of complete onboarding-to-AI-chat flow
 
 #### Phase 8: AI Pipeline
@@ -170,6 +170,6 @@ Phases execute in numeric order: 5 → 6 → 7 → 8 → 9
 | 4. Landing Page | v1.0 | 3/3 | Complete | 2026-02-28 |
 | 5. Auth Foundation | 2/2 | Complete    | 2026-03-01 | - |
 | 6. UI Redesign | 6/6 | Complete   | 2026-03-01 | - |
-| 7. Enhanced Onboarding | 1/3 | In Progress|  | - |
+| 7. Enhanced Onboarding | 2/3 | In Progress|  | - |
 | 8. AI Pipeline | v2.0 | 0/? | Not started | - |
 | 9. Data Collection | v2.0 | 0/? | Not started | - |

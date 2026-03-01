@@ -18,14 +18,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-01)
 
 **Core value:** Couples can plan their entire wedding from one place with AI guidance
-**Current focus:** Phase 7 -- Enhanced Onboarding (plan 01 complete)
+**Current focus:** Phase 7 -- Enhanced Onboarding (plans 01-02 complete)
 
 ## Current Position
 
 Phase: 7 of 9 (Enhanced Onboarding)
-Plan: 01 complete (6-screen onboarding state machine -- GDPR + 5 steps)
+Plan: 02 complete (onboarding data pipeline + AI context wiring)
 Status: In progress
-Last activity: 2026-03-01 - Completed 07-01: Onboarding state machine + DB migration
+Last activity: 2026-03-01 - Completed 07-02: Register page reads onboarding params, OAuth callback persists data, AI chat extended with location/style/guest context
 
 Progress: [███░░░░░░░] ~25% (v2.0 milestone)
 
@@ -57,6 +57,8 @@ Key decisions for v2.0:
 - [Phase 06-ui-redesign]: SaasFooter background changed to --color-secondary (warm cream) with border-t-2 separator to contrast dark FinalCTA section
 - [Phase 07-enhanced-onboarding]: Onboarding does not write to DB -- all data passed via URLSearchParams to /register
 - [Phase 07-enhanced-onboarding]: wedding_size kept in Couple interface as @deprecated for backward compat, superseded by guest_count_range
+- [Phase 07-enhanced-onboarding]: OAuth onboarding passthrough uses btoa(JSON.stringify(data)) in redirectTo URL -- sessionStorage not viable server-side
+- [Phase 07-enhanced-onboarding]: Email signup writes couples row before email confirmation so /auth/confirm redirects to /dashboard not /onboarding
 
 ### Pending Todos
 
@@ -77,5 +79,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-01
-Stopped at: Completed 07-01-PLAN.md (Phase 07 plan 01 done -- onboarding state machine)
+Stopped at: Completed 07-02-PLAN.md (onboarding data pipeline + AI context wiring)
 Resume file: None
