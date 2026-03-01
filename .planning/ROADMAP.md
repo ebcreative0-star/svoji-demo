@@ -92,10 +92,11 @@ Plans:
   2. A user can click "Sign in with Google" and land in their dashboard within 2 clicks, with no account duplication
   3. A user who previously registered with email can then sign in with Google using the same email without getting a second account
   4. An audit confirms zero unverified email accounts exist before Google OAuth is enabled in production
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 05-01: TBD
+- [ ] 05-01-PLAN.md -- Remove hardcoded demo mode, wire isDemoMode() to env var, real middleware auth, build guard, SEC-02 email audit script
+- [ ] 05-02-PLAN.md -- Create OAuth callback/confirm routes, rebuild login/register pages with Google OAuth + premium card layout
 
 #### Phase 6: UI Redesign
 **Goal**: Auth pages, dashboard, and public wedding web match the premium design system established in v1.0
