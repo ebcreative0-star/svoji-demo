@@ -100,11 +100,12 @@ Plans:
 #### Phase 6: UI Redesign
 **Goal**: Auth pages, dashboard, and public wedding web match the premium design system established in v1.0
 **Depends on**: Phase 5
-**Requirements**: UI-01, UI-02, UI-03
+**Requirements**: UI-01, UI-02, UI-03, UI-04
 **Success Criteria** (what must be TRUE):
   1. A user visiting /login or /register sees a branded page with correct typography, OKLCH palette, and Input/Button primitives -- no prototype-era styles remain
   2. An authenticated user opening the dashboard sees consistent navigation, section layouts, and component usage matching the new design system across all views (checklist, budget, guests, chat, settings)
   3. A guest visiting a /w/[slug] URL sees a visually premium page with new design tokens, scroll animations, and a polished RSVP form
+  4. The footer contains functional links for TOS and GDPR/privacy, social media icons, and a contact placeholder
 **Plans**: TBD
 
 Plans:
