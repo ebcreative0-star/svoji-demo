@@ -1,15 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import Anthropic from '@anthropic-ai/sdk';
 import { createClient } from '@/lib/supabase/server';
+import { createChatCompletion } from '@/lib/kilo';
 
 // Check API key at module load
-if (!process.env.ANTHROPIC_API_KEY) {
-  console.warn('ANTHROPIC_API_KEY not set - chat will not work');
+if (!process.env.KILO_API_KEY) {
+  console.warn('KILO_API_KEY not set - chat will not work');
 }
-
-const anthropic = process.env.ANTHROPIC_API_KEY
-  ? new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
-  : null;
 
 interface ChatContext {
   partner1: string;
@@ -91,7 +87,7 @@ ${context.location && context.searchRadiusKm ? `- Pri doporucenych dodavatelich 
 export async function POST(request: NextRequest) {
   try {
     // Check if API is configured
-    if (!anthropic) {
+    if (!process.env.KILO_API_KEY) {
       return NextResponse.json(
         { error: 'Chat neni nakonfigurovany. Kontaktujte podporu.' },
         { status: 503 }
@@ -150,16 +146,12 @@ export async function POST(request: NextRequest) {
     // Pridat aktualni zpravu
     messages.push({ role: 'user', content: message });
 
-    // Volat Claude API
-    const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514',
-      max_tokens: 1024,
-      system: buildSystemPrompt(context),
+    // Volat Kilo Gateway API
+    const assistantMessage = await createChatCompletion(
       messages,
-    });
-
-    const assistantMessage =
-      response.content[0].type === 'text' ? response.content[0].text : '';
+      buildSystemPrompt(context),
+      1024
+    );
 
     // Ulozit zpravy do databaze
     await supabase.from('chat_messages').insert([
