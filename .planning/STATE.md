@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: B2C Product
 status: unknown
-last_updated: "2026-03-02T12:22:00.000Z"
+last_updated: "2026-03-02T21:03:26.743Z"
 progress:
   total_phases: 8
   completed_phases: 8
-  total_plans: 28
-  completed_plans: 28
+  total_plans: 29
+  completed_plans: 29
 ---
 
 # Project State
@@ -18,14 +18,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-01)
 
 **Core value:** Couples can plan their entire wedding from one place with AI guidance
-**Current focus:** Phase 8 gap closure complete -- UAT blockers resolved
+**Current focus:** Phase 8 UAT partial pass -- checklist complete, budget add, AI fabrication, guest group add still failing
 
 ## Current Position
 
 Phase: 8 of 9 (AI Pipeline)
-Plan: 05 of 05 complete (UAT Gap Closure - Intent + No-Action Guard)
-Status: Phase 8 COMPLETE (gap closure done)
-Last activity: 2026-03-02 - Completed 08-05: Few-shot examples in intent classifier, no-action guard in chat route
+Plan: 06 of 06 complete (UAT E2E Verification - partial pass)
+Status: Phase 8 PARTIAL -- 3/8 UAT tests pass, 3 fail, 2 skipped
+Last activity: 2026-03-02 - Completed 08-06: DB migrations applied, UAT re-test partial pass (checklist complete/budget add/AI fabrication still failing)
 
 Progress: [████████░░] ~67% (v2.0 milestone)
 
@@ -72,6 +72,7 @@ Key decisions for v2.0:
 - [Phase 08-ai-pipeline]: Phase 8 verification complete -- all requirements verified through code review and static analysis
 - [Phase 08-ai-pipeline]: 11 Czech few-shot examples added to Haiku classifier (temperature 0.1) to fix UAT intent misclassification
 - [Phase 08-ai-pipeline]: Three-way system prompt branching prevents AI fabricating action confirmations: actionResult -> confirm, low-confidence action -> ask clarification, no action -> ZADNA AKCE guard
+- [Phase 08-ai-pipeline]: UAT re-test partial pass: tests 1, 2, single-guest-add pass; tests 3 (checklist complete), 4 (budget add), 6 (AI fabrication) still fail; guest multi-name add not implemented
 
 ### Pending Todos
 
@@ -92,5 +93,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-02
-Stopped at: Completed 08-05-PLAN.md (UAT Gap Closure - intent classifier + no-action guard)
+Stopped at: Completed 08-06-PLAN.md (UAT E2E verification - partial pass, gaps documented)
 Resume file: None
