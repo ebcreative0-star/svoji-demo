@@ -79,7 +79,7 @@ Plans:
 
 ---
 
-### 🚧 v2.0 B2C Product (In Progress)
+### v2.0 B2C Product (In Progress)
 
 **Milestone Goal:** Transform Svoji from a prototype into a production-ready freemium product. Real authentication, polished surfaces, enhanced onboarding, AI pipeline improvements, and the data collection foundation that powers the vendor marketplace flywheel.
 
@@ -139,13 +139,15 @@ Plans:
   1. All chat messages route through the Kilo gateway API -- zero direct Claude API calls remain in the codebase
   2. User can manipulate checklist, budget, and guests via natural chat -- AI executes actions and confirms
   3. A user who has sent 45 messages today sees a warning; at 50 messages they see a hard stop -- the limit resets at midnight Prague time
-**Plans**: 4 plans
+**Plans**: 6 plans
 
 Plans:
 - [x] 08-01-PLAN.md -- Kilo Gateway integration (replace Anthropic SDK with Kilo API)
 - [x] 08-02-PLAN.md -- Intent classification with actions (checklist/budget/guest CRUD via chat)
-- [ ] 08-03-PLAN.md -- Rate limiting (50/day, warning at 45, hard stop at 50)
-- [ ] 08-04-PLAN.md -- Phase verification (E2E testing of all AI-0x requirements)
+- [x] 08-03-PLAN.md -- Rate limiting (50/day, warning at 45, hard stop at 50)
+- [x] 08-04-PLAN.md -- Phase verification (E2E testing of all AI-0x requirements)
+- [ ] 08-05-PLAN.md -- Gap closure: fix intent classification (few-shot examples) + AI fabrication guard
+- [ ] 08-06-PLAN.md -- Gap closure: apply DB migrations + UAT re-verification
 
 #### Phase 9: Data Collection
 **Goal**: Demand signals, engagement events, and UTM attribution are captured from the first real user session
@@ -163,7 +165,7 @@ Plans:
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 5 → 6 → 7 → 8 → 9
+Phases execute in numeric order: 5 -> 6 -> 7 -> 8 -> 9
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
@@ -171,8 +173,8 @@ Phases execute in numeric order: 5 → 6 → 7 → 8 → 9
 | 2. UI Primitives | v1.0 | 2/2 | Complete | 2026-02-28 |
 | 3. Animation Layer | v1.0 | 4/4 | Complete | 2026-02-28 |
 | 4. Landing Page | v1.0 | 3/3 | Complete | 2026-02-28 |
-| 5. Auth Foundation | 2/2 | Complete    | 2026-03-01 | - |
-| 6. UI Redesign | 6/6 | Complete   | 2026-03-01 | - |
-| 7. Enhanced Onboarding | 3/3 | Complete   | 2026-03-01 | - |
-| 8. AI Pipeline | 4/4 | Complete   | 2026-03-02 | - |
+| 5. Auth Foundation | v2.0 | 2/2 | Complete | 2026-03-01 |
+| 6. UI Redesign | v2.0 | 6/6 | Complete | 2026-03-01 |
+| 7. Enhanced Onboarding | v2.0 | 3/3 | Complete | 2026-03-01 |
+| 8. AI Pipeline | v2.0 | 4/6 | Gap closure | - |
 | 9. Data Collection | v2.0 | 0/? | Not started | - |
