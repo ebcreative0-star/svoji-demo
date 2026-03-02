@@ -4,6 +4,7 @@ import { createChatCompletion } from '@/lib/kilo';
 import { classifyIntent, isActionIntent, isDemandSignal } from '@/lib/ai/intent-classifier';
 import { executeAction } from '@/lib/ai/action-executor';
 import { logDemandSignal, extractDemandSignal } from '@/lib/ai/demand-logger';
+import { checkAndIncrementChatLimit } from '@/lib/rate-limit';
 
 // Check API key at module load
 if (!process.env.KILO_API_KEY) {
@@ -131,6 +132,21 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // RATE LIMITING: Check and increment rate limit BEFORE processing
+    const rateLimit = await checkAndIncrementChatLimit(supabase, coupleId);
+
+    if (!rateLimit.allowed) {
+      return NextResponse.json(
+        {
+          error: 'Dnesni limit zprav (50) byl vycerpan. Zkus to zitra!',
+          resetAt: rateLimit.resetAt,
+          count: rateLimit.count,
+          limit: rateLimit.limit
+        },
+        { status: 429 }
+      );
+    }
+
     // Nacist historii chatu (poslednich 10 zprav pro kontext)
     const { data: history } = await supabase
       .from('chat_messages')
@@ -187,11 +203,17 @@ DŮLEŽITÉ: Potvrď tuto akci ve své odpovědi uživateli. ${actionResult.succ
     }
 
     // STEP 4: Volat Kilo Gateway API
-    const assistantMessage = await createChatCompletion(
+    let assistantMessage = await createChatCompletion(
       messages,
       systemPrompt,
       1024
     );
+
+    // STEP 4.5: Add rate limit warning if threshold reached
+    if (rateLimit.warning) {
+      const remaining = rateLimit.remaining;
+      assistantMessage += `\n\n⚠️ Pozor: Zbyva ti uz jen ${remaining} ${remaining === 1 ? 'zprava' : remaining < 5 ? 'zpravy' : 'zprav'} dnes. Limit se obnovi o pulnoci.`;
+    }
 
     // Ulozit zpravy do databaze
     await supabase.from('chat_messages').insert([
