@@ -132,17 +132,20 @@ Plans:
 - [ ] 07-03-PLAN.md -- Visual and functional verification of complete onboarding-to-AI-chat flow
 
 #### Phase 8: AI Pipeline
-**Goal**: AI chat routes through Kilo gateway, classifies user intent asynchronously, and enforces rate limits without blocking responses
+**Goal**: AI chat routes through Kilo gateway, classifies user intent for actions (checklist/budget/guest CRUD), and enforces rate limits
 **Depends on**: Phase 7
 **Requirements**: AI-01, AI-02, AI-03
 **Success Criteria** (what must be TRUE):
   1. All chat messages route through the Kilo gateway API -- zero direct Claude API calls remain in the codebase
-  2. Sending a chat message triggers intent classification in the background -- the user receives their response at normal speed with no added latency
-  3. A user who has sent 12 messages today sees a warning; at 15 messages they see a hard stop with clear messaging -- the limit resets at midnight
-**Plans**: TBD
+  2. User can manipulate checklist, budget, and guests via natural chat -- AI executes actions and confirms
+  3. A user who has sent 45 messages today sees a warning; at 50 messages they see a hard stop -- the limit resets at midnight Prague time
+**Plans**: 4 plans
 
 Plans:
-- [ ] 08-01: TBD
+- [ ] 08-01-PLAN.md -- Kilo Gateway integration (replace Anthropic SDK with Kilo API)
+- [ ] 08-02-PLAN.md -- Intent classification with actions (checklist/budget/guest CRUD via chat)
+- [ ] 08-03-PLAN.md -- Rate limiting (50/day, warning at 45, hard stop at 50)
+- [ ] 08-04-PLAN.md -- Phase verification (E2E testing of all AI-0x requirements)
 
 #### Phase 9: Data Collection
 **Goal**: Demand signals, engagement events, and UTM attribution are captured from the first real user session
@@ -171,5 +174,5 @@ Phases execute in numeric order: 5 → 6 → 7 → 8 → 9
 | 5. Auth Foundation | 2/2 | Complete    | 2026-03-01 | - |
 | 6. UI Redesign | 6/6 | Complete   | 2026-03-01 | - |
 | 7. Enhanced Onboarding | 3/3 | Complete   | 2026-03-01 | - |
-| 8. AI Pipeline | v2.0 | 0/? | Not started | - |
+| 8. AI Pipeline | v2.0 | 0/4 | Planned | - |
 | 9. Data Collection | v2.0 | 0/? | Not started | - |
