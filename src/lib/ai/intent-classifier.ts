@@ -25,6 +25,7 @@ MOŽNÉ INTENTY:
 - budget_update: Aktualizovat částku (params: { name: string, amount: number })
 - budget_remove: Smazat výdaj (params: { name: string })
 - guest_add: Přidat hosta (params: { name: string, group?: string })
+- guest_add_multi: Pridat vice hostu najednou (params: { names: string[], group?: string })
 - guest_update: Změnit RSVP/detaily (params: { name: string, rsvp_status?: string, updates?: object })
 - guest_remove: Odstranit hosta (params: { name: string })
 
@@ -48,6 +49,8 @@ PRAVIDLA:
 - Pro vendor_search extrahuj: category (fotograf, catering, místo, DJ, květiny, atd.), region pokud zmíněn, budget_hint pokud zmíněn
 - Pro checklist_add/budget_add: title/name je text položky v češtině
 - Pro checklist_complete: title je přibližný název položky (nemusí přesně odpovídat)
+- Pro guest_add: extrahuj group pokud je zminen ("ze strany zenicha/nevesty", "rodina", "kamaradi" atd.)
+- Pokud zprava obsahuje vice jmen oddelenych carkou nebo "a", pouzij guest_add_multi s polem names[]
 
 PRIKLADY:
 Uzivatel: "Odskrtni cirkus"
@@ -67,6 +70,21 @@ Uzivatel: "Pridej polozku do rozpoctu"
 
 Uzivatel: "Pozveme tetu Martu"
 {"intent": "guest_add", "confidence": 0.95, "params": {"name": "Marta"}}
+
+Uzivatel: "Pozveme tetu Martu ze strany zenicha"
+{"intent": "guest_add", "confidence": 0.95, "params": {"name": "Marta", "group": "strana zenicha"}}
+
+Uzivatel: "Pridej rodinu Novych"
+{"intent": "guest_add", "confidence": 0.95, "params": {"name": "rodina Novych", "group": "rodina"}}
+
+Uzivatel: "Pozveme Marka, Janu a Petra"
+{"intent": "guest_add_multi", "confidence": 0.95, "params": {"names": ["Marek", "Jana", "Petr"]}}
+
+Uzivatel: "Pozveme Marka, Janu a Petra ze strany nevesty"
+{"intent": "guest_add_multi", "confidence": 0.95, "params": {"names": ["Marek", "Jana", "Petr"], "group": "strana nevesty"}}
+
+Uzivatel: "Pridej Tomas a Lucii"
+{"intent": "guest_add_multi", "confidence": 0.95, "params": {"names": ["Tomas", "Lucie"]}}
 
 Uzivatel: "Smaz dort z rozpoctu"
 {"intent": "budget_remove", "confidence": 0.95, "params": {"name": "dort"}}
@@ -174,6 +192,7 @@ export function isActionIntent(intent: string): boolean {
     'budget_update',
     'budget_remove',
     'guest_add',
+    'guest_add_multi',
     'guest_update',
     'guest_remove',
   ];
