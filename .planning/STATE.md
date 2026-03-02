@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: B2C Product
 status: unknown
-last_updated: "2026-03-02T21:03:26.743Z"
+last_updated: "2026-03-02T21:47:36.843Z"
 progress:
   total_phases: 8
   completed_phases: 8
-  total_plans: 29
-  completed_plans: 29
+  total_plans: 31
+  completed_plans: 31
 ---
 
 # Project State
@@ -74,6 +74,8 @@ Key decisions for v2.0:
 - [Phase 08-ai-pipeline]: Three-way system prompt branching prevents AI fabricating action confirmations: actionResult -> confirm, low-confidence action -> ask clarification, no action -> ZADNA AKCE guard
 - [Phase 08-ai-pipeline]: UAT re-test partial pass: tests 1, 2, single-guest-add pass; tests 3 (checklist complete), 4 (budget add), 6 (AI fabrication) still fail; guest multi-name add not implemented
 - [Phase 08-ai-pipeline]: guest_add_multi intent added: names[] param, 3 few-shot examples, addGuests() bulk insert, group extraction for ze strany zenicha/nevesty patterns
+- [Phase 08-ai-pipeline]: Neutral base prompt removes unconditional action-confirmation priming -- NIKDY nepotvrzuj guard ensures AI only confirms when actionResult is present
+- [Phase 08-ai-pipeline]: Confidence threshold lowered to 0.6 -- catches borderline classifications at 0.61-0.69 that were silently dropped at 0.7
 
 ### Pending Todos
 
@@ -94,5 +96,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-02
-Stopped at: Completed 08-08-PLAN.md (guest_add_multi intent + bulk insert executor)
+Stopped at: Completed 08-07-PLAN.md (neutral buildSystemPrompt, threshold 0.6, expanded classifier examples) and 08-08-PLAN.md (guest_add_multi intent + bulk insert executor)
 Resume file: None
