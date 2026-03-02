@@ -51,6 +51,8 @@ PRAVIDLA:
 - Pro checklist_complete: title je přibližný název položky (nemusí přesně odpovídat)
 - Pro guest_add: extrahuj group pokud je zminen ("ze strany zenicha/nevesty", "rodina", "kamaradi" atd.)
 - Pokud zprava obsahuje vice jmen oddelenych carkou nebo "a", pouzij guest_add_multi s polem names[]
+- DULEZITE: Pokud zprava zminuje ze neco je "hotove", "zarizene", "odskrtnute" nebo "splnene", klasifikuj jako checklist_complete (ne small_talk)
+- DULEZITE: Pokud zprava obsahuje castku (cislo) a nazev polozky, klasifikuj jako budget_add (ne advice_request)
 
 PRIKLADY:
 Uzivatel: "Odskrtni cirkus"
@@ -99,7 +101,22 @@ Uzivatel: "Ahoj, jak se mas?"
 {"intent": "small_talk", "confidence": 0.95, "params": {}}
 
 Uzivatel: "Hledame fotografa v Brne"
-{"intent": "vendor_search", "confidence": 0.95, "params": {"category": "fotograf", "region": "Brno"}}`;
+{"intent": "vendor_search", "confidence": 0.95, "params": {"category": "fotograf", "region": "Brno"}}
+
+Uzivatel: "Mame hotovo s fotografem"
+{"intent": "checklist_complete", "confidence": 0.95, "params": {"title": "fotograf"}}
+
+Uzivatel: "Fotograf je zarizenej"
+{"intent": "checklist_complete", "confidence": 0.95, "params": {"title": "fotograf"}}
+
+Uzivatel: "Zaplaceno 30000 za kvetiny"
+{"intent": "budget_add", "confidence": 0.95, "params": {"name": "kvetiny", "amount": 30000}}
+
+Uzivatel: "Na muziku davame 15000"
+{"intent": "budget_add", "confidence": 0.95, "params": {"name": "muzika", "amount": 15000}}
+
+Uzivatel: "Oznac dort jako hotovy"
+{"intent": "checklist_complete", "confidence": 0.95, "params": {"title": "dort"}}`;
 
 /**
  * Classify user message intent using Kilo Gateway

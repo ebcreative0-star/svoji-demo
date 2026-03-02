@@ -42,6 +42,8 @@ export async function executeAction(
       // Guest actions
       case 'guest_add':
         return await addGuest(supabase, coupleId, params as { name: string; group?: string });
+      case 'guest_add_multi':
+        return await addGuests(supabase, coupleId, params as { names: string[]; group?: string });
       case 'guest_update':
         return await updateGuest(supabase, coupleId, params as { name: string; rsvp_status?: string; updates?: Record<string, any> });
       case 'guest_remove':
@@ -363,6 +365,43 @@ async function addGuest(
   return {
     success: true,
     message: `Přidal jsem ${name} na seznam hostů`,
+    data,
+  };
+}
+
+async function addGuests(
+  supabase: SupabaseClient,
+  coupleId: string,
+  params: { names: string[]; group?: string }
+): Promise<ActionResult> {
+  const { names, group } = params;
+
+  if (!names || !Array.isArray(names) || names.length === 0) {
+    return { success: false, message: 'Chybi jmena hostu', error: 'Missing names array' };
+  }
+
+  const rows = names.map((name) => ({
+    couple_id: coupleId,
+    name: name.trim(),
+    group_name: group || null,
+    rsvp_status: 'pending',
+    plus_one: false,
+  }));
+
+  const { data, error } = await supabase
+    .from('guests')
+    .insert(rows)
+    .select();
+
+  if (error) {
+    return { success: false, message: 'Nepodarilo se pridat hosty', error: error.message };
+  }
+
+  const nameList = names.join(', ');
+  const groupSuffix = group ? ` (${group})` : '';
+  return {
+    success: true,
+    message: `Pridal jsem ${names.length} hostu na seznam: ${nameList}${groupSuffix}`,
     data,
   };
 }
