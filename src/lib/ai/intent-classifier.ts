@@ -5,7 +5,7 @@
 
 const KILO_BASE_URL = 'https://api.kilo.ai/api/gateway';
 // Use faster/cheaper model for classification
-const CLASSIFICATION_MODEL = 'anthropic/claude-haiku-4.0';
+const CLASSIFICATION_MODEL = 'anthropic/claude-haiku-4.5';
 
 export interface IntentResult {
   intent: string;
@@ -47,7 +47,41 @@ PRAVIDLA:
 - Params musí obsahovat všechny extrahované informace z textu
 - Pro vendor_search extrahuj: category (fotograf, catering, místo, DJ, květiny, atd.), region pokud zmíněn, budget_hint pokud zmíněn
 - Pro checklist_add/budget_add: title/name je text položky v češtině
-- Pro checklist_complete: title je přibližný název položky (nemusí přesně odpovídat)`;
+- Pro checklist_complete: title je přibližný název položky (nemusí přesně odpovídat)
+
+PRIKLADY:
+Uzivatel: "Odskrtni cirkus"
+{"intent": "checklist_complete", "confidence": 0.95, "params": {"title": "cirkus"}}
+
+Uzivatel: "Odskrtni fotografa"
+{"intent": "checklist_complete", "confidence": 0.95, "params": {"title": "fotograf"}}
+
+Uzivatel: "Pridej fotografa do checklistu"
+{"intent": "checklist_add", "confidence": 0.95, "params": {"title": "fotograf"}}
+
+Uzivatel: "Mame 50000 na catering"
+{"intent": "budget_add", "confidence": 0.95, "params": {"name": "catering", "amount": 50000}}
+
+Uzivatel: "Pridej polozku do rozpoctu"
+{"intent": "budget_add", "confidence": 0.65, "params": {}}
+
+Uzivatel: "Pozveme tetu Martu"
+{"intent": "guest_add", "confidence": 0.95, "params": {"name": "Marta"}}
+
+Uzivatel: "Smaz dort z rozpoctu"
+{"intent": "budget_remove", "confidence": 0.95, "params": {"name": "dort"}}
+
+Uzivatel: "Kolik stoji fotograf?"
+{"intent": "advice_request", "confidence": 0.95, "params": {}}
+
+Uzivatel: "Jaky je rozdil mezi DJ a kapelou?"
+{"intent": "advice_request", "confidence": 0.95, "params": {}}
+
+Uzivatel: "Ahoj, jak se mas?"
+{"intent": "small_talk", "confidence": 0.95, "params": {}}
+
+Uzivatel: "Hledame fotografa v Brne"
+{"intent": "vendor_search", "confidence": 0.95, "params": {"category": "fotograf", "region": "Brno"}}`;
 
 /**
  * Classify user message intent using Kilo Gateway
@@ -89,7 +123,7 @@ Klasifikuj záměr a vrať JSON.`;
           { role: 'user', content: userPrompt },
         ],
         max_tokens: 256,
-        temperature: 0.3, // Lower temperature for more consistent classification
+        temperature: 0.1, // Lower temperature for more deterministic classification
       }),
     });
 
@@ -107,8 +141,9 @@ Klasifikuj záměr a vrať JSON.`;
       throw new Error('No content in classification response');
     }
 
-    // Parse JSON response
-    const result = JSON.parse(content.trim()) as IntentResult;
+    // Parse JSON response - strip markdown code fences if present
+    const cleaned = content.trim().replace(/^```(?:json)?\s*\n?/i, '').replace(/\n?```\s*$/i, '').trim();
+    const result = JSON.parse(cleaned) as IntentResult;
 
     // Validate result structure
     if (!result.intent || typeof result.confidence !== 'number') {
