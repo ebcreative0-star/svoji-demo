@@ -125,7 +125,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (user.id !== coupleId) {
+    // Verify ownership via RLS - if user can read this couple row, they own it
+    const { data: coupleRow } = await supabase
+      .from('couples')
+      .select('id')
+      .eq('id', coupleId)
+      .single();
+
+    if (!coupleRow) {
       return NextResponse.json(
         { error: 'Nemate opravneni k tomuto chatu' },
         { status: 403 }
@@ -200,6 +207,12 @@ export async function POST(request: NextRequest) {
 - Zpráva: ${actionResult.message}
 
 DŮLEŽITÉ: Potvrď tuto akci ve své odpovědi uživateli. ${actionResult.success ? 'Řekni co jsi přidal/změnil/smazal.' : 'Omluvení a vysvětli proč to nešlo.'}`;
+    } else if (isActionIntent(intentResult.intent)) {
+      // Intent looked like an action but confidence was too low or it wasn't executed
+      systemPrompt += `\n\nDULEZITE: Uzivatel mozna chtel provest akci, ale system si nebyl jisty. NEPOTVRZUJ zadnou akci. Zeptej se uzivatele pro upresneni.`;
+    } else {
+      // No action intent detected at all
+      systemPrompt += `\n\nZADNA AKCE NEBYLA PROVEDENA - nepotvrzuj zadnou akci, nedelej jako bys neco pridal/zmenil/smazal v checklistu, rozpoctu nebo seznamu hostu.`;
     }
 
     // STEP 4: Volat Kilo Gateway API
