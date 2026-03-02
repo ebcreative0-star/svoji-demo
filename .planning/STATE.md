@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: B2C Product
 status: in_progress
-last_updated: "2026-03-02T11:19:30.000Z"
+last_updated: "2026-03-02T11:26:36.000Z"
 progress:
   total_phases: 9
   completed_phases: 7
   total_plans: 27
-  completed_plans: 24
+  completed_plans: 25
 ---
 
 # Project State
@@ -23,11 +23,11 @@ See: .planning/PROJECT.md (updated 2026-03-01)
 ## Current Position
 
 Phase: 8 of 9 (AI Pipeline)
-Plan: 01 of 04 complete (Kilo Gateway Integration)
+Plan: 02 of 04 complete (Intent Classification with Actions)
 Status: Phase 8 in progress
-Last activity: 2026-03-02 - Completed 08-01: Replaced Anthropic SDK with Kilo Gateway API, created OpenAI-compatible client, refactored chat route
+Last activity: 2026-03-02 - Completed 08-02: Intent classification with Haiku, action executor for CRUD operations, demand signal logging
 
-Progress: [████░░░░░░] ~42% (v2.0 milestone)
+Progress: [█████░░░░░] ~46% (v2.0 milestone)
 
 ## Accumulated Context
 
@@ -63,6 +63,9 @@ Key decisions for v2.0:
 - [Phase 07-enhanced-onboarding]: Post-auth default redirect is /checklist -- /dashboard does not exist as a standalone route
 - [Phase 08-ai-pipeline]: Kilo Gateway uses OpenAI-compatible format with system messages prepended to conversation
 - [Phase 08-ai-pipeline]: createChatCompletion() abstracts system prompt handling (separate param, auto-prepended)
+- [Phase 08-ai-pipeline]: Intent classification uses Haiku model (faster/cheaper than Sonnet) with 0.7 confidence threshold
+- [Phase 08-ai-pipeline]: Actions executed synchronously before AI response (not async) so AI can acknowledge the result
+- [Phase 08-ai-pipeline]: Demand signals logged fire-and-forget (never blocking chat response)
 
 ### Pending Todos
 
@@ -83,5 +86,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-02
-Stopped at: Completed 08-01-PLAN.md (Kilo Gateway Integration)
+Stopped at: Completed 08-02-PLAN.md (Intent Classification with Actions)
 Resume file: None

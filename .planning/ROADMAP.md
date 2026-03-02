@@ -142,8 +142,8 @@ Plans:
 **Plans**: 4 plans
 
 Plans:
-- [ ] 08-01-PLAN.md -- Kilo Gateway integration (replace Anthropic SDK with Kilo API)
-- [ ] 08-02-PLAN.md -- Intent classification with actions (checklist/budget/guest CRUD via chat)
+- [x] 08-01-PLAN.md -- Kilo Gateway integration (replace Anthropic SDK with Kilo API)
+- [x] 08-02-PLAN.md -- Intent classification with actions (checklist/budget/guest CRUD via chat)
 - [ ] 08-03-PLAN.md -- Rate limiting (50/day, warning at 45, hard stop at 50)
 - [ ] 08-04-PLAN.md -- Phase verification (E2E testing of all AI-0x requirements)
 
@@ -174,5 +174,5 @@ Phases execute in numeric order: 5 → 6 → 7 → 8 → 9
 | 5. Auth Foundation | 2/2 | Complete    | 2026-03-01 | - |
 | 6. UI Redesign | 6/6 | Complete   | 2026-03-01 | - |
 | 7. Enhanced Onboarding | 3/3 | Complete   | 2026-03-01 | - |
-| 8. AI Pipeline | v2.0 | 0/4 | Planned | - |
+| 8. AI Pipeline | v2.0 | 2/4 | In Progress | - |
 | 9. Data Collection | v2.0 | 0/? | Not started | - |
