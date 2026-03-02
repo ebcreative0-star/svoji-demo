@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: B2C Product
 status: unknown
-last_updated: "2026-03-02T11:46:25.979Z"
+last_updated: "2026-03-02T12:22:00.000Z"
 progress:
   total_phases: 8
   completed_phases: 8
-  total_plans: 27
-  completed_plans: 27
+  total_plans: 28
+  completed_plans: 28
 ---
 
 # Project State
@@ -18,14 +18,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-01)
 
 **Core value:** Couples can plan their entire wedding from one place with AI guidance
-**Current focus:** Phase 8 complete -- Ready for Phase 9 (Analytics & Insights)
+**Current focus:** Phase 8 gap closure complete -- UAT blockers resolved
 
 ## Current Position
 
 Phase: 8 of 9 (AI Pipeline)
-Plan: 04 of 04 complete (Phase 8 Verification)
-Status: Phase 8 COMPLETE
-Last activity: 2026-03-02 - Completed 08-04: Phase 8 verification through code review and automated test script
+Plan: 05 of 05 complete (UAT Gap Closure - Intent + No-Action Guard)
+Status: Phase 8 COMPLETE (gap closure done)
+Last activity: 2026-03-02 - Completed 08-05: Few-shot examples in intent classifier, no-action guard in chat route
 
 Progress: [████████░░] ~67% (v2.0 milestone)
 
@@ -70,6 +70,8 @@ Key decisions for v2.0:
 - [Phase 08-ai-pipeline]: Rate limit warning appended to AI response with Czech pluralization (zprava/zpravy/zprav)
 - [Phase 08-ai-pipeline]: Midnight reset in Prague timezone (Europe/Prague) via date_trunc('day', now() at time zone 'Europe/Prague')
 - [Phase 08-ai-pipeline]: Phase 8 verification complete -- all requirements verified through code review and static analysis
+- [Phase 08-ai-pipeline]: 11 Czech few-shot examples added to Haiku classifier (temperature 0.1) to fix UAT intent misclassification
+- [Phase 08-ai-pipeline]: Three-way system prompt branching prevents AI fabricating action confirmations: actionResult -> confirm, low-confidence action -> ask clarification, no action -> ZADNA AKCE guard
 
 ### Pending Todos
 
@@ -90,5 +92,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-02
-Stopped at: Completed 08-04-PLAN.md (Phase 8 Verification) - Phase 8 COMPLETE
+Stopped at: Completed 08-05-PLAN.md (UAT Gap Closure - intent classifier + no-action guard)
 Resume file: None

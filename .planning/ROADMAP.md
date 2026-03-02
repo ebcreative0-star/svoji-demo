@@ -176,5 +176,5 @@ Phases execute in numeric order: 5 -> 6 -> 7 -> 8 -> 9
 | 5. Auth Foundation | v2.0 | 2/2 | Complete | 2026-03-01 |
 | 6. UI Redesign | v2.0 | 6/6 | Complete | 2026-03-01 |
 | 7. Enhanced Onboarding | v2.0 | 3/3 | Complete | 2026-03-01 |
-| 8. AI Pipeline | v2.0 | 4/6 | Gap closure | - |
+| 8. AI Pipeline | 5/6 | In Progress|  | - |
 | 9. Data Collection | v2.0 | 0/? | Not started | - |
