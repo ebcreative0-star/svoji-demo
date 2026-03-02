@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { createChatCompletion } from '@/lib/kilo';
+import { classifyIntent, isActionIntent, isDemandSignal } from '@/lib/ai/intent-classifier';
+import { executeAction } from '@/lib/ai/action-executor';
+import { logDemandSignal, extractDemandSignal } from '@/lib/ai/demand-logger';
 
 // Check API key at module load
 if (!process.env.KILO_API_KEY) {
@@ -146,10 +149,41 @@ export async function POST(request: NextRequest) {
     // Pridat aktualni zpravu
     messages.push({ role: 'user', content: message });
 
-    // Volat Kilo Gateway API
+    // STEP 1: Classify intent
+    const conversationContext = history?.map((msg) => `${msg.role}: ${msg.content}`) || [];
+    const intentResult = await classifyIntent(message, conversationContext);
+
+    console.log('Intent classification:', intentResult);
+
+    // STEP 2: Execute action if needed (BEFORE AI response)
+    let actionResult = null;
+    if (isActionIntent(intentResult.intent) && intentResult.confidence > 0.7) {
+      actionResult = await executeAction(
+        supabase,
+        coupleId,
+        intentResult.intent,
+        intentResult.params
+      );
+
+      console.log('Action execution:', actionResult);
+    }
+
+    // STEP 3: Build system prompt with action context
+    let systemPrompt = buildSystemPrompt(context);
+
+    if (actionResult) {
+      systemPrompt += `\n\nAKCE PROVEDENA:
+- Intent: ${intentResult.intent}
+- Výsledek: ${actionResult.success ? 'úspěch' : 'selhání'}
+- Zpráva: ${actionResult.message}
+
+DŮLEŽITÉ: Potvrď tuto akci ve své odpovědi uživateli. ${actionResult.success ? 'Řekni co jsi přidal/změnil/smazal.' : 'Omluvení a vysvětli proč to nešlo.'}`;
+    }
+
+    // STEP 4: Volat Kilo Gateway API
     const assistantMessage = await createChatCompletion(
       messages,
-      buildSystemPrompt(context),
+      systemPrompt,
       1024
     );
 
@@ -158,6 +192,17 @@ export async function POST(request: NextRequest) {
       { couple_id: coupleId, role: 'user', content: message },
       { couple_id: coupleId, role: 'assistant', content: assistantMessage },
     ]);
+
+    // STEP 5: Log demand signal (async, fire-and-forget)
+    if (isDemandSignal(intentResult.intent) && intentResult.confidence > 0.7) {
+      const demandSignal = extractDemandSignal(intentResult.params);
+      if (demandSignal) {
+        // Fire-and-forget - don't await
+        logDemandSignal(supabase, coupleId, demandSignal, message).catch((error) => {
+          console.error('Demand signal logging failed:', error);
+        });
+      }
+    }
 
     return NextResponse.json({ message: assistantMessage });
   } catch (error) {
