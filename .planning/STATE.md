@@ -18,14 +18,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-01)
 
 **Core value:** Couples can plan their entire wedding from one place with AI guidance
-**Current focus:** Phase 8 UAT partial pass -- checklist complete, budget add, AI fabrication, guest group add still failing
+**Current focus:** Phase 8 gap closure complete -- guest_add_multi implemented; ready for UAT re-test
 
 ## Current Position
 
 Phase: 8 of 9 (AI Pipeline)
-Plan: 06 of 06 complete (UAT E2E Verification - partial pass)
-Status: Phase 8 PARTIAL -- 3/8 UAT tests pass, 3 fail, 2 skipped
-Last activity: 2026-03-02 - Completed 08-06: DB migrations applied, UAT re-test partial pass (checklist complete/budget add/AI fabrication still failing)
+Plan: 08 of 08 complete (Guest group extraction and multi-name guest add)
+Status: Phase 8 gap closure complete -- guest_add_multi implemented; UAT re-test pending
+Last activity: 2026-03-02 - Completed 08-08: guest_add_multi intent + bulk insert, group extraction examples
 
 Progress: [████████░░] ~67% (v2.0 milestone)
 
@@ -73,6 +73,7 @@ Key decisions for v2.0:
 - [Phase 08-ai-pipeline]: 11 Czech few-shot examples added to Haiku classifier (temperature 0.1) to fix UAT intent misclassification
 - [Phase 08-ai-pipeline]: Three-way system prompt branching prevents AI fabricating action confirmations: actionResult -> confirm, low-confidence action -> ask clarification, no action -> ZADNA AKCE guard
 - [Phase 08-ai-pipeline]: UAT re-test partial pass: tests 1, 2, single-guest-add pass; tests 3 (checklist complete), 4 (budget add), 6 (AI fabrication) still fail; guest multi-name add not implemented
+- [Phase 08-ai-pipeline]: guest_add_multi intent added: names[] param, 3 few-shot examples, addGuests() bulk insert, group extraction for ze strany zenicha/nevesty patterns
 
 ### Pending Todos
 
@@ -93,5 +94,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-02
-Stopped at: Completed 08-06-PLAN.md (UAT E2E verification - partial pass, gaps documented)
+Stopped at: Completed 08-08-PLAN.md (guest_add_multi intent + bulk insert executor)
 Resume file: None
