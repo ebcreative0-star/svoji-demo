@@ -2,10 +2,10 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: B2C Product
-status: in_progress
-last_updated: "2026-03-02T12:41:00.000Z"
+status: unknown
+last_updated: "2026-03-02T11:46:25.979Z"
 progress:
-  total_phases: 9
+  total_phases: 8
   completed_phases: 8
   total_plans: 27
   completed_plans: 27
