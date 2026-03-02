@@ -25,27 +25,27 @@ export async function executeAction(
     switch (intent) {
       // Checklist actions
       case 'checklist_add':
-        return await addChecklistItem(supabase, coupleId, params);
+        return await addChecklistItem(supabase, coupleId, params as { title: string; category?: string });
       case 'checklist_complete':
-        return await completeChecklistItem(supabase, coupleId, params);
+        return await completeChecklistItem(supabase, coupleId, params as { title: string });
       case 'checklist_remove':
-        return await removeChecklistItem(supabase, coupleId, params);
+        return await removeChecklistItem(supabase, coupleId, params as { title: string });
 
       // Budget actions
       case 'budget_add':
-        return await addBudgetItem(supabase, coupleId, params);
+        return await addBudgetItem(supabase, coupleId, params as { name: string; amount: number; category?: string });
       case 'budget_update':
-        return await updateBudgetItem(supabase, coupleId, params);
+        return await updateBudgetItem(supabase, coupleId, params as { name: string; amount: number });
       case 'budget_remove':
-        return await removeBudgetItem(supabase, coupleId, params);
+        return await removeBudgetItem(supabase, coupleId, params as { name: string });
 
       // Guest actions
       case 'guest_add':
-        return await addGuest(supabase, coupleId, params);
+        return await addGuest(supabase, coupleId, params as { name: string; group?: string });
       case 'guest_update':
-        return await updateGuest(supabase, coupleId, params);
+        return await updateGuest(supabase, coupleId, params as { name: string; rsvp_status?: string; updates?: Record<string, any> });
       case 'guest_remove':
-        return await removeGuest(supabase, coupleId, params);
+        return await removeGuest(supabase, coupleId, params as { name: string });
 
       default:
         return {
