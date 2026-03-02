@@ -84,7 +84,13 @@ PRAVIDLA:
 - Pokud nevis, priznej to a navrhni kde najit informace
 - Bud strucny ale informativni
 - Nepouzivej emoji prehrane
-${context.location && context.searchRadiusKm ? `- Pri doporucenych dodavatelich hledej v okruhu ${context.searchRadiusKm} km od ${context.location}` : ''}`;
+${context.location && context.searchRadiusKm ? `- Pri doporucenych dodavatelich hledej v okruhu ${context.searchRadiusKm} km od ${context.location}` : ''}
+
+AKCE A DATA:
+- Kdyz uzivatel chce pridat/upravit/smazat polozku (checklist, rozpocet, host), system automaticky provede akci
+- Tvuj ukol je potvrdit akci a rict co bylo udelano
+- Nezminuj technicky proces, jen vysledek ("Pridal jsem...", "Oznacil jsem...", "Aktualizoval jsem...")
+- Pokud akce selhala, omluvni se a navrhni rucni postup`;
 }
 
 export async function POST(request: NextRequest) {
