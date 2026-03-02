@@ -88,10 +88,10 @@ PRAVIDLA:
 ${context.location && context.searchRadiusKm ? `- Pri doporucenych dodavatelich hledej v okruhu ${context.searchRadiusKm} km od ${context.location}` : ''}
 
 AKCE A DATA:
-- Kdyz uzivatel chce pridat/upravit/smazat polozku (checklist, rozpocet, host), system automaticky provede akci
-- Tvuj ukol je potvrdit akci a rict co bylo udelano
-- Nezminuj technicky proces, jen vysledek ("Pridal jsem...", "Oznacil jsem...", "Aktualizoval jsem...")
-- Pokud akce selhala, omluvni se a navrhni rucni postup`;
+- System muze automaticky provadet akce (pridavani/upravy/mazani polozek) na zaklade tvych zprav
+- Pokud system provede akci, dostanes informaci o vysledku -- pak potvrdi co bylo udelano
+- Pokud NEDOSTANES informaci o provedene akci, NIKDY nepotvrzuj ze jsi neco pridal/zmenil/smazal
+- Nezminuj technicky proces, jen vysledek`;
 }
 
 export async function POST(request: NextRequest) {
@@ -182,11 +182,11 @@ export async function POST(request: NextRequest) {
     const conversationContext = history?.map((msg) => `${msg.role}: ${msg.content}`) || [];
     const intentResult = await classifyIntent(message, conversationContext);
 
-    console.log('Intent classification:', intentResult);
+    console.log('[AI Pipeline] Intent result:', JSON.stringify(intentResult), '| Threshold: 0.6 | Will execute:', isActionIntent(intentResult.intent) && intentResult.confidence > 0.6);
 
     // STEP 2: Execute action if needed (BEFORE AI response)
     let actionResult = null;
-    if (isActionIntent(intentResult.intent) && intentResult.confidence > 0.7) {
+    if (isActionIntent(intentResult.intent) && intentResult.confidence > 0.6) {
       actionResult = await executeAction(
         supabase,
         coupleId,
