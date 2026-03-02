@@ -37,9 +37,9 @@ Requirements for v2.0 B2C Product. Each maps to roadmap phases.
 
 ### AI Pipeline
 
-- [ ] **AI-01**: AI chat routed through Kilo gateway API (replacing direct Claude API calls)
-- [ ] **AI-02**: Intent classification (fire-and-forget, async after response is sent)
-- [ ] **AI-03**: Rate limiting (15 messages/day with UI feedback -- preparation for future freemium)
+- [x] **AI-01**: AI chat routed through Kilo gateway API (replacing direct Claude API calls)
+- [x] **AI-02**: Intent classification (fire-and-forget, async after response is sent)
+- [x] **AI-03**: Rate limiting (15 messages/day with UI feedback -- preparation for future freemium)
 
 ### Data Collection
 
@@ -139,9 +139,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | ONBD-06 | Phase 7 | Complete |
 | ONBD-07 | Phase 7 | Complete |
 | SEC-03 | Phase 7 | Complete |
-| AI-01 | Phase 8 | Pending |
-| AI-02 | Phase 8 | Pending |
-| AI-03 | Phase 8 | Pending |
+| AI-01 | Phase 8 | Complete |
+| AI-02 | Phase 8 | Complete |
+| AI-03 | Phase 8 | Complete |
 | DATA-01 | Phase 9 | Pending |
 | DATA-02 | Phase 9 | Pending |
 | DATA-03 | Phase 9 | Pending |
