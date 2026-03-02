@@ -94,7 +94,7 @@ async function addChecklistItem(
     .insert({
       couple_id: coupleId,
       title,
-      category: category || 'ostatni',
+      category: category || 'other',
       description: null,
       due_date: null,
       priority: 'medium',
@@ -226,7 +226,7 @@ async function addBudgetItem(
     .insert({
       couple_id: coupleId,
       name,
-      category: category || 'ostatni',
+      category: category || 'other',
       estimated_cost: amount,
       actual_cost: null,
       paid: false,
