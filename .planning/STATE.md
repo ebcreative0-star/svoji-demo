@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: B2C Product
 status: in_progress
-last_updated: "2026-03-02T11:26:36.000Z"
+last_updated: "2026-03-02T11:34:34.000Z"
 progress:
   total_phases: 9
   completed_phases: 7
   total_plans: 27
-  completed_plans: 25
+  completed_plans: 26
 ---
 
 # Project State
@@ -23,11 +23,11 @@ See: .planning/PROJECT.md (updated 2026-03-01)
 ## Current Position
 
 Phase: 8 of 9 (AI Pipeline)
-Plan: 02 of 04 complete (Intent Classification with Actions)
+Plan: 03 of 04 complete (Rate Limiting)
 Status: Phase 8 in progress
-Last activity: 2026-03-02 - Completed 08-02: Intent classification with Haiku, action executor for CRUD operations, demand signal logging
+Last activity: 2026-03-02 - Completed 08-03: 50 messages/day rate limit with warning at 45, midnight reset in Prague timezone
 
-Progress: [█████░░░░░] ~46% (v2.0 milestone)
+Progress: [██████░░░░] ~52% (v2.0 milestone)
 
 ## Accumulated Context
 
@@ -66,6 +66,9 @@ Key decisions for v2.0:
 - [Phase 08-ai-pipeline]: Intent classification uses Haiku model (faster/cheaper than Sonnet) with 0.7 confidence threshold
 - [Phase 08-ai-pipeline]: Actions executed synchronously before AI response (not async) so AI can acknowledge the result
 - [Phase 08-ai-pipeline]: Demand signals logged fire-and-forget (never blocking chat response)
+- [Phase 08-ai-pipeline]: Rate limiting uses DB atomic function increment_chat_count() -- per-couple limit, 50 messages/day, warning at 45
+- [Phase 08-ai-pipeline]: Rate limit warning appended to AI response with Czech pluralization (zprava/zpravy/zprav)
+- [Phase 08-ai-pipeline]: Midnight reset in Prague timezone (Europe/Prague) via date_trunc('day', now() at time zone 'Europe/Prague')
 
 ### Pending Todos
 
@@ -86,5 +89,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-02
-Stopped at: Completed 08-02-PLAN.md (Intent Classification with Actions)
+Stopped at: Completed 08-03-PLAN.md (Rate Limiting)
 Resume file: None
