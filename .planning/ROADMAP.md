@@ -139,15 +139,17 @@ Plans:
   1. All chat messages route through the Kilo gateway API -- zero direct Claude API calls remain in the codebase
   2. User can manipulate checklist, budget, and guests via natural chat -- AI executes actions and confirms
   3. A user who has sent 45 messages today sees a warning; at 50 messages they see a hard stop -- the limit resets at midnight Prague time
-**Plans**: 6 plans
+**Plans**: 8 plans
 
 Plans:
 - [x] 08-01-PLAN.md -- Kilo Gateway integration (replace Anthropic SDK with Kilo API)
 - [x] 08-02-PLAN.md -- Intent classification with actions (checklist/budget/guest CRUD via chat)
 - [x] 08-03-PLAN.md -- Rate limiting (50/day, warning at 45, hard stop at 50)
 - [x] 08-04-PLAN.md -- Phase verification (E2E testing of all AI-0x requirements)
-- [ ] 08-05-PLAN.md -- Gap closure: fix intent classification (few-shot examples) + AI fabrication guard
-- [ ] 08-06-PLAN.md -- Gap closure: apply DB migrations + UAT re-verification
+- [x] 08-05-PLAN.md -- Gap closure: fix intent classification (few-shot examples) + AI fabrication guard
+- [x] 08-06-PLAN.md -- Gap closure: apply DB migrations + UAT re-verification
+- [ ] 08-07-PLAN.md -- Gap closure: refactor system prompt bias + lower confidence threshold + expand examples
+- [ ] 08-08-PLAN.md -- Gap closure: multi-name guest add + group extraction
 
 #### Phase 9: Data Collection
 **Goal**: Demand signals, engagement events, and UTM attribution are captured from the first real user session
