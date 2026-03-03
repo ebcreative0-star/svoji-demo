@@ -5,6 +5,7 @@ import { classifyIntent, isActionIntent, isDemandSignal } from '@/lib/ai/intent-
 import { executeAction } from '@/lib/ai/action-executor';
 import { logDemandSignal, extractDemandSignal } from '@/lib/ai/demand-logger';
 import { checkAndIncrementChatLimit } from '@/lib/rate-limit';
+import { logEngagementEvent } from '@/lib/engagement-logger';
 
 // Check API key at module load
 if (!process.env.KILO_API_KEY) {
@@ -234,12 +235,19 @@ DŮLEŽITÉ: Potvrď tuto akci ve své odpovědi uživateli. ${actionResult.succ
       { couple_id: coupleId, role: 'assistant', content: assistantMessage },
     ]);
 
+    // Log message_sent engagement event (fire-and-forget)
+    logEngagementEvent(supabase, coupleId, 'message_sent', {
+      message_length: message.length,
+    }).catch((error) => {
+      console.error('Engagement logging failed:', error);
+    });
+
     // STEP 5: Log demand signal (async, fire-and-forget)
-    if (isDemandSignal(intentResult.intent) && intentResult.confidence > 0.7) {
-      const demandSignal = extractDemandSignal(intentResult.params);
+    if (isDemandSignal(intentResult.intent) && intentResult.confidence > 0.6) {
+      const sourceIntent = intentResult.intent as 'vendor_search' | 'budget_add';
+      const demandSignal = extractDemandSignal(intentResult.params, sourceIntent);
       if (demandSignal) {
-        // Fire-and-forget - don't await
-        logDemandSignal(supabase, coupleId, demandSignal, message).catch((error) => {
+        logDemandSignal(supabase, coupleId, demandSignal, message, sourceIntent).catch((error) => {
           console.error('Demand signal logging failed:', error);
         });
       }
