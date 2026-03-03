@@ -150,6 +150,22 @@ export default function OnboardingPage() {
   };
 
   const finish = () => {
+    // Read UTM attribution data if available
+    let utmSource = '';
+    let utmMedium = '';
+    let utmCampaign = '';
+    try {
+      const utmRaw = localStorage.getItem('svoji_utm');
+      if (utmRaw) {
+        const utm = JSON.parse(utmRaw);
+        utmSource = utm.utm_source || '';
+        utmMedium = utm.utm_medium || '';
+        utmCampaign = utm.utm_campaign || '';
+      }
+    } catch {
+      // Ignore localStorage errors
+    }
+
     const params = new URLSearchParams({
       p1: partner1,
       p2: partner2,
@@ -161,6 +177,9 @@ export default function OnboardingPage() {
       budget: budget,
       gdpr: gdprTimestamp,
       marketing: marketingConsent ? '1' : '0',
+      utm_source: utmSource,
+      utm_medium: utmMedium,
+      utm_campaign: utmCampaign,
     });
     router.push(`/register?${params.toString()}`);
   };

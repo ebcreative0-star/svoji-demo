@@ -163,6 +163,20 @@ function ChatMockup() {
 }
 
 export function Hero() {
+  // Capture UTM parameters for attribution tracking
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const utmSource = params.get('utm_source');
+    if (utmSource) {
+      const utm = {
+        utm_source: utmSource,
+        utm_medium: params.get('utm_medium') || '',
+        utm_campaign: params.get('utm_campaign') || '',
+      };
+      localStorage.setItem('svoji_utm', JSON.stringify(utm));
+    }
+  }, []);
+
   return (
     <section className="relative min-h-[100dvh] flex items-center justify-center overflow-hidden bg-[var(--color-secondary)] pt-20">
       {/* Grain texture overlay */}
