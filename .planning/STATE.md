@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: B2C Product
 status: completed
-stopped_at: Completed 09-01-PLAN.md
-last_updated: "2026-03-03T21:21:08.765Z"
+stopped_at: Completed 09-03-PLAN.md
+last_updated: "2026-03-03T21:24:49.385Z"
 last_activity: "2026-03-02 - Completed 08-08: guest_add_multi intent + bulk insert, group extraction examples"
 progress:
   total_phases: 10
-  completed_phases: 8
+  completed_phases: 9
   total_plans: 34
-  completed_plans: 33
+  completed_plans: 34
   percent: 67
 ---
 
@@ -82,6 +82,9 @@ Key decisions for v2.0:
 - [Phase 09-data-collection]: UTM stored in localStorage svoji_utm key as JSON -- empty strings coerced to null in DB, OAuth path reuses btoa blob pattern from Phase 7
 - [Phase 09-data-collection]: extractDemandSignal() accepts optional sourceIntent to map params.name to category for budget_add (classifier uses name not category field)
 - [Phase 09-data-collection]: logDemandSignal() sourceIntent defaults to vendor_search for backward compat with Phase 8 callers
+- [Phase 09-data-collection]: message_sent excluded from /api/track ALLOWED_EVENTS -- only logged server-side to prevent client spoofing
+- [Phase 09-data-collection]: Admin stats uses service role key via direct createClient() -- bypasses RLS for cross-user aggregate queries
+- [Phase 09-data-collection]: Demand signal confidence threshold aligned to 0.6 (matching action execution threshold -- was 0.7)
 
 ### Pending Todos
 
@@ -101,6 +104,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-03T21:21:08.762Z
-Stopped at: Completed 09-01-PLAN.md
+Last session: 2026-03-03T21:24:49.383Z
+Stopped at: Completed 09-03-PLAN.md
 Resume file: None
