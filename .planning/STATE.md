@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: B2C Product
 status: completed
-stopped_at: Completed 09-02-PLAN.md
-last_updated: "2026-03-03T21:20:41.709Z"
+stopped_at: Completed 09-01-PLAN.md
+last_updated: "2026-03-03T21:21:08.765Z"
 last_activity: "2026-03-02 - Completed 08-08: guest_add_multi intent + bulk insert, group extraction examples"
 progress:
   total_phases: 10
@@ -80,6 +80,8 @@ Key decisions for v2.0:
 - [Phase 08-ai-pipeline]: Neutral base prompt removes unconditional action-confirmation priming -- NIKDY nepotvrzuj guard ensures AI only confirms when actionResult is present
 - [Phase 08-ai-pipeline]: Confidence threshold lowered to 0.6 -- catches borderline classifications at 0.61-0.69 that were silently dropped at 0.7
 - [Phase 09-data-collection]: UTM stored in localStorage svoji_utm key as JSON -- empty strings coerced to null in DB, OAuth path reuses btoa blob pattern from Phase 7
+- [Phase 09-data-collection]: extractDemandSignal() accepts optional sourceIntent to map params.name to category for budget_add (classifier uses name not category field)
+- [Phase 09-data-collection]: logDemandSignal() sourceIntent defaults to vendor_search for backward compat with Phase 8 callers
 
 ### Pending Todos
 
@@ -99,6 +101,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-03T21:20:41.706Z
-Stopped at: Completed 09-02-PLAN.md
+Last session: 2026-03-03T21:21:08.762Z
+Stopped at: Completed 09-01-PLAN.md
 Resume file: None
