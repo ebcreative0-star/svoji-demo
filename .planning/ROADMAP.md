@@ -159,10 +159,12 @@ Plans:
   1. Every AI conversation that mentions a vendor category, region, or budget produces a structured demand signal record with category, region, budget, and urgency fields populated
   2. Key user actions (message sent, checklist item completed, onboarding step completed, upgrade CTA clicked) produce engagement event records queryable in the database
   3. A user arriving via a UTM link has their source, medium, and campaign stored and associable with their account
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 09-01: TBD
+- [ ] 09-01-PLAN.md -- DB migration 007 + engagement logger module + demand signal extension (source_intent, budget_add)
+- [ ] 09-02-PLAN.md -- UTM capture on landing page + passthrough via onboarding to register (email + OAuth)
+- [ ] 09-03-PLAN.md -- Wire engagement events at 4 integration points + /api/track endpoint + admin stats endpoint
 
 #### Phase 10: Integration Fix-ups
 **Goal**: Password reset flow works end-to-end and rate limit UX shows meaningful feedback instead of generic errors
@@ -194,5 +196,5 @@ Phases execute in numeric order: 5 -> 6 -> 7 -> 8 -> 9
 | 6. UI Redesign | v2.0 | 6/6 | Complete | 2026-03-01 |
 | 7. Enhanced Onboarding | v2.0 | 3/3 | Complete | 2026-03-01 |
 | 8. AI Pipeline | 8/8 | Complete   | 2026-03-02 | - |
-| 9. Data Collection | v2.0 | 0/? | Not started | - |
+| 9. Data Collection | v2.0 | 0/3 | Planned | - |
 | 10. Integration Fix-ups | v2.0 | 0/? | Not started | - |
