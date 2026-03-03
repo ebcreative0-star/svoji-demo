@@ -45,6 +45,10 @@ export async function GET(request: Request) {
             budget_total: onboardingData.budget_total,
             gdpr_consent_at: onboardingData.gdpr_consent_at,
             marketing_consent: onboardingData.marketing_consent,
+            // UTM attribution
+            utm_source: onboardingData.utm_source || null,
+            utm_medium: onboardingData.utm_medium || null,
+            utm_campaign: onboardingData.utm_campaign || null,
             onboarding_completed: true,
           })
         } catch (e) {
