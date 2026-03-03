@@ -164,6 +164,21 @@ Plans:
 Plans:
 - [ ] 09-01: TBD
 
+#### Phase 10: Integration Fix-ups
+**Goal**: Password reset flow works end-to-end and rate limit UX shows meaningful feedback instead of generic errors
+**Depends on**: Phase 8
+**Requirements**: AUTH-01 (partial), AI-03 (partial)
+**Gap Closure:** Closes integration and flow gaps from v2.0 audit
+**Success Criteria** (what must be TRUE):
+  1. A user who clicks "Reset password" in email lands on /settings with a "set new password" form -- not redirected to /checklist
+  2. The auth callback route reads and honors the `next` searchParam for post-reset redirects
+  3. A user who hits the rate limit sees a specific message with reset time -- not a generic Czech error
+  4. The password reset E2E flow (login -> email -> callback -> settings -> new password) completes without breaks
+**Plans**: TBD
+
+Plans:
+- [ ] 10-01: TBD
+
 ## Progress
 
 **Execution Order:**
@@ -180,3 +195,4 @@ Phases execute in numeric order: 5 -> 6 -> 7 -> 8 -> 9
 | 7. Enhanced Onboarding | v2.0 | 3/3 | Complete | 2026-03-01 |
 | 8. AI Pipeline | 8/8 | Complete   | 2026-03-02 | - |
 | 9. Data Collection | v2.0 | 0/? | Not started | - |
+| 10. Integration Fix-ups | v2.0 | 0/? | Not started | - |
