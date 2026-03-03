@@ -45,7 +45,7 @@ Requirements for v2.0 B2C Product. Each maps to roadmap phases.
 
 - [ ] **DATA-01**: Demand signal logging from AI conversations (structured: category, region, budget, urgency)
 - [ ] **DATA-02**: Engagement metrics tracking (messages, sessions, checklist completion, days until wedding)
-- [ ] **DATA-03**: UTM parameter tracking on landing page
+- [x] **DATA-03**: UTM parameter tracking on landing page
 
 ## v1.0 Completed Requirements
 
@@ -144,7 +144,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | AI-03 | Phase 8 | Complete |
 | DATA-01 | Phase 9 | Pending |
 | DATA-02 | Phase 9 | Pending |
-| DATA-03 | Phase 9 | Pending |
+| DATA-03 | Phase 9 | Complete |
 
 **Coverage:**
 - v2.0 requirements: 22 total
