@@ -20,7 +20,8 @@ export async function logDemandSignal(
   supabase: SupabaseClient,
   coupleId: string,
   signal: DemandSignal,
-  rawMessage: string
+  rawMessage: string,
+  sourceIntent: 'vendor_search' | 'budget_add' = 'vendor_search'
 ): Promise<void> {
   try {
     const { error } = await supabase
@@ -32,6 +33,7 @@ export async function logDemandSignal(
         budget_hint: signal.budget_hint || null,
         urgency: signal.urgency || 'medium',
         raw_message: rawMessage,
+        source_intent: sourceIntent,
       });
 
     if (error) {
@@ -45,10 +47,14 @@ export async function logDemandSignal(
 }
 
 /**
- * Extract demand signal parameters from intent classification
+ * Extract demand signal parameters from intent classification.
+ * For budget_add intents, maps params.name to category and params.amount to budget_hint.
  */
-export function extractDemandSignal(params: Record<string, any>): DemandSignal | null {
-  const { category, region, budget_hint, urgency } = params;
+export function extractDemandSignal(
+  params: Record<string, any>,
+  sourceIntent?: string
+): DemandSignal | null {
+  const category = params.category || (sourceIntent === 'budget_add' ? params.name : null);
 
   if (!category) {
     return null;
@@ -56,8 +62,10 @@ export function extractDemandSignal(params: Record<string, any>): DemandSignal |
 
   return {
     category,
-    region,
-    budget_hint,
-    urgency: urgency && ['low', 'medium', 'high'].includes(urgency) ? urgency : 'medium',
+    region: params.region,
+    budget_hint: params.amount || params.budget_hint,
+    urgency: params.urgency && ['low', 'medium', 'high'].includes(params.urgency)
+      ? params.urgency
+      : 'medium',
   };
 }

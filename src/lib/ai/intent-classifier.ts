@@ -221,5 +221,5 @@ export function isActionIntent(intent: string): boolean {
  * Determine if intent should log demand signal
  */
 export function isDemandSignal(intent: string): boolean {
-  return intent === 'vendor_search';
+  return intent === 'vendor_search' || intent === 'budget_add';
 }
