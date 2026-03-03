@@ -70,6 +70,25 @@ export function ChecklistView({ items: initialItems, weddingDate }: ChecklistVie
       )
     );
 
+    // Log checklist completion event (fire-and-forget, only on complete, not un-complete)
+    if (completed) {
+      const item = items.find((i) => i.id === id);
+      fetch('/api/track', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          eventType: 'checklist_item_completed',
+          metadata: {
+            item_id: id,
+            item_title: item?.title || '',
+            item_category: item?.category || '',
+          },
+        }),
+      }).catch(() => {
+        // Silently ignore -- engagement tracking is non-critical
+      });
+    }
+
     // Server update
     startTransition(async () => {
       await supabase
