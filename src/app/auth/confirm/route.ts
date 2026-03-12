@@ -31,6 +31,13 @@ export async function GET(request: NextRequest) {
     const { error } = await supabase.auth.verifyOtp({ token_hash, type })
 
     if (!error) {
+      // Recovery type: redirect to settings with recovered flag
+      if (type === 'recovery') {
+        const destination = new URL(next ?? '/settings', request.url);
+        destination.searchParams.set('recovered', 'true');
+        return NextResponse.redirect(destination);
+      }
+
       // After email confirmation, check if new or returning user
       const { data: { user } } = await supabase.auth.getUser()
       if (user) {

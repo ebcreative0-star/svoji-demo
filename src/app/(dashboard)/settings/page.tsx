@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { Loader2, Save, Trash2, Globe, ExternalLink, Copy, Check } from 'lucide-react';
+import { Loader2, Save, Trash2, Globe, ExternalLink, Copy, Check, Lock } from 'lucide-react';
 import Link from 'next/link';
 import { Button, Card, Input, Select, Textarea } from '@/components/ui';
 
@@ -40,12 +40,36 @@ export default function SettingsPage() {
   const [message, setMessage] = useState('');
   const [websiteMessage, setWebsiteMessage] = useState('');
   const [copied, setCopied] = useState(false);
+  const [isRecoveryMode, setIsRecoveryMode] = useState(false);
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [passwordSaving, setPasswordSaving] = useState(false);
+  const [passwordMessage, setPasswordMessage] = useState('');
 
   const supabase = createClient();
   const router = useRouter();
 
   useEffect(() => {
     loadData();
+  }, []);
+
+  useEffect(() => {
+    // Check for ?recovered=true in URL
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('recovered') === 'true') {
+        setIsRecoveryMode(true);
+      }
+    }
+
+    // Also listen for PASSWORD_RECOVERY auth event
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'PASSWORD_RECOVERY') {
+        setIsRecoveryMode(true);
+      }
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
   const loadData = async () => {
@@ -109,6 +133,32 @@ export default function SettingsPage() {
       setTimeout(() => setMessage(''), 3000);
     }
     setSaving(false);
+  };
+
+  const changePassword = async () => {
+    if (newPassword !== confirmPassword) {
+      setPasswordMessage('Hesla se neshoduji.');
+      return;
+    }
+    if (newPassword.length < 8) {
+      setPasswordMessage('Heslo musi mit alespon 8 znaku.');
+      return;
+    }
+    setPasswordSaving(true);
+    setPasswordMessage('');
+
+    const { error } = await supabase.auth.updateUser({ password: newPassword });
+
+    if (error) {
+      setPasswordMessage('Nepodarilo se zmenit heslo. Zkuste to znovu.');
+    } else {
+      setPasswordMessage('Heslo bylo uspesne zmeneno.');
+      setIsRecoveryMode(false);
+      setNewPassword('');
+      setConfirmPassword('');
+      setTimeout(() => setPasswordMessage(''), 4000);
+    }
+    setPasswordSaving(false);
   };
 
   const createWebsite = async () => {
@@ -466,6 +516,52 @@ export default function SettingsPage() {
               </p>
             </div>
           )}
+        </Card.Body>
+      </Card>
+
+      {/* Password change */}
+      <Card className={`mb-8${isRecoveryMode ? ' ring-2 ring-[var(--color-primary)]' : ''}`}>
+        <Card.Header>
+          <div className="flex items-center gap-2">
+            <Lock className="w-5 h-5 text-[var(--color-primary)]" />
+            <h2 className="text-lg font-medium">Zmena hesla</h2>
+          </div>
+        </Card.Header>
+        <Card.Body className="space-y-4">
+          {isRecoveryMode && (
+            <p className="text-sm text-[var(--color-primary)]">
+              Nastavte si nove heslo pro vas ucet.
+            </p>
+          )}
+          <Input
+            label="Nove heslo"
+            type="password"
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
+            placeholder="Minimalne 8 znaku"
+          />
+          <Input
+            label="Potvrdit heslo"
+            type="password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            placeholder="Zadejte heslo znovu"
+          />
+          <div className="flex items-center gap-4">
+            <Button
+              variant="primary"
+              onClick={changePassword}
+              isLoading={passwordSaving}
+              leadingIcon={!passwordSaving ? <Lock className="w-4 h-4" /> : undefined}
+            >
+              Zmenit heslo
+            </Button>
+            {passwordMessage && (
+              <span className={passwordMessage.includes('uspesne') ? 'text-green-600' : 'text-red-600'}>
+                {passwordMessage}
+              </span>
+            )}
+          </div>
         </Card.Body>
       </Card>
 
