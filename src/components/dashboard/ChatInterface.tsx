@@ -37,6 +37,7 @@ export function ChatInterface({ couple, initialMessages }: ChatInterfaceProps) {
   const [messages, setMessages] = useState<Message[]>(initialMessages);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isRateLimited, setIsRateLimited] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const supabase = createClient();
 
@@ -50,7 +51,7 @@ export function ChatInterface({ couple, initialMessages }: ChatInterfaceProps) {
 
   const sendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!input.trim() || isLoading) return;
+    if (!input.trim() || isLoading || isRateLimited) return;
 
     const userMessage = input.trim();
     setInput('');
@@ -86,6 +87,25 @@ export function ChatInterface({ couple, initialMessages }: ChatInterfaceProps) {
           },
         }),
       });
+
+      if (response.status === 429) {
+        const rateLimitData = await response.json();
+        const resetTime = rateLimitData.resetAt
+          ? format(new Date(rateLimitData.resetAt), 'HH:mm', { locale: cs })
+          : null;
+        const limitMsg: Message = {
+          id: `ratelimit-${Date.now()}`,
+          role: 'assistant',
+          content: resetTime
+            ? `Dnesni limit 50 zprav byl vycerpan. Novy limit zacina o pulnoci (${resetTime}).`
+            : 'Dnesni limit 50 zprav byl vycerpan. Novy limit zacina o pulnoci.',
+          created_at: new Date().toISOString(),
+        };
+        setMessages((prev) => [...prev, limitMsg]);
+        setIsRateLimited(true);
+        setIsLoading(false);
+        return;
+      }
 
       if (!response.ok) {
         throw new Error('Chyba při komunikaci s AI');
@@ -196,14 +216,14 @@ export function ChatInterface({ couple, initialMessages }: ChatInterfaceProps) {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="Napište svůj dotaz..."
-            disabled={isLoading}
+            disabled={isLoading || isRateLimited}
             className="flex-1"
           />
           <Button
             type="submit"
             variant="primary"
             isLoading={isLoading}
-            disabled={isLoading || !input.trim()}
+            disabled={isLoading || isRateLimited || !input.trim()}
             aria-label="Odeslat zprávu"
             leadingIcon={<Send className="w-5 h-5" />}
           />
