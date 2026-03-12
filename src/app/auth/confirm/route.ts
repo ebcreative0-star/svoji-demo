@@ -7,7 +7,7 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
   const token_hash = searchParams.get('token_hash')
   const type = searchParams.get('type') as EmailOtpType | null
-  const next = searchParams.get('next') ?? '/dashboard'
+  const next = searchParams.get('next')
 
   if (token_hash && type) {
     const cookieStore = await cookies()
@@ -49,7 +49,7 @@ export async function GET(request: NextRequest) {
         const redirectTo = couple ? '/checklist' : '/onboarding'
         return NextResponse.redirect(new URL(redirectTo, request.url))
       }
-      return NextResponse.redirect(new URL(next, request.url))
+      return NextResponse.redirect(new URL(next ?? '/checklist', request.url))
     }
   }
 
