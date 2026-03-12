@@ -176,10 +176,10 @@ Plans:
   2. The auth callback route reads and honors the `next` searchParam for post-reset redirects
   3. A user who hits the rate limit sees a specific message with reset time -- not a generic Czech error
   4. The password reset E2E flow (login -> email -> callback -> settings -> new password) completes without breaks
-**Plans**: TBD
+**Plans**: 1 plan
 
 Plans:
-- [ ] 10-01: TBD
+- [ ] 10-01-PLAN.md -- Fix /auth/confirm recovery redirect + password change settings section + ChatInterface 429 rate limit UX
 
 ## Progress
 
@@ -197,4 +197,4 @@ Phases execute in numeric order: 5 -> 6 -> 7 -> 8 -> 9
 | 7. Enhanced Onboarding | v2.0 | 3/3 | Complete | 2026-03-01 |
 | 8. AI Pipeline | 8/8 | Complete   | 2026-03-02 | - |
 | 9. Data Collection | 2/3 | In Progress|  | - |
-| 10. Integration Fix-ups | v2.0 | 0/? | Not started | - |
+| 10. Integration Fix-ups | v2.0 | 0/1 | Not started | - |
