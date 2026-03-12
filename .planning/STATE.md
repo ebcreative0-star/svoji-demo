@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: B2C Product
 status: completed
-stopped_at: Phase 10 context gathered
-last_updated: "2026-03-12T19:47:49.648Z"
+stopped_at: "Completed 10-01: password reset E2E + chat rate limit UX"
+last_updated: "2026-03-12T20:11:38.294Z"
 last_activity: "2026-03-02 - Completed 08-08: guest_add_multi intent + bulk insert, group extraction examples"
 progress:
   total_phases: 10
-  completed_phases: 9
-  total_plans: 34
-  completed_plans: 34
+  completed_phases: 10
+  total_plans: 35
+  completed_plans: 35
   percent: 67
 ---
 
@@ -85,6 +85,8 @@ Key decisions for v2.0:
 - [Phase 09-data-collection]: message_sent excluded from /api/track ALLOWED_EVENTS -- only logged server-side to prevent client spoofing
 - [Phase 09-data-collection]: Admin stats uses service role key via direct createClient() -- bypasses RLS for cross-user aggregate queries
 - [Phase 09-data-collection]: Demand signal confidence threshold aligned to 0.6 (matching action execution threshold -- was 0.7)
+- [Phase 10-integration-fixups]: /auth/confirm recovery branch redirects to /settings?recovered=true -- password reset E2E now complete
+- [Phase 10-integration-fixups]: ChatInterface 429 handler: Czech rate-limit bubble with HH:mm reset time, isRateLimited disables input and send button
 
 ### Pending Todos
 
@@ -104,6 +106,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-12T19:47:49.643Z
-Stopped at: Phase 10 context gathered
-Resume file: .planning/phases/10-integration-fixups/10-CONTEXT.md
+Last session: 2026-03-12T20:11:38.292Z
+Stopped at: Completed 10-01: password reset E2E + chat rate limit UX
+Resume file: None
