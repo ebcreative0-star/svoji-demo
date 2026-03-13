@@ -1,5 +1,22 @@
 # Milestones: Svoji
 
+## v2.0 B2C Product (Shipped: 2026-03-13)
+
+**Phases completed:** 6 phases (5-10), 23 plans
+**Timeline:** 12 days (2026-03-01 -> 2026-03-12)
+**Commits:** 58
+**Codebase:** 78 files, 9,258 LOC TypeScript/TSX
+
+**Key accomplishments:**
+- Real authentication: removed demo mode, Supabase middleware auth + Google OAuth with PKCE
+- Full UI redesign: auth pages, dashboard (nav, checklist, budget, guests, chat, settings), public wedding web on new design system
+- 5-step onboarding: names+date, guests, location+radius, style, budget with GDPR consent and satin transitions
+- AI pipeline overhaul: Kilo gateway, Haiku intent classification (few-shot), action execution (checklist/budget/guest CRUD), rate limiting (15/day)
+- Data collection foundation: demand signal logging, engagement metrics, UTM tracking
+- Integration fixups: password reset E2E flow, chat rate limit UX (429 handling)
+
+---
+
 ## v0 — Initial Build (Pre-GSD)
 
 **Completed:** 2025-02-28
