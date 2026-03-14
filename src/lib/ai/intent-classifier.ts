@@ -24,6 +24,8 @@ MOŽNÉ INTENTY:
 - budget_add: Přidat výdaj (params: { name: string, amount: number, category?: string })
 - budget_update: Aktualizovat částku (params: { name: string, amount: number })
 - budget_remove: Smazat výdaj (params: { name: string })
+- checklist_add_multi: Pridat vice polozek do checklistu najednou (params: { titles: string[], category?: string })
+- budget_add_multi: Pridat vice vydaju najednou (params: { items: { name: string, amount: number, category?: string }[] })
 - guest_add: Přidat hosta (params: { name: string, group?: string })
 - guest_add_multi: Pridat vice hostu najednou (params: { names: string[], group?: string })
 - guest_update: Změnit RSVP/detaily (params: { name: string, rsvp_status?: string, updates?: object })
@@ -51,10 +53,12 @@ PRAVIDLA:
 - Pro checklist_complete: title je přibližný název položky (nemusí přesně odpovídat)
 - Pro guest_add: extrahuj group pokud je zminen ("ze strany zenicha/nevesty", "rodina", "kamaradi" atd.)
 - Pokud zprava obsahuje vice jmen oddelenych carkou nebo "a", pouzij guest_add_multi s polem names[]
+- Pokud uzivatel zminuje VICE polozek pro checklist (oddelene carkou, "a", nebo na vice radcich), pouzij checklist_add_multi s polem titles[]
+- Pokud uzivatel zminuje VICE rozpoctovych polozek s castkami (vice nez jednu), pouzij budget_add_multi s polem items[]
 - DULEZITE: Pokud zprava zminuje ze neco je "hotove", "zarizene", "odskrtnute" nebo "splnene", klasifikuj jako checklist_complete (ne small_talk)
-- DULEZITE: Pokud uzivatel zminuje castku A nazev polozky, VZDY klasifikuj jako budget_add s params { name, amount, category }. Bez castky klasifikuj jako advice_request.
+- DULEZITE: Pokud uzivatel zminuje castku A nazev polozky (jednu), VZDY klasifikuj jako budget_add s params { name, amount, category }. Bez castky klasifikuj jako advice_request.
 - DULEZITE: Pokud uzivatel chce neco smazat/zrusit/odstranit z rozpoctu, klasifikuj jako budget_remove.
-- Pro budget_add category pouzij jednu z: venue|catering|photo|music|flowers|attire|rings|decor|cake|transport|honeymoon|other
+- Pro budget_add/budget_add_multi category pouzij jednu z: venue|catering|photo|music|flowers|attire|rings|decor|cake|transport|honeymoon|other
 
 PRIKLADY:
 Uzivatel: "Odskrtni cirkus"
@@ -142,7 +146,19 @@ Uzivatel: "Na muziku davame 15000"
 {"intent": "budget_add", "confidence": 0.95, "params": {"name": "muzika", "amount": 15000}}
 
 Uzivatel: "Oznac dort jako hotovy"
-{"intent": "checklist_complete", "confidence": 0.95, "params": {"title": "dort"}}`;
+{"intent": "checklist_complete", "confidence": 0.95, "params": {"title": "dort"}}
+
+Uzivatel: "Pridej fotograf, DJ a catering do checklistu"
+{"intent": "checklist_add_multi", "confidence": 0.95, "params": {"titles": ["fotograf", "DJ", "catering"]}}
+
+Uzivatel: "Do checklistu: vybrat misto, objednat catering, sehnat fotografa"
+{"intent": "checklist_add_multi", "confidence": 0.95, "params": {"titles": ["vybrat misto", "objednat catering", "sehnat fotografa"]}}
+
+Uzivatel: "Fotograf 25000, DJ 15000, kvetiny 8000"
+{"intent": "budget_add_multi", "confidence": 0.95, "params": {"items": [{"name": "fotograf", "amount": 25000, "category": "photo"}, {"name": "DJ", "amount": 15000, "category": "music"}, {"name": "kvetiny", "amount": 8000, "category": "flowers"}]}}
+
+Uzivatel: "Rozpocet: catering 80000, dort 12000, dekorace 15000"
+{"intent": "budget_add_multi", "confidence": 0.95, "params": {"items": [{"name": "catering", "amount": 80000, "category": "catering"}, {"name": "dort", "amount": 12000, "category": "cake"}, {"name": "dekorace", "amount": 15000, "category": "decor"}]}}`;
 
 /**
  * Classify user message intent using Kilo Gateway
@@ -229,9 +245,11 @@ Klasifikuj záměr a vrať JSON.`;
 export function isActionIntent(intent: string): boolean {
   const actionIntents = [
     'checklist_add',
+    'checklist_add_multi',
     'checklist_complete',
     'checklist_remove',
     'budget_add',
+    'budget_add_multi',
     'budget_update',
     'budget_remove',
     'guest_add',

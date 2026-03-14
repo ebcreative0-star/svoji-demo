@@ -26,6 +26,8 @@ export async function executeAction(
       // Checklist actions
       case 'checklist_add':
         return await addChecklistItem(supabase, coupleId, params as { title: string; category?: string });
+      case 'checklist_add_multi':
+        return await addChecklistItems(supabase, coupleId, params as { titles: string[]; category?: string });
       case 'checklist_complete':
         return await completeChecklistItem(supabase, coupleId, params as { title: string });
       case 'checklist_remove':
@@ -34,6 +36,8 @@ export async function executeAction(
       // Budget actions
       case 'budget_add':
         return await addBudgetItem(supabase, coupleId, params as { name: string; amount: number; category?: string });
+      case 'budget_add_multi':
+        return await addBudgetItems(supabase, coupleId, params as { items: { name: string; amount: number; category?: string }[] });
       case 'budget_update':
         return await updateBudgetItem(supabase, coupleId, params as { name: string; amount: number });
       case 'budget_remove':
@@ -111,6 +115,55 @@ async function addChecklistItem(
   return {
     success: true,
     message: `Přidal jsem "${title}" do checklistu`,
+    data,
+  };
+}
+
+async function addChecklistItems(
+  supabase: SupabaseClient,
+  coupleId: string,
+  params: { titles: string[]; category?: string }
+): Promise<ActionResult> {
+  const { titles, category } = params;
+
+  if (!titles || !Array.isArray(titles) || titles.length === 0) {
+    return { success: false, message: 'Chybi nazvy polozek', error: 'Missing titles array' };
+  }
+
+  // Get max sort_order for this couple
+  const { data: maxOrderData } = await supabase
+    .from('checklist_items')
+    .select('sort_order')
+    .eq('couple_id', coupleId)
+    .order('sort_order', { ascending: false })
+    .limit(1);
+
+  const baseOrder = maxOrderData?.[0]?.sort_order ?? 0;
+
+  const rows = titles.map((title, i) => ({
+    couple_id: coupleId,
+    title: title.trim(),
+    category: category || 'other',
+    description: null,
+    due_date: null,
+    priority: 'medium',
+    completed: false,
+    sort_order: baseOrder + i + 1,
+  }));
+
+  const { data, error } = await supabase
+    .from('checklist_items')
+    .insert(rows)
+    .select();
+
+  if (error) {
+    return { success: false, message: 'Nepodarilo se pridat polozky', error: error.message };
+  }
+
+  const titleList = titles.map((t) => t.trim()).join(', ');
+  return {
+    success: true,
+    message: `Pridano ${titles.length} polozek do checklistu: ${titleList}`,
     data,
   };
 }
@@ -270,6 +323,44 @@ async function addBudgetItem(
   return {
     success: true,
     message: `Přidal jsem "${name}" (${amount.toLocaleString('cs-CZ')} Kč) do rozpočtu`,
+    data,
+  };
+}
+
+async function addBudgetItems(
+  supabase: SupabaseClient,
+  coupleId: string,
+  params: { items: { name: string; amount: number; category?: string }[] }
+): Promise<ActionResult> {
+  const { items } = params;
+
+  if (!items || !Array.isArray(items) || items.length === 0) {
+    return { success: false, message: 'Chybi polozky rozpoctu', error: 'Missing items array' };
+  }
+
+  const rows = items.map((item) => ({
+    couple_id: coupleId,
+    name: item.name,
+    category: normalizeBudgetCategory(item.category),
+    estimated_cost: item.amount,
+    actual_cost: null,
+    paid: false,
+    source: 'ai',
+  }));
+
+  const { data, error } = await supabase
+    .from('budget_items')
+    .insert(rows)
+    .select();
+
+  if (error) {
+    return { success: false, message: 'Nepodarilo se pridat polozky rozpoctu', error: error.message };
+  }
+
+  const itemList = items.map((item) => `${item.name} (${item.amount.toLocaleString('cs-CZ')} Kc)`).join(', ');
+  return {
+    success: true,
+    message: `Pridano ${items.length} polozek do rozpoctu: ${itemList}`,
     data,
   };
 }
