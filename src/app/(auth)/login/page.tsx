@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui';
@@ -110,8 +111,8 @@ export default function LoginPage() {
         <Card className="shadow-lg">
           <Card.Body className="p-8 sm:p-10">
             <div className="text-center mb-8">
-              <Link href="/" className="text-3xl font-serif text-[var(--color-primary)]">
-                Svoji
+              <Link href="/" className="inline-block">
+                <Image src="/logo.svg" alt="Svooji" width={140} height={32} />
               </Link>
               <p className="text-[var(--color-text-light)] mt-2 text-sm">
                 Přihlaste se ke svému účtu

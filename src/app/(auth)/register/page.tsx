@@ -2,6 +2,7 @@
 
 import { useState, Suspense } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { useSearchParams } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
@@ -156,8 +157,8 @@ function RegisterForm() {
         <Card className="shadow-lg">
           <Card.Body className="p-8 sm:p-10">
             <div className="text-center mb-8">
-              <Link href="/" className="text-3xl font-serif text-[var(--color-primary)]">
-                Svoji
+              <Link href="/" className="inline-block">
+                <Image src="/logo.svg" alt="Svooji" width={140} height={32} />
               </Link>
               <p className="text-[var(--color-text-light)] mt-2 text-sm">
                 Vytvořte si účet a začněte plánovat

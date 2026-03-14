@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Heart, Menu, X } from 'lucide-react';
+import Image from 'next/image';
+import { Menu, X } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { buttonVariants } from '@/components/ui/Button';
 import { cn } from '@/lib/cn';
@@ -32,9 +33,8 @@ export function LandingNav() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 min-h-[44px]">
-            <Heart className="w-6 h-6 text-[var(--color-primary)]" />
-            <span className="text-xl font-serif text-[var(--color-primary)]">Svoji</span>
+          <Link href="/" className="flex items-center min-h-[44px]">
+            <Image src="/logo.svg" alt="Svooji" width={120} height={28} priority />
           </Link>
 
           {/* Desktop nav */}

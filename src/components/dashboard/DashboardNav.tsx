@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import {
@@ -46,8 +47,8 @@ export function DashboardNav({ partner1, partner2, slug }: DashboardNavProps) {
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
-            <Link href="/checklist" className="flex items-center gap-2">
-              <span className="text-xl font-heading text-[var(--color-primary)]">Svoji</span>
+            <Link href="/checklist" className="flex items-center gap-3">
+              <Image src="/logo.svg" alt="Svooji" width={100} height={24} />
               <span className="text-sm text-[var(--color-text-light)]">
                 {partner1} & {partner2}
               </span>
@@ -105,7 +106,7 @@ export function DashboardNav({ partner1, partner2, slug }: DashboardNavProps) {
       <nav className="md:hidden fixed top-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-sm border-b border-[var(--color-border)]">
         <div className="flex items-center justify-between h-14 px-4">
           <Link href="/checklist" className="flex items-center gap-2">
-            <span className="text-lg font-heading text-[var(--color-primary)]">Svoji</span>
+            <Image src="/logo.svg" alt="Svooji" width={80} height={20} />
             {partner1 && partner2 && (
               <span className="text-xs text-[var(--color-text-light)]">
                 {partner1} & {partner2}
