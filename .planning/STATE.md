@@ -4,7 +4,7 @@ milestone: v2.1
 milestone_name: Polish & UX
 status: planning
 stopped_at: Completed 11-bug-fixes 11-02-PLAN.md
-last_updated: "2026-03-14T10:53:37.724Z"
+last_updated: "2026-03-14T10:56:49.832Z"
 last_activity: 2026-03-14 -- v2.1 roadmap created (phases 11-13)
 progress:
   total_phases: 3
