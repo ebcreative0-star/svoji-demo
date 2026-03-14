@@ -52,7 +52,9 @@ PRAVIDLA:
 - Pro guest_add: extrahuj group pokud je zminen ("ze strany zenicha/nevesty", "rodina", "kamaradi" atd.)
 - Pokud zprava obsahuje vice jmen oddelenych carkou nebo "a", pouzij guest_add_multi s polem names[]
 - DULEZITE: Pokud zprava zminuje ze neco je "hotove", "zarizene", "odskrtnute" nebo "splnene", klasifikuj jako checklist_complete (ne small_talk)
-- DULEZITE: Pokud zprava obsahuje castku (cislo) a nazev polozky, klasifikuj jako budget_add (ne advice_request)
+- DULEZITE: Pokud uzivatel zminuje castku A nazev polozky, VZDY klasifikuj jako budget_add s params { name, amount, category }. Bez castky klasifikuj jako advice_request.
+- DULEZITE: Pokud uzivatel chce neco smazat/zrusit/odstranit z rozpoctu, klasifikuj jako budget_remove.
+- Pro budget_add category pouzij jednu z: venue|catering|photo|music|flowers|attire|rings|decor|cake|transport|honeymoon|other
 
 PRIKLADY:
 Uzivatel: "Odskrtni cirkus"
@@ -88,7 +90,31 @@ Uzivatel: "Pozveme Marka, Janu a Petra ze strany nevesty"
 Uzivatel: "Pridej Tomas a Lucii"
 {"intent": "guest_add_multi", "confidence": 0.95, "params": {"names": ["Tomas", "Lucie"]}}
 
+Uzivatel: "Pridej fotografa za 25000"
+{"intent": "budget_add", "confidence": 0.95, "params": {"name": "fotograf", "amount": 25000, "category": "photo"}}
+
+Uzivatel: "Rozpocet na kvetiny 8000"
+{"intent": "budget_add", "confidence": 0.95, "params": {"name": "kvetiny", "amount": 8000, "category": "flowers"}}
+
+Uzivatel: "Catering bude stat 80000"
+{"intent": "budget_add", "confidence": 0.95, "params": {"name": "catering", "amount": 80000, "category": "catering"}}
+
+Uzivatel: "Pridej do rozpoctu DJ 15000"
+{"intent": "budget_add", "confidence": 0.95, "params": {"name": "DJ", "amount": 15000, "category": "music"}}
+
+Uzivatel: "Pridej catering 50000 do rozpoctu"
+{"intent": "budget_add", "confidence": 0.95, "params": {"name": "catering", "amount": 50000, "category": "catering"}}
+
 Uzivatel: "Smaz dort z rozpoctu"
+{"intent": "budget_remove", "confidence": 0.95, "params": {"name": "dort"}}
+
+Uzivatel: "Smaz kvetiny z rozpoctu"
+{"intent": "budget_remove", "confidence": 0.95, "params": {"name": "kvetiny"}}
+
+Uzivatel: "Zrus polozku catering"
+{"intent": "budget_remove", "confidence": 0.95, "params": {"name": "catering"}}
+
+Uzivatel: "Nechci uz dort v rozpoctu"
 {"intent": "budget_remove", "confidence": 0.95, "params": {"name": "dort"}}
 
 Uzivatel: "Kolik stoji fotograf?"
