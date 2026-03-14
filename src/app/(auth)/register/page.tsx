@@ -74,16 +74,19 @@ function RegisterForm() {
     setGoogleLoading(true);
     setError('');
 
-    // Pass onboarding data through OAuth callback via encoded param
-    const callbackUrl = new URL('/auth/callback', window.location.origin);
+    // Persist onboarding data in a cookie before OAuth redirect.
+    // Supabase strips custom query params from redirectTo, so we can't
+    // pass onboarding data that way -- cookie survives the round-trip.
     if (hasOnboardingData) {
-      callbackUrl.searchParams.set('onboarding', btoa(JSON.stringify(onboardingData)));
+      document.cookie = `svoji_onboarding=${btoa(JSON.stringify(onboardingData))}; path=/; max-age=600; SameSite=Lax`;
     }
+
+    const callbackUrl = `${window.location.origin}/auth/callback`;
 
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: callbackUrl.toString(),
+        redirectTo: callbackUrl,
       },
     });
     if (error) {
