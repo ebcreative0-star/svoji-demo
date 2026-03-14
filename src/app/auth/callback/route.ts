@@ -43,7 +43,7 @@ export async function GET(request: Request) {
       // Persist onboarding data passed via cookie (or query param fallback)
       if (onboardingRaw) {
         try {
-          const onboardingData = JSON.parse(atob(onboardingRaw))
+          const onboardingData = JSON.parse(decodeURIComponent(onboardingRaw))
           await supabase.from('couples').upsert({
             id: data.user.id,
             partner1_name: onboardingData.partner1_name,

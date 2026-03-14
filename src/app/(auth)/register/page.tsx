@@ -78,7 +78,7 @@ function RegisterForm() {
     // Supabase strips custom query params from redirectTo, so we can't
     // pass onboarding data that way -- cookie survives the round-trip.
     if (hasOnboardingData) {
-      document.cookie = `svoji_onboarding=${btoa(JSON.stringify(onboardingData))}; path=/; max-age=600; SameSite=Lax`;
+      document.cookie = `svoji_onboarding=${encodeURIComponent(JSON.stringify(onboardingData))}; path=/; max-age=600; SameSite=Lax`;
     }
 
     const callbackUrl = `${window.location.origin}/auth/callback`;
