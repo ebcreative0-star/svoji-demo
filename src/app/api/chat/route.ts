@@ -6,10 +6,126 @@ import { executeAction } from '@/lib/ai/action-executor';
 import { logDemandSignal, extractDemandSignal } from '@/lib/ai/demand-logger';
 import { checkAndIncrementChatLimit } from '@/lib/rate-limit';
 import { logEngagementEvent } from '@/lib/engagement-logger';
+import type { SupabaseClient } from '@supabase/supabase-js';
 
 // Check API key at module load
 if (!process.env.KILO_API_KEY) {
   console.warn('KILO_API_KEY not set - chat will not work');
+}
+
+const KILO_BASE_URL = 'https://api.kilo.ai/api/gateway';
+
+const NOTES_PARSE_PROMPT = `Parseuj tento text a roztrid polozky do kategorii. Vrat POUZE JSON: { "checklist": string[], "budget": [{"name": string, "amount": number, "category": string}], "guests": string[], "unknown": string[] }. Pravidla: Cisla s nazvy = budget. Slovesa/ukoly = checklist. Jmena osob = guests. Pro budget: amount je cislo v Kc. Pro budget category pouzij jednu z: venue|catering|photo|music|flowers|attire|rings|decor|cake|transport|honeymoon|other. Pokud category nelze urcit, pouzij "other". Polozky bez jasneho zarazeni dej do unknown. Odpovez POUZE validnim JSON objektem, zadne komentare.`;
+
+interface ParsedNotes {
+  checklist: string[];
+  budget: { name: string; amount: number; category: string }[];
+  guests: string[];
+  unknown: string[];
+}
+
+/**
+ * Detect if a message looks like a notes paste (multiple lines or long text)
+ */
+function isLikelyNotesPaste(message: string): boolean {
+  const lines = message.split('\n').filter((l) => l.trim().length > 0);
+  return lines.length >= 3 || message.length > 300;
+}
+
+/**
+ * Parse raw notes text via dedicated Haiku call
+ */
+async function parseNotes(message: string): Promise<ParsedNotes | null> {
+  const apiKey = process.env.KILO_API_KEY;
+  if (!apiKey) return null;
+
+  try {
+    const response = await fetch(`${KILO_BASE_URL}/chat/completions`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model: 'anthropic/claude-haiku-4.5',
+        messages: [
+          { role: 'system', content: NOTES_PARSE_PROMPT },
+          { role: 'user', content: message },
+        ],
+        max_tokens: 1024,
+        temperature: 0.1,
+      }),
+    });
+
+    if (!response.ok) {
+      console.error('[parseNotes] Kilo API error:', response.status);
+      return null;
+    }
+
+    const data = await response.json();
+    const content = data.choices?.[0]?.message?.content;
+    if (!content) return null;
+
+    // Strip markdown fences if present
+    const cleaned = content.trim().replace(/^```(?:json)?\s*\n?/i, '').replace(/\n?```\s*$/i, '').trim();
+    const parsed = JSON.parse(cleaned) as ParsedNotes;
+
+    // Validate structure
+    if (!Array.isArray(parsed.checklist) || !Array.isArray(parsed.budget) || !Array.isArray(parsed.guests)) {
+      console.error('[parseNotes] Invalid structure returned');
+      return null;
+    }
+
+    return parsed;
+  } catch (error) {
+    console.error('[parseNotes] Failed:', error);
+    return null;
+  }
+}
+
+/**
+ * Execute a parsed notes import -- batch-adds checklist, budget and guest items
+ */
+async function executeNotesImport(
+  supabase: SupabaseClient,
+  coupleId: string,
+  notes: ParsedNotes
+): Promise<string> {
+  const parts: string[] = ['Hotovo! Roztridil jsem vase poznamky:'];
+
+  if (notes.checklist.length > 0) {
+    const result = await executeAction(supabase, coupleId, 'checklist_add_multi', { titles: notes.checklist });
+    const titles = notes.checklist.join(', ');
+    parts.push(`- Checklist: ${notes.checklist.length} polozek (${titles})`);
+    if (!result.success) {
+      console.error('[executeNotesImport] checklist_add_multi failed:', result.error);
+    }
+  }
+
+  if (notes.budget.length > 0) {
+    const result = await executeAction(supabase, coupleId, 'budget_add_multi', { items: notes.budget });
+    const budgetSummary = notes.budget.map((item) => `${item.name} ${item.amount.toLocaleString('cs-CZ')} Kc`).join(', ');
+    parts.push(`- Rozpocet: ${notes.budget.length} polozek (${budgetSummary})`);
+    if (!result.success) {
+      console.error('[executeNotesImport] budget_add_multi failed:', result.error);
+    }
+  }
+
+  if (notes.guests.length > 0) {
+    const result = await executeAction(supabase, coupleId, 'guest_add_multi', { names: notes.guests });
+    const guestNames = notes.guests.join(', ');
+    parts.push(`- Hosty: ${notes.guests.length} (${guestNames})`);
+    if (!result.success) {
+      console.error('[executeNotesImport] guest_add_multi failed:', result.error);
+    }
+  }
+
+  if (notes.unknown.length > 0) {
+    const unknownList = notes.unknown.join(', ');
+    parts.push(`- Nerozpoznano: ${notes.unknown.length} polozek (${unknownList})`);
+  }
+
+  return parts.join('\n');
 }
 
 interface ChatContext {
@@ -179,29 +295,53 @@ export async function POST(request: NextRequest) {
     // Pridat aktualni zpravu
     messages.push({ role: 'user', content: message });
 
-    // STEP 1: Classify intent
+    // STEP 0: Check for notes paste (before intent classification)
+    let notesSummary: string | null = null;
+    if (isLikelyNotesPaste(message)) {
+      const parsedNotes = await parseNotes(message);
+      if (
+        parsedNotes &&
+        parsedNotes.checklist.length + parsedNotes.budget.length + parsedNotes.guests.length > 0
+      ) {
+        console.log('[AI Pipeline] Notes import detected, executing batch import');
+        notesSummary = await executeNotesImport(supabase, coupleId, parsedNotes);
+      }
+    }
+
+    // STEP 1: Classify intent (skip if notes import was triggered)
     const conversationContext = history?.map((msg) => `${msg.role}: ${msg.content}`) || [];
-    const intentResult = await classifyIntent(message, conversationContext);
-
-    console.log('[AI Pipeline] Intent result:', JSON.stringify(intentResult), '| Threshold: 0.6 | Will execute:', isActionIntent(intentResult.intent) && intentResult.confidence > 0.6);
-
-    // STEP 2: Execute action if needed (BEFORE AI response)
     let actionResult = null;
-    if (isActionIntent(intentResult.intent) && intentResult.confidence > 0.6) {
-      actionResult = await executeAction(
-        supabase,
-        coupleId,
-        intentResult.intent,
-        intentResult.params
-      );
+    let intentResult = { intent: 'unknown', confidence: 0, params: {} };
 
-      console.log('Action execution:', actionResult);
+    if (!notesSummary) {
+      intentResult = await classifyIntent(message, conversationContext);
+
+      console.log('[AI Pipeline] Intent result:', JSON.stringify(intentResult), '| Threshold: 0.6 | Will execute:', isActionIntent(intentResult.intent) && intentResult.confidence > 0.6);
+
+      // STEP 2: Execute action if needed (BEFORE AI response)
+      if (isActionIntent(intentResult.intent) && intentResult.confidence > 0.6) {
+        actionResult = await executeAction(
+          supabase,
+          coupleId,
+          intentResult.intent,
+          intentResult.params
+        );
+
+        console.log('Action execution:', actionResult);
+      }
     }
 
     // STEP 3: Build system prompt with action context
     let systemPrompt = buildSystemPrompt(context);
 
-    if (actionResult) {
+    if (notesSummary) {
+      systemPrompt += `\n\nAKCE PROVEDENA:
+- Intent: notes_import
+- Vysledek: uspech
+- Zprava: ${notesSummary}
+
+DULEZITE: Potvrdi co bylo pridano. Pouzij strucny format se shrnutim.`;
+    } else if (actionResult) {
       systemPrompt += `\n\nAKCE PROVEDENA:
 - Intent: ${intentResult.intent}
 - Výsledek: ${actionResult.success ? 'úspěch' : 'selhání'}
