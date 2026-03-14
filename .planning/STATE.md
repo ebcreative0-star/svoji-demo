@@ -3,11 +3,11 @@ gsd_state_version: 1.0
 milestone: v2.1
 milestone_name: Polish & UX
 status: active
-stopped_at: "Defining requirements"
+stopped_at: "Roadmap created, ready to plan Phase 11"
 last_updated: "2026-03-14"
-last_activity: "2026-03-14 - Milestone v2.1 started"
+last_activity: "2026-03-14 - v2.1 roadmap created (phases 11-13)"
 progress:
-  total_phases: 0
+  total_phases: 3
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -21,20 +21,26 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-14)
 
 **Core value:** Couples can plan their entire wedding from one place with AI guidance
-**Current focus:** v2.1 Polish & UX
+**Current focus:** Phase 11 - Bug Fixes (v2.1 start)
 
 ## Current Position
 
-Phase: Not started (defining requirements)
-Plan: —
-Status: Defining requirements
-Last activity: 2026-03-14 — Milestone v2.1 started
+Phase: 11 of 13 (Bug Fixes)
+Plan: 0 of TBD in current phase
+Status: Ready to plan
+Last activity: 2026-03-14 -- v2.1 roadmap created (phases 11-13)
+
+Progress: [░░░░░░░░░░] 0% (v2.1 not yet started)
 
 ## Accumulated Context
 
 ### Decisions
 
-See PROJECT.md Key Decisions table for full list.
+See PROJECT.md Key Decisions table for full list. Recent relevant decisions:
+- Kilo gateway over direct Claude API (centralized routing, cost tracking)
+- Haiku for intent classification (fast/cheap, 0.6 threshold works)
+- DB atomic rate limiting without Redis (simpler infra)
+- Onboarding data via URL params not DB (avoids pre-confirmation write)
 
 ### Pending Todos
 
@@ -43,6 +49,7 @@ None.
 ### Blockers/Concerns
 
 - Pre-existing Turbopack build failure: CSS module resolution error in globals.css (from v1.0)
+- Phase 13 (WEB-01) is the largest scope item in v2.1 -- customization system design should be scoped carefully during planning
 
 ### Quick Tasks Completed
 
@@ -53,5 +60,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-14
-Stopped at: Milestone v2.1 started
+Stopped at: Roadmap created for v2.1. Ready to plan Phase 11.
 Resume file: None

@@ -57,21 +57,21 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| BUG-01 | — | Pending |
-| BUG-02 | — | Pending |
-| BUG-03 | — | Pending |
-| BUG-04 | — | Pending |
-| CHAT-01 | — | Pending |
-| CHAT-02 | — | Pending |
-| CHAT-03 | — | Pending |
-| PWA-01 | — | Pending |
-| WEB-01 | — | Pending |
+| BUG-01 | Phase 11 | Pending |
+| BUG-02 | Phase 11 | Pending |
+| BUG-03 | Phase 11 | Pending |
+| BUG-04 | Phase 11 | Pending |
+| CHAT-01 | Phase 12 | Pending |
+| CHAT-02 | Phase 12 | Pending |
+| CHAT-03 | Phase 12 | Pending |
+| PWA-01 | Phase 13 | Pending |
+| WEB-01 | Phase 13 | Pending |
 
 **Coverage:**
 - v2.1 requirements: 9 total
-- Mapped to phases: 0
-- Unmapped: 9 ⚠️
+- Mapped to phases: 9
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-03-14*
-*Last updated: 2026-03-14 after initial definition*
+*Last updated: 2026-03-14 after roadmap creation (phases 11-13)*
