@@ -43,15 +43,24 @@ Couples can plan their entire wedding from one place with AI guidance, without n
 
 ### Active
 
-<!-- Next milestone scope -->
+<!-- Current milestone: v2.1 Polish & UX -->
 
-- [ ] Freemium tier system (free vs premium)
-- [ ] Payment integration (Stripe)
-- [ ] Svatební web as premium paywall (free=preview, premium=published)
-- [ ] AI vendor recommendations (general advice, no vendor DB yet)
+- [ ] Fix couple names not rendering in dashboard heading
+- [ ] Fix mobile first login redirect to landing instead of dashboard
+- [ ] Budget items from chatbot not showing as line items
+- [ ] Fix confusing numbers in checklist countdown
+- [ ] Chatbot should ask follow-up questions when adding list items
+- [ ] Pre-populate budget items from onboarding answers
+- [ ] AI welcome message after first login with feature intro
+- [ ] Add PWA support for home screen install
+- [ ] Design guest-facing website customization system
 
 ### Out of Scope
 
+- Freemium tier system (free vs premium) -- deferred to v3.0
+- Payment integration (Stripe) -- deferred to v3.0
+- Svatební web as premium paywall -- deferred to v3.0
+- AI vendor recommendations -- deferred to v3.0
 - Vendor database / B2B marketplace -- deferred to v3.0+, need demand data first
 - Vendor onboarding + profiles -- deferred to v3.0+
 - Pay-per-lead model -- deferred to v3.0+
@@ -125,4 +134,16 @@ Maximally direct: CTA -> 5-step onboarding (~2 min) -> registration -> AI chat i
 | Stripe for payments | Czech market support, well-maintained SDK | -- Pending |
 
 ---
-*Last updated: 2026-03-13 after v2.0 milestone*
+## Current Milestone: v2.1 Polish & UX
+
+**Goal:** Fix bugs, improve chatbot intelligence, and enhance first-run experience across the existing product.
+
+**Target features:**
+- Bug fixes (dashboard names, mobile redirect, budget items, checklist countdown)
+- Smarter chatbot (follow-up questions, budget line items)
+- First-run experience (welcome message, pre-populated budget)
+- PWA support for home screen install
+- Guest-facing website customization system design
+
+---
+*Last updated: 2026-03-14 after v2.1 milestone start*
