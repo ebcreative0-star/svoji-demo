@@ -56,7 +56,15 @@ export async function GET(request: Request) {
         }
       }
 
-      // Detect new vs returning user by checking couples table
+      // Detect first login by onboarding param presence
+      const isFirstLogin = Boolean(onboardingParam)
+
+      if (isFirstLogin) {
+        // User just completed onboarding -- send to AI chat for welcome experience
+        return NextResponse.redirect(`${origin}/chat`)
+      }
+
+      // Returning user -- check if they have a couple record
       const { data: couple } = await supabase
         .from('couples')
         .select('id')
