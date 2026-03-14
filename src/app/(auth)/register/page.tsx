@@ -74,11 +74,11 @@ function RegisterForm() {
     setGoogleLoading(true);
     setError('');
 
-    // Persist onboarding data in a cookie before OAuth redirect.
-    // Supabase strips custom query params from redirectTo, so we can't
-    // pass onboarding data that way -- cookie survives the round-trip.
+    // Persist onboarding data in localStorage before OAuth redirect.
+    // Cookies don't survive the OAuth round-trip (Supabase strips them).
+    // localStorage persists across redirects on the same origin.
     if (hasOnboardingData) {
-      document.cookie = `svoji_onboarding=${encodeURIComponent(JSON.stringify(onboardingData))}; path=/; max-age=600; SameSite=Lax`;
+      localStorage.setItem('svoji_onboarding', JSON.stringify(onboardingData));
     }
 
     const callbackUrl = `${window.location.origin}/auth/callback`;

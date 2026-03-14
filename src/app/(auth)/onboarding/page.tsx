@@ -1,9 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Heart, Users, MapPin, Palette, Wallet, Shield } from 'lucide-react';
+import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui';
 
 const CZECH_CITIES = [
@@ -50,8 +51,38 @@ const PRESET_BASE = 'w-full p-4 rounded-xl border-2 text-left transition-colors'
 const PRESET_ACTIVE = 'border-[var(--color-primary)] bg-[var(--color-secondary)]';
 const PRESET_INACTIVE = 'border-gray-200 hover:border-gray-300';
 
+const BUDGET_MAP: Record<string, number> = {
+  'do-100': 100000,
+  '100-200': 150000,
+  '200-350': 275000,
+  '350-500': 425000,
+  '500+': 600000,
+};
+
 export default function OnboardingPage() {
   const router = useRouter();
+
+  // Auto-complete: if user is authenticated and has onboarding data in localStorage
+  // (e.g. after Google OAuth redirect), create couple record and redirect to /chat
+  useEffect(() => {
+    const saved = localStorage.getItem('svoji_onboarding');
+    if (!saved) return;
+
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (!user) return;
+
+      const onboardingData = JSON.parse(saved);
+      supabase.from('couples').upsert({
+        id: user.id,
+        ...onboardingData,
+        onboarding_completed: true,
+      }).then(() => {
+        localStorage.removeItem('svoji_onboarding');
+        router.replace('/chat');
+      });
+    });
+  }, [router]);
 
   const [step, setStep] = useState(0);
 
