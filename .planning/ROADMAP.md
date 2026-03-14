@@ -69,7 +69,7 @@ Plans:
   3. Chat messages persist across tab switches
   4. Users can batch-add multiple checklist, budget, or guest items in one message
   5. Users can paste wedding notes and AI auto-categorizes into checklist/budget/guests
-**Plans:** 3 plans
+**Plans:** 2/3 plans executed
 
 Plans:
 - [ ] 11.1-01-PLAN.md -- Fix AI intent bugs + phantom budget item (BUG-05, BUG-06, BUG-07)
@@ -112,6 +112,6 @@ Plans:
 | 9. Data Collection | v2.0 | 3/3 | Complete | 2026-03-12 |
 | 10. Integration Fix-ups | v2.0 | 1/1 | Complete | 2026-03-12 |
 | 11. Bug Fixes | v2.1 | 4/4 | Complete | 2026-03-14 |
-| 11.1 AI Actions & Batch Import | v2.1 | 0/3 | In Progress | - |
+| 11.1 AI Actions & Batch Import | 2/3 | In Progress|  | - |
 | 12. AI Smarts & First-Run | v2.1 | 0/TBD | Not started | - |
 | 13. Platform Enhancements | v2.1 | 0/TBD | Not started | - |

@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.1
 milestone_name: Polish & UX
 status: completed
-stopped_at: Phase 11.1 context gathered
-last_updated: "2026-03-14T22:18:26.645Z"
+stopped_at: Completed 11.1-02-PLAN.md
+last_updated: "2026-03-14T22:35:26.965Z"
 last_activity: 2026-03-14 -- phase 11 bug fixes complete (all 4 plans done)
 progress:
   total_phases: 4
   completed_phases: 1
-  total_plans: 4
-  completed_plans: 4
+  total_plans: 7
+  completed_plans: 6
   percent: 33
 ---
 
@@ -47,6 +47,11 @@ See PROJECT.md Key Decisions table for full list. Recent relevant decisions:
 - [Phase 11-bug-fixes]: AI budget items tagged with source: 'ai', shown with Sparkles badge but fully editable/deletable
 - [Phase 11-bug-fixes]: Cookie bridge for OAuth onboarding data: set svoji_onboarding cookie before Google OAuth redirect, read+delete in callback -- Supabase strips query params from redirectTo
 - [Phase 11-bug-fixes]: Migration 008 applied via Supabase Dashboard SQL Editor (not CLI) to add budget_items.source column in production
+- [Phase 11.1-ai-actions-batch-import]: Normalize AI categories at write time in action-executor, not read time in BudgetView
+- [Phase 11.1-ai-actions-batch-import]: BudgetView catch-all for unknown categories retained as defense-in-depth alongside normalization
+- [Phase 11.1-ai-actions-batch-import]: amount == null check (not !amount) to allow zero-cost budget items
+- [Phase 11.1-02]: force-dynamic on chat/page.tsx ensures fresh messages on tab switch without polling
+- [Phase 11.1-02]: dataState optional prop: server fetches checklist/budget/guest counts and passes to ChatInterface for data-aware welcome message
 
 ### Roadmap Evolution
 
@@ -69,6 +74,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-14T22:18:26.633Z
-Stopped at: Phase 11.1 context gathered
-Resume file: .planning/phases/11.1-ai-actions-batch-import/11.1-CONTEXT.md
+Last session: 2026-03-14T22:35:26.963Z
+Stopped at: Completed 11.1-02-PLAN.md
+Resume file: None
