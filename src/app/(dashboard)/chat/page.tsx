@@ -3,6 +3,8 @@ import { createClient } from '@/lib/supabase/server';
 import { ChatInterface } from '@/components/dashboard/ChatInterface';
 import { isDemoMode, DEMO_COUPLE, DEMO_CHAT } from '@/lib/demo-data';
 
+export const dynamic = 'force-dynamic';
+
 export default async function ChatPage() {
   // Demo mode
   if (isDemoMode()) {
@@ -59,13 +61,33 @@ export default async function ChatPage() {
     redirect('/onboarding');
   }
 
-  // Nacist historii chatu (poslednich 50 zprav)
-  const { data: messages } = await supabase
-    .from('chat_messages')
-    .select('*')
-    .eq('couple_id', user.id)
-    .order('created_at', { ascending: true })
-    .limit(50);
+  // Nacist historii chatu (poslednich 50 zprav) a pocty dat
+  const [messagesRes, checklistRes, budgetRes, guestsRes] = await Promise.all([
+    supabase
+      .from('chat_messages')
+      .select('*')
+      .eq('couple_id', user.id)
+      .order('created_at', { ascending: true })
+      .limit(50),
+    supabase
+      .from('checklist_items')
+      .select('id', { count: 'exact', head: true })
+      .eq('couple_id', couple.id),
+    supabase
+      .from('budget_items')
+      .select('id', { count: 'exact', head: true })
+      .eq('couple_id', couple.id),
+    supabase
+      .from('guests')
+      .select('id', { count: 'exact', head: true })
+      .eq('couple_id', couple.id),
+  ]);
+
+  const dataState = {
+    checklist: checklistRes.count ?? 0,
+    budget: budgetRes.count ?? 0,
+    guests: guestsRes.count ?? 0,
+  };
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 h-[calc(100vh-4rem)]">
@@ -82,7 +104,8 @@ export default async function ChatPage() {
           weddingStyle: couple.wedding_style,
           budget: couple.budget_total,
         }}
-        initialMessages={messages || []}
+        initialMessages={messagesRes.data || []}
+        dataState={dataState}
       />
     </div>
   );
