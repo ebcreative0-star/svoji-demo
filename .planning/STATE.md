@@ -3,11 +3,11 @@ gsd_state_version: 1.0
 milestone: v2.1
 milestone_name: Polish & UX
 status: completed
-stopped_at: Completed 11-bug-fixes 11-04-PLAN.md (Phase 11 complete)
-last_updated: "2026-03-14T21:01:28.465Z"
+stopped_at: Phase 11.1 context gathered
+last_updated: "2026-03-14T22:18:26.645Z"
 last_activity: 2026-03-14 -- phase 11 bug fixes complete (all 4 plans done)
 progress:
-  total_phases: 3
+  total_phases: 4
   completed_phases: 1
   total_plans: 4
   completed_plans: 4
@@ -48,6 +48,10 @@ See PROJECT.md Key Decisions table for full list. Recent relevant decisions:
 - [Phase 11-bug-fixes]: Cookie bridge for OAuth onboarding data: set svoji_onboarding cookie before Google OAuth redirect, read+delete in callback -- Supabase strips query params from redirectTo
 - [Phase 11-bug-fixes]: Migration 008 applied via Supabase Dashboard SQL Editor (not CLI) to add budget_items.source column in production
 
+### Roadmap Evolution
+
+- Phase 11.1 inserted after Phase 11: AI Actions & Batch Import (URGENT) - AI tool execution broken, batch import needed for checklist/budget/guests, notes migration feature
+
 ### Pending Todos
 
 None.
@@ -65,6 +69,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-14T21:30:00.000Z
-Stopped at: Completed 11-bug-fixes 11-04-PLAN.md (Phase 11 complete)
-Resume file: None
+Last session: 2026-03-14T22:18:26.633Z
+Stopped at: Phase 11.1 context gathered
+Resume file: .planning/phases/11.1-ai-actions-batch-import/11.1-CONTEXT.md
