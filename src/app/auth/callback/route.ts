@@ -29,10 +29,21 @@ export async function GET(request: Request) {
     const { data, error } = await supabase.auth.exchangeCodeForSession(code)
 
     if (!error && data.user) {
-      // Persist onboarding data passed via OAuth redirect
-      if (onboardingParam) {
+      // Try cookie fallback for onboarding data -- Supabase strips query params from OAuth redirectTo
+      let onboardingRaw = onboardingParam;
+      if (!onboardingRaw) {
+        const onboardingCookie = cookieStore.get('svoji_onboarding');
+        if (onboardingCookie) {
+          onboardingRaw = onboardingCookie.value;
+          // One-time use -- delete immediately after reading
+          cookieStore.delete('svoji_onboarding');
+        }
+      }
+
+      // Persist onboarding data passed via cookie (or query param fallback)
+      if (onboardingRaw) {
         try {
-          const onboardingData = JSON.parse(atob(onboardingParam))
+          const onboardingData = JSON.parse(atob(onboardingRaw))
           await supabase.from('couples').upsert({
             id: data.user.id,
             partner1_name: onboardingData.partner1_name,
@@ -56,8 +67,8 @@ export async function GET(request: Request) {
         }
       }
 
-      // Detect first login by onboarding param presence
-      const isFirstLogin = Boolean(onboardingParam)
+      // Detect first login by onboarding data presence (cookie or param)
+      const isFirstLogin = Boolean(onboardingRaw)
 
       if (isFirstLogin) {
         // User just completed onboarding -- send to AI chat for welcome experience
