@@ -84,8 +84,6 @@ export default function OnboardingPage() {
         search_radius_km: d.search_radius_km || null,
         wedding_style: d.wedding_style || null,
         budget_total: d.budget_total || null,
-        gdpr_consent_at: d.gdpr_consent_at || null,
-        marketing_consent: d.marketing_consent || false,
         onboarding_completed: true,
       }).then(({ error }) => {
         if (error) {
