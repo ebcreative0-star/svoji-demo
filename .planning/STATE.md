@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.1
 milestone_name: Polish & UX
 status: completed
-stopped_at: Completed 11.1-02-PLAN.md
-last_updated: "2026-03-14T22:35:26.965Z"
+stopped_at: Completed 11.1-03-PLAN.md
+last_updated: "2026-03-14T22:40:27.666Z"
 last_activity: 2026-03-14 -- phase 11 bug fixes complete (all 4 plans done)
 progress:
   total_phases: 4
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 7
-  completed_plans: 6
+  completed_plans: 7
   percent: 33
 ---
 
@@ -52,6 +52,9 @@ See PROJECT.md Key Decisions table for full list. Recent relevant decisions:
 - [Phase 11.1-ai-actions-batch-import]: amount == null check (not !amount) to allow zero-cost budget items
 - [Phase 11.1-02]: force-dynamic on chat/page.tsx ensures fresh messages on tab switch without polling
 - [Phase 11.1-02]: dataState optional prop: server fetches checklist/budget/guest counts and passes to ChatInterface for data-aware welcome message
+- [Phase 11.1-03]: Notes import executes immediately without confirmation -- no ask step per user decision
+- [Phase 11.1-03]: Notes paste heuristic: 3+ lines or 300+ chars -- lightweight, no extra API call
+- [Phase 11.1-03]: parseNotes falls through to normal classifyIntent on null return -- zero degradation
 
 ### Roadmap Evolution
 
@@ -74,6 +77,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-14T22:35:26.963Z
-Stopped at: Completed 11.1-02-PLAN.md
+Last session: 2026-03-14T22:40:21.840Z
+Stopped at: Completed 11.1-03-PLAN.md
 Resume file: None
