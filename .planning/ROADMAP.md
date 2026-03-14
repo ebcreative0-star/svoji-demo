@@ -36,6 +36,7 @@
 **Milestone Goal:** Fix bugs, improve chatbot intelligence, and enhance first-run experience across the existing product.
 
 - [x] **Phase 11: Bug Fixes** - Four targeted fixes to dashboard, mobile redirect, budget line items, and checklist countdown (gap closure in progress) (completed 2026-03-14)
+- [ ] **Phase 11.1: AI Actions & Batch Import** - Fix AI tool execution, batch import for checklist/budget/guests, notes migration
 - [ ] **Phase 12: AI Smarts & First-Run** - Smarter chatbot with follow-up questions, personalized welcome message, and pre-populated budget from onboarding
 - [ ] **Phase 13: Platform Enhancements** - PWA installability and guest-facing wedding website customization system
 
@@ -56,6 +57,24 @@ Plans:
 - [x] 11-02-PLAN.md -- Post-login redirect + AI budget item source badge
 - [ ] 11-03-PLAN.md -- Fix Google OAuth onboarding data persistence (gap closure)
 - [ ] 11-04-PLAN.md -- Apply migration 008 to production Supabase (gap closure)
+
+### Phase 11.1: AI Actions & Batch Import (INSERTED)
+
+**Goal:** AI chat reliably executes budget/checklist actions, supports batch import, and enables paste-to-import notes migration
+**Requirements**: BUG-05, BUG-06, BUG-07, BUG-08, FEAT-01, FEAT-02, FEAT-03, FEAT-04
+**Depends on:** Phase 11
+**Success Criteria** (what must be TRUE):
+  1. AI reliably adds and removes budget items when asked via chat
+  2. All budget items in DB are visible in the UI (no phantom totals)
+  3. Chat messages persist across tab switches
+  4. Users can batch-add multiple checklist, budget, or guest items in one message
+  5. Users can paste wedding notes and AI auto-categorizes into checklist/budget/guests
+**Plans:** 3 plans
+
+Plans:
+- [ ] 11.1-01-PLAN.md -- Fix AI intent bugs + phantom budget item (BUG-05, BUG-06, BUG-07)
+- [ ] 11.1-02-PLAN.md -- Chat persistence + welcome message + date headers (BUG-08)
+- [ ] 11.1-03-PLAN.md -- Batch operations + notes migration (FEAT-01, FEAT-02, FEAT-03, FEAT-04)
 
 ### Phase 12: AI Smarts & First-Run
 **Goal**: New users get a personalized, guided first experience and the chatbot behaves intelligently before acting
@@ -92,6 +111,7 @@ Plans:
 | 8. AI Pipeline | v2.0 | 8/8 | Complete | 2026-03-02 |
 | 9. Data Collection | v2.0 | 3/3 | Complete | 2026-03-12 |
 | 10. Integration Fix-ups | v2.0 | 1/1 | Complete | 2026-03-12 |
-| 11. Bug Fixes | 4/4 | Complete    | 2026-03-14 | - |
+| 11. Bug Fixes | v2.1 | 4/4 | Complete | 2026-03-14 |
+| 11.1 AI Actions & Batch Import | v2.1 | 0/3 | In Progress | - |
 | 12. AI Smarts & First-Run | v2.1 | 0/TBD | Not started | - |
 | 13. Platform Enhancements | v2.1 | 0/TBD | Not started | - |
