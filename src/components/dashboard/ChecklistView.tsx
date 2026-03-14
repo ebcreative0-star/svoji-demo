@@ -136,28 +136,30 @@ export function ChecklistView({ items: initialItems, weddingDate }: ChecklistVie
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.2 }}>
       {/* Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6 mb-4 sm:mb-6 lg:mb-8">
-        <StatCard
-          label="Hotovo"
-          value={`${stats.completed}/${stats.total}`}
-          progress={(stats.completed / stats.total) * 100}
-        />
-        <StatCard
-          label="Zbývá"
-          value={stats.pending.toString()}
-          subtitle={`${daysUntilWedding} dní do svatby`}
-        />
-        <StatCard
-          label="Po termínu"
-          value={stats.overdue.toString()}
-          alert={stats.overdue > 0}
-        />
-        <StatCard
-          label="Progres"
-          value={`${Math.round((stats.completed / stats.total) * 100)}%`}
-          progress={(stats.completed / stats.total) * 100}
-        />
-      </div>
+      {(() => {
+        const daysLabel = daysUntilWedding >= 0
+          ? `${daysUntilWedding} dní`
+          : 'Proběhla';
+        return (
+          <div className="grid grid-cols-3 gap-3 sm:gap-4 lg:gap-6 mb-4 sm:mb-6 lg:mb-8">
+            <StatCard
+              label="Hotovo"
+              value={`${stats.completed}/${stats.total}`}
+              progress={(stats.completed / stats.total) * 100}
+            />
+            <StatCard
+              label="Zbývá"
+              value={daysLabel}
+              subtitle={daysUntilWedding >= 0 ? 'do svatby' : undefined}
+            />
+            <StatCard
+              label="Po termínu"
+              value={stats.overdue.toString()}
+              alert={stats.overdue > 0}
+            />
+          </div>
+        );
+      })()}
 
       {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-4 sm:mb-6">
