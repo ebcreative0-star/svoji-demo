@@ -35,7 +35,7 @@
 
 **Milestone Goal:** Fix bugs, improve chatbot intelligence, and enhance first-run experience across the existing product.
 
-- [x] **Phase 11: Bug Fixes** - Four targeted fixes to dashboard, mobile redirect, budget line items, and checklist countdown (completed 2026-03-14)
+- [ ] **Phase 11: Bug Fixes** - Four targeted fixes to dashboard, mobile redirect, budget line items, and checklist countdown (gap closure in progress)
 - [ ] **Phase 12: AI Smarts & First-Run** - Smarter chatbot with follow-up questions, personalized welcome message, and pre-populated budget from onboarding
 - [ ] **Phase 13: Platform Enhancements** - PWA installability and guest-facing wedding website customization system
 
@@ -50,10 +50,12 @@
   2. User on mobile is redirected to /dashboard after their first login (not back to the landing page)
   3. User sees individual budget line items created via chatbot, with edit and delete controls
   4. User sees a clean days-to-wedding countdown in the checklist header (not confusing task stats)
-**Plans:** 2/2 plans complete
+**Plans:** 4 plans
 Plans:
-- [ ] 11-01-PLAN.md -- Mobile partner names + checklist countdown fix
-- [ ] 11-02-PLAN.md -- Post-login redirect + AI budget item source badge
+- [x] 11-01-PLAN.md -- Mobile partner names + checklist countdown fix
+- [x] 11-02-PLAN.md -- Post-login redirect + AI budget item source badge
+- [ ] 11-03-PLAN.md -- Fix Google OAuth onboarding data persistence (gap closure)
+- [ ] 11-04-PLAN.md -- Apply migration 008 to production Supabase (gap closure)
 
 ### Phase 12: AI Smarts & First-Run
 **Goal**: New users get a personalized, guided first experience and the chatbot behaves intelligently before acting
@@ -90,6 +92,6 @@ Plans:
 | 8. AI Pipeline | v2.0 | 8/8 | Complete | 2026-03-02 |
 | 9. Data Collection | v2.0 | 3/3 | Complete | 2026-03-12 |
 | 10. Integration Fix-ups | v2.0 | 1/1 | Complete | 2026-03-12 |
-| 11. Bug Fixes | 2/2 | Complete    | 2026-03-14 | - |
+| 11. Bug Fixes | v2.1 | 2/4 | Gap closure | - |
 | 12. AI Smarts & First-Run | v2.1 | 0/TBD | Not started | - |
 | 13. Platform Enhancements | v2.1 | 0/TBD | Not started | - |
