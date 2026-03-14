@@ -230,6 +230,7 @@ async function addBudgetItem(
       estimated_cost: amount,
       actual_cost: null,
       paid: false,
+      source: 'ai',
     })
     .select()
     .single();

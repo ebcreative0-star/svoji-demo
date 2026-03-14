@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { motion } from 'framer-motion';
-import { Plus, Trash2, Check, X, PiggyBank } from 'lucide-react';
+import { Plus, Trash2, Check, X, PiggyBank, Sparkles } from 'lucide-react';
 import { Button, Card, Badge, Input, Select } from '@/components/ui';
 
 interface BudgetItem {
@@ -13,6 +13,7 @@ interface BudgetItem {
   estimated_cost: number | null;
   actual_cost: number | null;
   paid: boolean;
+  source?: string;
 }
 
 interface BudgetViewProps {
@@ -274,8 +275,14 @@ export function BudgetView({ items: initialItems, totalBudget, coupleId }: Budge
                       >
                         {item.paid && <Check className="w-3 h-3 text-white" />}
                       </button>
-                      <span className={item.paid ? 'line-through text-gray-400' : ''}>
+                      <span className={`flex items-center gap-1 ${item.paid ? 'line-through text-gray-400' : ''}`}>
                         {item.name}
+                        {item.source === 'ai' && (
+                          <Sparkles
+                            className="w-3 h-3 text-[var(--color-accent)] flex-shrink-0"
+                            aria-label="Přidáno AI asistentem"
+                          />
+                        )}
                       </span>
                     </div>
                     <div className="flex items-center gap-4">
