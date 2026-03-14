@@ -106,6 +106,11 @@ export function DashboardNav({ partner1, partner2, slug }: DashboardNavProps) {
         <div className="flex items-center justify-between h-14 px-4">
           <Link href="/checklist" className="flex items-center gap-2">
             <span className="text-lg font-heading text-[var(--color-primary)]">Svoji</span>
+            {partner1 && partner2 && (
+              <span className="text-xs text-[var(--color-text-light)]">
+                {partner1} & {partner2}
+              </span>
+            )}
           </Link>
 
           <Button
