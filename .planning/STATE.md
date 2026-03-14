@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.1
 milestone_name: Polish & UX
 status: planning
-stopped_at: Completed 11-bug-fixes 11-03-PLAN.md
-last_updated: "2026-03-14T20:51:32.166Z"
-last_activity: 2026-03-14 -- v2.1 roadmap created (phases 11-13)
+stopped_at: Completed 11-bug-fixes 11-04-PLAN.md
+last_updated: "2026-03-14T21:30:00.000Z"
+last_activity: 2026-03-14 -- phase 11 bug fixes complete (all 4 plans done)
 progress:
   total_phases: 3
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 4
-  completed_plans: 3
-  percent: 0
+  completed_plans: 4
+  percent: 33
 ---
 
 # Project State
@@ -25,12 +25,12 @@ See: .planning/PROJECT.md (updated 2026-03-14)
 
 ## Current Position
 
-Phase: 11 of 13 (Bug Fixes)
-Plan: 0 of TBD in current phase
-Status: Ready to plan
-Last activity: 2026-03-14 -- v2.1 roadmap created (phases 11-13)
+Phase: 11 of 13 (Bug Fixes) -- COMPLETE
+Plan: 4 of 4 (all plans complete)
+Status: Phase complete, ready for Phase 12
+Last activity: 2026-03-14 -- phase 11 bug fixes complete (all 4 plans done)
 
-Progress: [░░░░░░░░░░] 0% (v2.1 not yet started)
+Progress: [███░░░░░░░] 33% (Phase 11 complete, Phases 12-13 remaining)
 
 ## Accumulated Context
 
@@ -46,6 +46,7 @@ See PROJECT.md Key Decisions table for full list. Recent relevant decisions:
 - [Phase 11-bug-fixes]: onboardingParam as first-login signal: avoids extra DB query, uses existing OAuth data in callback
 - [Phase 11-bug-fixes]: AI budget items tagged with source: 'ai', shown with Sparkles badge but fully editable/deletable
 - [Phase 11-bug-fixes]: Cookie bridge for OAuth onboarding data: set svoji_onboarding cookie before Google OAuth redirect, read+delete in callback -- Supabase strips query params from redirectTo
+- [Phase 11-bug-fixes]: Migration 008 applied via Supabase Dashboard SQL Editor (not CLI) to add budget_items.source column in production
 
 ### Pending Todos
 
@@ -64,6 +65,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-14T20:51:32.164Z
-Stopped at: Completed 11-bug-fixes 11-03-PLAN.md
+Last session: 2026-03-14T21:30:00.000Z
+Stopped at: Completed 11-bug-fixes 11-04-PLAN.md (Phase 11 complete)
 Resume file: None
