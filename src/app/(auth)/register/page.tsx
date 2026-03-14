@@ -60,6 +60,7 @@ function RegisterForm() {
     search_radius_km: searchParams.get('radius') ? parseInt(searchParams.get('radius')!) : null,
     wedding_style: searchParams.get('style') || null,
     budget_total: BUDGET_MAP[budgetParam] ?? null,
+    gdpr_consent_at: searchParams.get('gdpr') || null,
     marketing_consent: searchParams.get('marketing') === '1',
   };
 
