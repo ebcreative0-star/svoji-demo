@@ -10,8 +10,8 @@ Requirements for milestone v2.1 Polish & UX. Each maps to roadmap phases.
 ### Bug Fixes
 
 - [x] **BUG-01**: User sees their actual couple names in dashboard heading (not placeholder)
-- [ ] **BUG-02**: User is redirected to dashboard after first mobile login (not landing page)
-- [ ] **BUG-03**: User sees individual budget line items created via chatbot (with edit/delete)
+- [x] **BUG-02**: User is redirected to dashboard after first mobile login (not landing page)
+- [x] **BUG-03**: User sees individual budget line items created via chatbot (with edit/delete)
 - [x] **BUG-04**: User sees a simple days-to-wedding countdown in checklist (not confusing stats)
 
 ### AI & Chatbot
@@ -58,8 +58,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | BUG-01 | Phase 11 | Complete |
-| BUG-02 | Phase 11 | Pending |
-| BUG-03 | Phase 11 | Pending |
+| BUG-02 | Phase 11 | Complete |
+| BUG-03 | Phase 11 | Complete |
 | BUG-04 | Phase 11 | Complete |
 | CHAT-01 | Phase 12 | Pending |
 | CHAT-02 | Phase 12 | Pending |

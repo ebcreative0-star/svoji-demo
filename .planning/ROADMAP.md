@@ -35,7 +35,7 @@
 
 **Milestone Goal:** Fix bugs, improve chatbot intelligence, and enhance first-run experience across the existing product.
 
-- [ ] **Phase 11: Bug Fixes** - Four targeted fixes to dashboard, mobile redirect, budget line items, and checklist countdown
+- [x] **Phase 11: Bug Fixes** - Four targeted fixes to dashboard, mobile redirect, budget line items, and checklist countdown (completed 2026-03-14)
 - [ ] **Phase 12: AI Smarts & First-Run** - Smarter chatbot with follow-up questions, personalized welcome message, and pre-populated budget from onboarding
 - [ ] **Phase 13: Platform Enhancements** - PWA installability and guest-facing wedding website customization system
 
@@ -50,7 +50,7 @@
   2. User on mobile is redirected to /dashboard after their first login (not back to the landing page)
   3. User sees individual budget line items created via chatbot, with edit and delete controls
   4. User sees a clean days-to-wedding countdown in the checklist header (not confusing task stats)
-**Plans:** 1/2 plans executed
+**Plans:** 2/2 plans complete
 Plans:
 - [ ] 11-01-PLAN.md -- Mobile partner names + checklist countdown fix
 - [ ] 11-02-PLAN.md -- Post-login redirect + AI budget item source badge
@@ -90,6 +90,6 @@ Plans:
 | 8. AI Pipeline | v2.0 | 8/8 | Complete | 2026-03-02 |
 | 9. Data Collection | v2.0 | 3/3 | Complete | 2026-03-12 |
 | 10. Integration Fix-ups | v2.0 | 1/1 | Complete | 2026-03-12 |
-| 11. Bug Fixes | 1/2 | In Progress|  | - |
+| 11. Bug Fixes | 2/2 | Complete   | 2026-03-14 | - |
 | 12. AI Smarts & First-Run | v2.1 | 0/TBD | Not started | - |
 | 13. Platform Enhancements | v2.1 | 0/TBD | Not started | - |

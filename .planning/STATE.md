@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.1
 milestone_name: Polish & UX
 status: planning
-stopped_at: Completed 11-01-PLAN.md
-last_updated: "2026-03-14T10:52:47.820Z"
+stopped_at: Completed 11-bug-fixes 11-02-PLAN.md
+last_updated: "2026-03-14T10:53:37.724Z"
 last_activity: 2026-03-14 -- v2.1 roadmap created (phases 11-13)
 progress:
   total_phases: 3
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 2
-  completed_plans: 1
+  completed_plans: 2
   percent: 0
 ---
 
@@ -43,6 +43,8 @@ See PROJECT.md Key Decisions table for full list. Recent relevant decisions:
 - Onboarding data via URL params not DB (avoids pre-confirmation write)
 - [Phase 11-bug-fixes]: Mobile nav partner names: conditional guard prevents orphaned & when either name is missing
 - [Phase 11-bug-fixes]: Checklist stats: 3-card grid (Hotovo, Zbývá countdown, Po termínu) replaces 4-card with redundant Progres
+- [Phase 11-bug-fixes]: onboardingParam as first-login signal: avoids extra DB query, uses existing OAuth data in callback
+- [Phase 11-bug-fixes]: AI budget items tagged with source: 'ai', shown with Sparkles badge but fully editable/deletable
 
 ### Pending Todos
 
@@ -61,6 +63,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-14T10:52:47.818Z
-Stopped at: Completed 11-01-PLAN.md
+Last session: 2026-03-14T10:53:37.722Z
+Stopped at: Completed 11-bug-fixes 11-02-PLAN.md
 Resume file: None
