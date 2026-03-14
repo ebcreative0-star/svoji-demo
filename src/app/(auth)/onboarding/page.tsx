@@ -72,12 +72,28 @@ export default function OnboardingPage() {
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (!user) return;
 
-      const onboardingData = JSON.parse(saved);
+      const d = JSON.parse(saved);
+      // Only include core columns guaranteed to exist in production
       supabase.from('couples').upsert({
         id: user.id,
-        ...onboardingData,
+        partner1_name: d.partner1_name || null,
+        partner2_name: d.partner2_name || null,
+        wedding_date: d.wedding_date || null,
+        guest_count_range: d.guest_count_range || null,
+        location: d.location || null,
+        search_radius_km: d.search_radius_km || null,
+        wedding_style: d.wedding_style || null,
+        budget_total: d.budget_total || null,
+        gdpr_consent_at: d.gdpr_consent_at || null,
+        marketing_consent: d.marketing_consent || false,
         onboarding_completed: true,
-      }).then(() => {
+      }).then(({ error }) => {
+        if (error) {
+          console.error('Couple upsert failed:', error);
+          // Clear stale data so user can complete onboarding manually
+          localStorage.removeItem('svoji_onboarding');
+          return;
+        }
         localStorage.removeItem('svoji_onboarding');
         router.replace('/chat');
       });
