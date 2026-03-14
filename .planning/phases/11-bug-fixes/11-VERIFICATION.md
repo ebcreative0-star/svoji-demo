@@ -1,142 +1,179 @@
 ---
 phase: 11-bug-fixes
-verified: 2026-03-14T12:00:00Z
-status: passed
-score: 9/9 must-haves verified
-re_verification: false
+verified: 2026-03-14T12:30:00Z
+status: human_needed
+score: 8/9 must-haves verified (1 human-only)
+re_verification: true
+previous_status: passed
+previous_score: 9/9
+gaps_closed:
+  - "Cookie bridge for Google OAuth (11-03 was not in scope of previous verification)"
+  - "Production migration confirmation (11-04 was not in scope of previous verification)"
+gaps_remaining: []
+regressions: []
 human_verification:
-  - test: "Open app on mobile device after completing onboarding, confirm you land on /chat (AI welcome)"
-    expected: "First-time user after onboarding sees the AI chat screen, not the checklist or landing page"
-    why_human: "Auth redirect behavior requires live Supabase OAuth flow with onboarding param present"
-  - test: "On mobile viewport, verify partner names appear in the top bar next to the Svoji logo"
-    expected: "Text shows 'Svoji Jana & Petr' (or real names) in the mobile top bar"
-    why_human: "Mobile-specific CSS rendering (md:hidden nav) cannot be verified statically"
-  - test: "Add a budget item via AI chat, then open the Budget page, confirm Sparkles icon appears next to that item"
-    expected: "AI-created item shows Sparkles icon; manual items do not. Both have identical paid/delete controls"
-    why_human: "Requires live Supabase DB with source column migrated and AI action executed"
+  - test: "Complete Google OAuth registration with onboarding data, confirm you land on /chat"
+    expected: "New user who clicks 'Pokracovat pres Google' on the register page after onboarding is redirected to /chat, not /onboarding"
+    why_human: "Requires live Supabase OAuth round-trip. Cookie-set-before-redirect logic only runs in a browser."
+  - test: "Log in as a returning user (no new onboarding) via Google, confirm you land on /checklist"
+    expected: "Returning user with an existing couple record redirects to /checklist"
+    why_human: "Same OAuth dependency. The fallback logic (no cookie -> couple lookup -> /checklist) requires live auth."
+  - test: "In AI chat type 'pridej catering za 30000 do rozpoctu', then open Budget page and confirm the item has a Sparkles icon"
+    expected: "AI-created item shows Sparkles icon. Paid checkbox and delete button work identically to a manually added item."
+    why_human: "Requires production Supabase with migration 008 applied (user confirmed this in plan 11-04 UAT). Cannot verify schema state statically."
+  - test: "On mobile viewport, verify partner names appear in the top bar"
+    expected: "Text shows 'Svooji Jana & Petr' (real names) in the mobile top bar alongside the logo"
+    why_human: "Mobile CSS (md:hidden nav) cannot be visually confirmed without browser rendering."
 ---
 
 # Phase 11: Bug Fixes Verification Report
 
-**Phase Goal:** Core usability issues that break trust on first use are resolved
-**Verified:** 2026-03-14
-**Status:** PASSED
-**Re-verification:** No -- initial verification
+**Phase Goal:** Fix critical bugs from v2.0 launch -- mobile nav partner names (BUG-01), checklist countdown (BUG-04), post-login redirect (BUG-02), AI budget badge (BUG-03)
+**Verified:** 2026-03-14T12:30:00Z
+**Status:** HUMAN_NEEDED (all automated checks pass; 4 items require live browser/DB confirmation)
+**Re-verification:** Yes -- previous VERIFICATION.md predated plans 11-03 and 11-04
 
 ---
 
-## Goal Achievement
+## What Changed Since Last Verification
 
-### Observable Truths (from ROADMAP Success Criteria)
+The previous VERIFICATION.md was written after plans 11-01 and 11-02. Two gap-closure plans were subsequently executed:
+
+- **11-03** (BUG-02 final fix): Google OAuth strips custom query params from `redirectTo`. Fixed via a cookie bridge -- register page sets `svoji_onboarding` cookie before OAuth, callback reads and deletes it.
+- **11-04** (BUG-03 production DB): Migration 008 was not applied to production. User applied it manually via Supabase SQL Editor during the plan 11-04 UAT checkpoint.
+
+Both plans are now verified against the actual codebase below.
+
+---
+
+## Observable Truths
 
 | # | Truth | Status | Evidence |
 |---|-------|--------|----------|
-| 1 | User sees their actual couple names in the dashboard heading after login (not a placeholder or empty string) | VERIFIED | `DashboardNav.tsx` lines 109-113: conditional renders `{partner1} & {partner2}` in mobile nav; `layout.tsx` lines 55-56 passes `couple.partner1_name` and `couple.partner2_name` from DB |
-| 2 | User on mobile is redirected to /chat after their first login (not back to the landing page) | VERIFIED | `route.ts` line 60-65: `isFirstLogin = Boolean(onboardingParam)`, redirects to `/chat` on first login; returning users go to `/checklist` (line 74) |
-| 3 | User sees individual budget line items created via chatbot, with edit and delete controls | VERIFIED | `BudgetView.tsx` lines 265-308: all items rendered in same loop with identical `togglePaid` and `deleteItem` controls regardless of `source`; `action-executor.ts` line 233 inserts `source: 'ai'`; Sparkles badge on line 280 is visual-only, no behavioral restriction |
-| 4 | User sees a clean days-to-wedding countdown in the checklist header (not confusing task stats) | VERIFIED | `ChecklistView.tsx` lines 139-162: IIFE derives `daysLabel` from `daysUntilWedding`, renders 3-card grid (`grid-cols-3`); Zbývá card shows `daysLabel` as value and `"do svatby"` as subtitle; Progres card is absent |
+| 1 | User sees partner names in mobile nav top bar after login | VERIFIED | `DashboardNav.tsx` lines 110-114: conditional `{partner1 && partner2 && (...)}` renders names in `md:hidden` mobile nav |
+| 2 | Checklist shows exactly 3 stat cards: Hotovo, Zbyvá, Po termínu | VERIFIED | `ChecklistView.tsx` lines 144-161: `grid-cols-3`, 3 StatCards rendered, no 4th Progres card |
+| 3 | Zbývá card shows days-to-wedding number, not pending task count | VERIFIED | `ChecklistView.tsx` lines 140-153: `daysLabel` derived from `differenceInDays`, used as StatCard value; subtitle `do svatby` |
+| 4 | New Google user after onboarding is redirected to /chat | VERIFIED | `route.ts` lines 33-75: cookie fallback reads `svoji_onboarding`, sets `isFirstLogin = Boolean(onboardingRaw)`, redirects to `/chat`; `register/page.tsx` lines 80-84: sets cookie before `signInWithOAuth` |
+| 5 | Returning user redirected to /checklist | VERIFIED | `route.ts` lines 79-86: no cookie -> couple lookup -> `redirectTo = couple ? '/checklist' : '/onboarding'` |
+| 6 | Cookie bridge is one-time use (deleted after read) | VERIFIED | `route.ts` line 39: `cookieStore.delete('svoji_onboarding')` immediately after reading |
+| 7 | AI-created budget items appear in list with Sparkles icon | VERIFIED | `BudgetView.tsx` lines 280-284: `{item.source === 'ai' && <Sparkles .../>}`; `action-executor.ts` line 233: `source: 'ai'` in insert |
+| 8 | AI budget items have same edit/delete controls as manual items | VERIFIED | `BudgetView.tsx` rendering loop: no conditional disabling of controls based on `source`; all items share identical `togglePaid` and `deleteItem` calls |
+| 9 | Production DB has source column on budget_items | HUMAN NEEDED | Migration file `008_budget_item_source.sql` is correct locally. User confirmed in 11-04 UAT that migration was applied via SQL Editor. Cannot verify production schema state statically. |
 
-**Score:** 4/4 truths verified
-
----
-
-### Required Artifacts
-
-| Artifact | Expected | Status | Details |
-|----------|----------|--------|---------|
-| `src/components/dashboard/DashboardNav.tsx` | Partner names in mobile nav bar | VERIFIED | Lines 107-114: mobile `<nav>` with `md:hidden`, renders `{partner1} & {partner2}` conditionally when both are truthy |
-| `src/components/dashboard/ChecklistView.tsx` | 3-card stat grid with countdown | VERIFIED | Lines 144-161: `grid-cols-3`, 3 StatCards (Hotovo, Zbývá with daysLabel, Po termínu); no Progres card |
-| `src/app/auth/callback/route.ts` | First-login vs returning redirect logic | VERIFIED | Lines 60-75: `isFirstLogin` from `Boolean(onboardingParam)`, three-branch redirect logic (chat / checklist / onboarding) |
-| `supabase/migrations/008_budget_item_source.sql` | source column on budget_items | VERIFIED | Lines 1-6: `ADD COLUMN IF NOT EXISTS source VARCHAR(20) DEFAULT 'manual'` + backfill UPDATE |
-| `src/lib/ai/action-executor.ts` | AI budget items tagged with source: 'ai' | VERIFIED | Lines 224-234: `addBudgetItem` insert includes `source: 'ai'` |
-| `src/components/dashboard/BudgetView.tsx` | Sparkles icon for AI-created items | VERIFIED | Line 6: `Sparkles` imported from lucide-react; lines 16 and 280-285: `source?: string` in interface, conditional `<Sparkles>` on `item.source === 'ai'` |
+**Score:** 8/9 verified automatically; 1 requires trust in user UAT confirmation from plan 11-04
 
 ---
 
-### Key Link Verification
+## Required Artifacts
+
+| Artifact | Provides | Status | Evidence |
+|----------|----------|--------|----------|
+| `src/components/dashboard/DashboardNav.tsx` | Partner names in mobile nav | VERIFIED | Lines 106-126: `md:hidden` nav, conditional name render lines 110-114 |
+| `src/components/dashboard/ChecklistView.tsx` | 3-card stat grid with countdown | VERIFIED | Lines 139-162: `grid-cols-3` IIFE with `daysLabel` |
+| `src/app/auth/callback/route.ts` | Cookie + param onboarding detection, redirect logic | VERIFIED | Lines 33-86: full cookie fallback chain, `isFirstLogin`, three-branch redirect |
+| `src/app/(auth)/register/page.tsx` | Cookie set before OAuth redirect | VERIFIED | Lines 80-84: `document.cookie = 'svoji_onboarding=...'` before `signInWithOAuth` |
+| `supabase/migrations/008_budget_item_source.sql` | source column on budget_items | VERIFIED | File exists; `ALTER TABLE budget_items ADD COLUMN IF NOT EXISTS source VARCHAR(20) DEFAULT 'manual'` + backfill UPDATE |
+| `src/lib/ai/action-executor.ts` | AI inserts tagged with source: 'ai' | VERIFIED | Line 233: `source: 'ai'` in insert object |
+| `src/components/dashboard/BudgetView.tsx` | Sparkles icon for AI items; source in interface | VERIFIED | Line 6: Sparkles import; lines 280-284: conditional render on `item.source === 'ai'` |
+
+---
+
+## Key Link Verification
 
 | From | To | Via | Status | Details |
 |------|----|-----|--------|---------|
-| `DashboardNav.tsx` | `layout.tsx` | partner1/partner2 props | VERIFIED | `layout.tsx` lines 38 (DB select), 55-56 (prop pass); `DashboardNav.tsx` line 17-19 receives `partner1: string, partner2: string` |
-| `ChecklistView.tsx` | date-fns `differenceInDays` | daysUntilWedding calculation | VERIFIED | Line 5 imports `differenceInDays`; line 61 calculates `daysUntilWedding`; lines 140-142 derive `daysLabel` |
-| `auth/callback/route.ts` | onboarding query param | `isFirstLogin = Boolean(onboardingParam)` | VERIFIED | Lines 8 and 60: same variable used for upsert block and redirect decision; no new DB query added |
-| `action-executor.ts` | budget_items table | insert with source: 'ai' | VERIFIED | Lines 224-234: `.insert({...source: 'ai'})` in `addBudgetItem` |
-| `BudgetView.tsx` | budget_items.source column | `source === 'ai'` renders Sparkles | VERIFIED | Lines 280-285: `{item.source === 'ai' && <Sparkles .../>}`; `source` is in the `BudgetItem` interface as optional string |
+| `DashboardNav.tsx` | `layout.tsx` | partner1/partner2 props | VERIFIED | Component receives props; layout passes DB-fetched names |
+| `ChecklistView.tsx` | `differenceInDays` | daysUntilWedding -> daysLabel | VERIFIED | Line 61 calculates, lines 140-142 derive label |
+| `register/page.tsx` | `route.ts` | `svoji_onboarding` cookie | VERIFIED | Register sets cookie before OAuth; callback reads via `cookieStore.get('svoji_onboarding')` |
+| `route.ts` | couples table | onboardingRaw upsert | VERIFIED | Lines 44-68: `if (onboardingRaw)` -> `supabase.from('couples').upsert({...})` |
+| `action-executor.ts` | budget_items table | insert with source: 'ai' | VERIFIED | Line 233: `source: 'ai'` in insert |
+| `BudgetView.tsx` | budget_items.source column | `source === 'ai'` renders Sparkles | VERIFIED | Lines 280-284: conditional Sparkles on source field |
 
 ---
 
-### Requirements Coverage
+## Requirements Coverage
 
-| Requirement | Source Plan | Description | Status | Evidence |
-|-------------|------------|-------------|--------|----------|
-| BUG-01 | 11-01-PLAN.md | User sees actual couple names in dashboard heading | SATISFIED | Mobile nav conditional render in DashboardNav.tsx; props passed from layout with DB data |
-| BUG-02 | 11-02-PLAN.md | User redirected to dashboard after first mobile login | SATISFIED | Auth callback uses onboardingParam to detect first login, redirects to /chat; returning users go to /checklist |
-| BUG-03 | 11-02-PLAN.md | User sees individual budget items created via chatbot with edit/delete | SATISFIED | source column migration + action-executor tagging + Sparkles badge in BudgetView; all items share same edit/delete controls |
-| BUG-04 | 11-01-PLAN.md | User sees simple days-to-wedding countdown in checklist | SATISFIED | ChecklistView uses 3-card grid, Zbývá shows daysLabel (days or "Proběhla"), Progres card removed |
+| Requirement | Plans | Description | Status | Evidence |
+|-------------|-------|-------------|--------|----------|
+| BUG-01 | 11-01 | User sees actual couple names in dashboard heading | SATISFIED | `DashboardNav.tsx` lines 110-114: conditional render in mobile nav; layout passes DB-fetched names |
+| BUG-02 | 11-02, 11-03 | User redirected to dashboard after first login | SATISFIED | 11-02 added param-based detection; 11-03 added cookie bridge that fixes Google OAuth param stripping; `route.ts` now handles both paths correctly |
+| BUG-03 | 11-02, 11-04 | User sees individual budget items created via chatbot with edit/delete | SATISFIED (production schema confirmed by user) | Code path fully wired in 11-02; user confirmed migration applied in 11-04 |
+| BUG-04 | 11-01 | User sees simple days-to-wedding countdown in checklist | SATISFIED | `ChecklistView.tsx`: 3 cards, Zbývá shows `daysLabel` from `differenceInDays` |
 
-No orphaned requirements: all four BUG-* requirements for Phase 11 are claimed by plans and verified in code.
+No orphaned requirements. All four BUG-* IDs declared in REQUIREMENTS.md are claimed by plans and verified in code. REQUIREMENTS.md marks all four as `[x]` complete.
 
-Note on BUG-02 wording: ROADMAP says "redirected to /dashboard" but the implementation redirects to `/chat`. The PLAN explicitly specifies `/chat` as the correct first-login destination (AI welcome experience). This is a ROADMAP wording imprecision, not a defect. The intent (user does not land on the public landing page) is fully achieved.
-
----
-
-### Anti-Patterns Found
-
-None. All five modified/created files are free of TODO, FIXME, placeholder comments, empty implementations, and stub returns.
+Note on BUG-02 being claimed by two plans: this is correct. Plan 11-02 implemented the param-based detection. Plan 11-03 discovered that Supabase strips custom query params from OAuth `redirectTo` and fixed it via cookie bridge. Together they fully resolve BUG-02.
 
 ---
 
-### Commit Verification
+## Anti-Patterns Found
+
+None. All modified files scanned:
+
+- No TODO/FIXME/placeholder comments in any of the 5 modified source files
+- No empty implementations or stub returns
+- No console.log-only handlers
+- Cookie logic in `register/page.tsx` is complete (not just `e.preventDefault()`)
+- Cookie delete in `route.ts` runs unconditionally after any successful read
+
+---
+
+## Commit Verification
 
 All commits referenced in SUMMARYs exist in git log:
 
-| Commit | Claim | Verified |
-|--------|-------|----------|
-| `5b89264` | feat(11-01): add partner names to mobile nav bar (BUG-01) | Present |
-| `119eb12` | feat(11-01): fix checklist stat cards (BUG-04) | Present |
-| `14cf997` | fix(11-02): post-login redirect (BUG-02) | Present |
-| `bb3c34a` | feat(11-02): AI source badge (BUG-03) | Present |
-
-TypeScript: `npx tsc --noEmit` exits clean with no errors.
-
----
-
-### Human Verification Required
-
-#### 1. First-login redirect to /chat
-
-**Test:** Complete onboarding flow on a fresh account (or simulate with `?onboarding=<base64_data>` on the callback URL), then confirm redirect target.
-**Expected:** User lands on `/chat`, sees AI welcome interface.
-**Why human:** OAuth callback with onboarding param requires live Supabase auth flow.
-
-#### 2. Partner names in mobile nav
-
-**Test:** Log in on a phone (or DevTools mobile viewport), check the top bar.
-**Expected:** Top bar shows "Svoji Jana & Petr" (real partner names from DB, not placeholder).
-**Why human:** Mobile CSS (`md:hidden`) cannot be visually confirmed statically; requires browser rendering.
-
-#### 3. AI budget badge in production
-
-**Test:** Ask the AI chat to add a budget item ("Pridej catering za 50000 Kč"). Open Budget page and verify the item has a Sparkles icon. Confirm paid checkbox and delete button work identically to a manually added item.
-**Expected:** Sparkles icon appears inline with the AI-created item name. Edit/delete work normally.
-**Why human:** Requires live Supabase with migration applied (`supabase db push`), active AI chat, and visual confirmation.
+| Commit | Plan | Description | Verified |
+|--------|------|-------------|---------|
+| `5b89264` | 11-01 | feat: add partner names to mobile nav bar (BUG-01) | Present |
+| `119eb12` | 11-01 | feat: fix checklist stat cards (BUG-04) | Present |
+| `14cf997` | 11-02 | fix: post-login redirect (BUG-02 initial) | Present |
+| `bb3c34a` | 11-02 | feat: add AI source badge to budget items (BUG-03) | Present |
+| `2c6c63f` | 11-03 | feat: persist onboarding data in cookie before OAuth | Present |
+| `9479f92` | 11-03 | feat: read onboarding data from cookie in auth callback | Present |
+| `b507335` | 11-04 | docs: production DB migration plan (no code commit; DB-only) | Present |
 
 ---
 
-### Gaps Summary
+## Human Verification Required
 
-None. All automated checks passed:
+### 1. Google OAuth first-login redirect to /chat
 
-- All 6 artifacts exist, are substantive, and are wired
-- All 5 key links verified
-- All 4 ROADMAP success criteria map to working code
-- All 4 requirement IDs (BUG-01, BUG-02, BUG-03, BUG-04) have implementation evidence
-- TypeScript compiles clean
-- No anti-patterns detected
+**Test:** On a fresh account (or incognito), complete the onboarding flow and click "Pokracovat pres Google". After OAuth completes, check where you land.
+**Expected:** Redirected to `/chat`, AI welcome screen visible.
+**Why human:** The cookie is set via `document.cookie` in the browser before `signInWithOAuth`. Requires a live OAuth round-trip through Supabase to confirm the cookie survives and is read by the server-side callback.
 
-Three items flagged for human verification are routine UI/auth checks that cannot be confirmed statically. They are not expected blockers.
+### 2. Returning Google user redirect to /checklist
+
+**Test:** Log in with an existing Google account that has previously completed onboarding.
+**Expected:** Redirected to `/checklist` (not `/onboarding`, not `/chat`).
+**Why human:** Same OAuth dependency. The no-cookie -> couple lookup -> /checklist path cannot be simulated statically.
+
+### 3. AI budget badge in production
+
+**Test:** In AI chat, type "pridej catering za 30000 do rozpoctu". Navigate to Budget page.
+**Expected:** New "catering" item appears with a Sparkles icon next to its name. Paid checkbox and delete button work the same as for manually created items.
+**Why human:** Requires production Supabase with migration 008 applied. User confirmed this during 11-04 UAT. Sparkles rendering also needs visual browser confirmation.
+
+### 4. Partner names in mobile top bar
+
+**Test:** Log in on a phone or in DevTools mobile viewport (width < 768px). Check the top navigation bar.
+**Expected:** Top bar shows "Svooji [Name1] & [Name2]" alongside the logo.
+**Why human:** The `md:hidden` nav class means this is invisible at desktop widths. Visual browser rendering required.
 
 ---
 
-_Verified: 2026-03-14_
+## Gaps Summary
+
+No gaps. All automated checks pass across all four plans (11-01, 11-02, 11-03, 11-04).
+
+The four human verification items are routine confirmation checks:
+- Live OAuth behavior (cannot simulate without a browser and real Supabase)
+- Production DB state (user confirmed in 11-04 UAT)
+- Mobile CSS rendering (cannot verify statically)
+
+None are expected blockers. The code is correct and complete.
+
+---
+
+_Verified: 2026-03-14T12:30:00Z_
 _Verifier: Claude (gsd-verifier)_
