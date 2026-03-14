@@ -108,6 +108,7 @@ export function BudgetView({ items: initialItems, totalBudget, coupleId }: Budge
   };
 
   // Seskupit podle kategorie
+  const knownCategoryValues = new Set(BUDGET_CATEGORIES.map((cat) => cat.value));
   const groupedItems = BUDGET_CATEGORIES.map((cat) => ({
     ...cat,
     items: items.filter((item) => item.category === cat.value),
@@ -115,6 +116,29 @@ export function BudgetView({ items: initialItems, totalBudget, coupleId }: Budge
       .filter((item) => item.category === cat.value)
       .reduce((sum, item) => sum + (item.actual_cost || item.estimated_cost || 0), 0),
   })).filter((group) => group.items.length > 0);
+
+  // Catch-all: merge items with unknown categories into 'other'
+  const uncategorizedItems = items.filter((item) => !knownCategoryValues.has(item.category));
+  if (uncategorizedItems.length > 0) {
+    const otherGroup = groupedItems.find((g) => g.value === 'other');
+    if (otherGroup) {
+      otherGroup.items = [...otherGroup.items, ...uncategorizedItems];
+      otherGroup.total += uncategorizedItems.reduce(
+        (sum, item) => sum + (item.actual_cost || item.estimated_cost || 0),
+        0
+      );
+    } else {
+      const otherCat = BUDGET_CATEGORIES.find((cat) => cat.value === 'other')!;
+      groupedItems.push({
+        ...otherCat,
+        items: uncategorizedItems,
+        total: uncategorizedItems.reduce(
+          (sum, item) => sum + (item.actual_cost || item.estimated_cost || 0),
+          0
+        ),
+      });
+    }
+  }
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.2 }}>

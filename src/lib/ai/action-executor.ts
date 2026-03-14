@@ -210,6 +210,32 @@ async function removeChecklistItem(
 
 // Budget actions
 
+const VALID_BUDGET_CATEGORIES = [
+  'venue', 'catering', 'photo', 'music', 'flowers',
+  'attire', 'rings', 'decor', 'cake', 'transport', 'honeymoon', 'other',
+];
+
+const CATEGORY_MAP: Record<string, string> = {
+  fotograf: 'photo', foto: 'photo', video: 'photo', fotografie: 'photo',
+  hudba: 'music', dj: 'music', kapela: 'music', muzika: 'music',
+  jidlo: 'catering', stravovani: 'catering', menu: 'catering',
+  kvetiny: 'flowers', kytky: 'flowers', floristka: 'flowers',
+  misto: 'venue', salonek: 'venue', zamek: 'venue',
+  saty: 'attire', oblek: 'attire', obleceni: 'attire',
+  prsteny: 'rings', snubni: 'rings', prsten: 'rings',
+  dekorace: 'decor', vyzdoba: 'decor',
+  dort: 'cake',
+  doprava: 'transport', auto: 'transport', limuzina: 'transport',
+  libanky: 'honeymoon', svatebni_cesta: 'honeymoon',
+};
+
+function normalizeBudgetCategory(category: string | undefined): string {
+  if (!category) return 'other';
+  const lower = category.toLowerCase();
+  if (VALID_BUDGET_CATEGORIES.includes(lower)) return lower;
+  return CATEGORY_MAP[lower] ?? 'other';
+}
+
 async function addBudgetItem(
   supabase: SupabaseClient,
   coupleId: string,
@@ -217,16 +243,18 @@ async function addBudgetItem(
 ): Promise<ActionResult> {
   const { name, amount, category } = params;
 
-  if (!name || !amount) {
+  if (!name || amount == null || amount === undefined) {
     return { success: false, message: 'Chybí název nebo částka', error: 'Missing name or amount' };
   }
+
+  const normalizedCategory = normalizeBudgetCategory(category);
 
   const { data, error } = await supabase
     .from('budget_items')
     .insert({
       couple_id: coupleId,
       name,
-      category: category || 'other',
+      category: normalizedCategory,
       estimated_cost: amount,
       actual_cost: null,
       paid: false,
