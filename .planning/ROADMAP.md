@@ -76,14 +76,38 @@ Plans:
 - [ ] 11.1-02-PLAN.md -- Chat persistence + welcome message + date headers (BUG-08)
 - [ ] 11.1-03-PLAN.md -- Batch operations + notes migration (FEAT-01, FEAT-02, FEAT-03, FEAT-04)
 
-### Phase 12: AI Smarts & First-Run
-**Goal**: New users get a personalized, guided first experience and the chatbot behaves intelligently before acting
-**Depends on**: Phase 11
-**Requirements**: CHAT-01, CHAT-02, CHAT-03
+### Phase 12: Manual CRUD UI
+**Goal**: Users can add, edit, and delete checklist items, budget items, and guests directly from the dashboard without relying on AI chat
+**Depends on**: Phase 11.1
+**Requirements**: UI-01, UI-02, UI-03, UI-04, UI-05, UI-06, FIX-01
 **Success Criteria** (what must be TRUE):
-  1. When a user asks the chatbot to add a budget item or guest, it asks at least one clarifying follow-up question before inserting the record
-  2. User sees a personalized AI welcome message on their first login that references their wedding details (names, date, style)
-  3. User sees a pre-populated set of budget categories and suggested amounts on their first visit to the budget tracker, derived from their onboarding answers
+  1. User can add a new checklist item with title, due date, priority, and category from the checklist page
+  2. User can edit any checklist item inline or via modal (title, due_date, priority, category)
+  3. User can add and edit budget items (name, amount, category, paid status) from the budget page
+  4. User can add and edit guests (name, group, RSVP, dietary, plus_one) from the guests page
+  5. Czech date formats ("31.1.2026", "konec ledna") are parsed correctly throughout the app
+**Plans**: TBD
+
+### Phase 12.1: AI Update & Query Intents (INSERTED)
+**Goal**: AI chat can update existing items (not just create), answer data queries, and provide status overviews
+**Depends on**: Phase 12
+**Requirements**: INTENT-01, INTENT-02, INTENT-03, INTENT-04, INTENT-05, INTENT-06
+**Success Criteria** (what must be TRUE):
+  1. User says "přidej datum k fotografovi" and AI updates the existing item instead of creating a duplicate
+  2. User says "zaplatil jsem fotografa 12000" and the budget item is marked as paid with actual_cost set
+  3. User asks "co mám v checklistu?" and AI responds with actual data from the database
+  4. User asks "jak jsem na tom?" and AI provides a cross-domain summary (checklist progress, budget status, guest RSVPs)
+**Plans**: TBD
+
+### Phase 12.2: AI Polish (INSERTED)
+**Goal**: AI asks follow-up questions before acting, pre-populates budget from onboarding, handles batch deletes and duplicate cleanup
+**Depends on**: Phase 12.1
+**Requirements**: CHAT-01, CHAT-03, INTENT-07, INTENT-08, INTENT-09, INTENT-10
+**Success Criteria** (what must be TRUE):
+  1. When user asks to add a budget item, AI asks at least one clarifying follow-up before inserting
+  2. New user sees pre-populated budget categories derived from onboarding answers on first budget page visit
+  3. User can say "smaž fotograf a DJ z checklistu" and both items are removed in one action
+  4. User can say "smaž duplikáty" and AI detects and removes duplicate checklist items
 **Plans**: TBD
 
 ### Phase 13: Platform Enhancements
