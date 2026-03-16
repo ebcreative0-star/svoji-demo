@@ -116,6 +116,18 @@ Plans:
   4. User can say "smaž duplikáty" and AI detects and removes duplicate checklist items
 **Plans**: TBD
 
+### Phase 12.3: Dashboard Home (INSERTED)
+**Goal**: Users land on an overview page with wedding countdown, progress stats, calendar of upcoming tasks, and AI-generated monthly summary
+**Depends on**: Phase 12.1
+**Requirements**: HOME-01, HOME-02, HOME-03, HOME-04, HOME-05, HOME-06
+**Success Criteria** (what must be TRUE):
+  1. After login, user lands on a dashboard home page (not directly on checklist)
+  2. User sees wedding countdown, checklist/budget/guest stat cards at a glance
+  3. User sees a calendar or timeline of upcoming checklist items by due date
+  4. User sees an AI-generated summary of what needs attention this month
+  5. Quick action buttons let user jump to add task, open chat, or add guest
+**Plans**: TBD
+
 ### Phase 13: Platform Enhancements
 **Goal**: The app is installable on mobile home screens and couples can personalize their guest-facing wedding website
 **Depends on**: Phase 11
