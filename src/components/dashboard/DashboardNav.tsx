@@ -12,6 +12,7 @@ import {
   Settings,
   Globe,
   LogOut,
+  Search,
 } from 'lucide-react';
 import { Button } from '@/components/ui';
 
@@ -19,6 +20,7 @@ interface DashboardNavProps {
   partner1: string;
   partner2: string;
   slug?: string;
+  onSearchOpen?: () => void;
 }
 
 const navItems = [
@@ -29,7 +31,7 @@ const navItems = [
   { href: '/settings', label: 'Nastavení', icon: Settings },
 ];
 
-export function DashboardNav({ partner1, partner2, slug }: DashboardNavProps) {
+export function DashboardNav({ partner1, partner2, slug, onSearchOpen }: DashboardNavProps) {
   const pathname = usePathname();
   const router = useRouter();
   const supabase = createClient();
