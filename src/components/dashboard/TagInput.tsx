@@ -104,7 +104,13 @@ export function TagInput({
           }}
           onKeyDown={handleKeyDown}
           onFocus={() => setShowSuggestions(true)}
-          onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
+          onBlur={() => {
+            // Auto-commit typed text as tag on blur (e.g. when user clicks Save)
+            if (inputValue.trim()) {
+              addTag(inputValue);
+            }
+            setTimeout(() => setShowSuggestions(false), 150);
+          }}
           placeholder={value.length === 0 ? placeholder : ''}
           className="flex-1 min-w-[120px] outline-none bg-transparent text-gray-700 placeholder:text-gray-400"
         />
