@@ -3,7 +3,13 @@ import { createClient } from '@/lib/supabase/server';
 import { GuestsView } from '@/components/dashboard/GuestsView';
 import { isDemoMode, DEMO_COUPLE, DEMO_GUESTS } from '@/lib/demo-data';
 
-export default async function GuestsPage() {
+export default async function GuestsPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ highlight?: string }>;
+}) {
+  const highlight = (await searchParams)?.highlight;
+
   // Demo mode
   if (isDemoMode()) {
     return (
@@ -18,7 +24,7 @@ export default async function GuestsPage() {
           </p>
         </div>
 
-        <GuestsView guests={DEMO_GUESTS} coupleId={DEMO_COUPLE.id} />
+        <GuestsView guests={DEMO_GUESTS} coupleId={DEMO_COUPLE.id} highlight={highlight} />
       </div>
     );
   }
@@ -58,7 +64,7 @@ export default async function GuestsPage() {
         </p>
       </div>
 
-      <GuestsView guests={guests || []} coupleId={couple.id} />
+      <GuestsView guests={guests || []} coupleId={couple.id} highlight={highlight} />
     </div>
   );
 }

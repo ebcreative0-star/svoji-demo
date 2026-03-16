@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useTransition, useRef } from 'react';
+import { useState, useTransition, useRef, useEffect } from 'react';
+import { useRouter, usePathname } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { format, differenceInDays, isPast, isToday } from 'date-fns';
 import { cs } from 'date-fns/locale';
@@ -52,13 +53,29 @@ interface ChecklistViewProps {
   items: ChecklistItem[];
   weddingDate: string;
   coupleId: string;
+  highlight?: string;
 }
 
 type FilterType = 'all' | 'pending' | 'completed' | 'overdue';
 type GroupBy = 'date' | 'category' | 'priority';
 
-export function ChecklistView({ items: initialItems, weddingDate, coupleId }: ChecklistViewProps) {
+export function ChecklistView({ items: initialItems, weddingDate, coupleId, highlight }: ChecklistViewProps) {
   const [items, setItems] = useState(initialItems);
+  const router = useRouter();
+  const pathname = usePathname();
+
+  // Scroll highlighted item into view and clean up URL param after animation
+  useEffect(() => {
+    if (!highlight) return;
+    const el = document.getElementById(`item-${highlight}`);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+    const timer = setTimeout(() => {
+      router.replace(pathname, { scroll: false });
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, [highlight, pathname, router]);
   const [filter, setFilter] = useState<FilterType>('pending');
   const [groupBy, setGroupBy] = useState<GroupBy>('date');
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set(['thisWeek', 'thisMonth']));
@@ -471,7 +488,16 @@ export function ChecklistView({ items: initialItems, weddingDate, coupleId }: Ch
                 {expandedGroups.has(groupId) && (
                   <div className="border-t divide-y">
                     {group.items.map((item) => (
-                      <div key={item.id}>
+                      <motion.div
+                        key={item.id}
+                        id={`item-${item.id}`}
+                        animate={
+                          highlight === item.id
+                            ? { backgroundColor: ['#FEF9C3', 'rgba(255,255,255,0)'] }
+                            : {}
+                        }
+                        transition={{ duration: 1.5 }}
+                      >
                         <ChecklistItemRow
                           item={item}
                           onToggle={toggleItem}
@@ -568,7 +594,7 @@ export function ChecklistView({ items: initialItems, weddingDate, coupleId }: Ch
                             </motion.div>
                           )}
                         </AnimatePresence>
-                      </div>
+                      </motion.div>
                     ))}
                   </div>
                 )}

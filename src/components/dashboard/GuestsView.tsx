@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter, usePathname } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -43,12 +44,28 @@ interface Guest {
 interface GuestsViewProps {
   guests: Guest[];
   coupleId: string;
+  highlight?: string;
 }
 
-export function GuestsView({ guests: initialGuests, coupleId }: GuestsViewProps) {
+export function GuestsView({ guests: initialGuests, coupleId, highlight }: GuestsViewProps) {
   const [guests, setGuests] = useState<Guest[]>(
     initialGuests.map((g) => ({ ...g, tags: g.tags || [] }))
   );
+  const router = useRouter();
+  const pathname = usePathname();
+
+  // Scroll highlighted guest into view and clean up URL param after animation
+  useEffect(() => {
+    if (!highlight) return;
+    const el = document.getElementById(`item-${highlight}`);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+    const timer = setTimeout(() => {
+      router.replace(pathname, { scroll: false });
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, [highlight, pathname, router]);
   const [showAddForm, setShowAddForm] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState<string>('all');
@@ -423,7 +440,16 @@ export function GuestsView({ guests: initialGuests, coupleId }: GuestsViewProps)
           {/* Guest rows */}
           <div className="divide-y">
             {filteredGuests.map((guest) => (
-              <div key={guest.id}>
+              <motion.div
+                key={guest.id}
+                id={`item-${guest.id}`}
+                animate={
+                  highlight === guest.id
+                    ? { backgroundColor: ['#FEF9C3', 'rgba(255,255,255,0)'] }
+                    : {}
+                }
+                transition={{ duration: 1.5 }}
+              >
                 {/* Guest row */}
                 <div className="grid grid-cols-1 md:grid-cols-[1fr_140px_110px_110px_88px] gap-2 md:gap-4 items-center px-4 py-3 hover:bg-[var(--color-bg-warm)] transition-colors">
                   {/* Name + tags */}
@@ -658,7 +684,7 @@ export function GuestsView({ guests: initialGuests, coupleId }: GuestsViewProps)
                     </motion.div>
                   )}
                 </AnimatePresence>
-              </div>
+              </motion.div>
             ))}
           </div>
         </Card>

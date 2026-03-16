@@ -3,7 +3,13 @@ import { createClient } from '@/lib/supabase/server';
 import { BudgetView } from '@/components/dashboard/BudgetView';
 import { isDemoMode, DEMO_COUPLE, DEMO_BUDGET } from '@/lib/demo-data';
 
-export default async function BudgetPage() {
+export default async function BudgetPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ highlight?: string }>;
+}) {
+  const highlight = (await searchParams)?.highlight;
+
   // Demo mode
   if (isDemoMode()) {
     const demoItems = DEMO_BUDGET.map((item) => ({
@@ -30,6 +36,7 @@ export default async function BudgetPage() {
           items={demoItems}
           totalBudget={DEMO_COUPLE.budget_total}
           coupleId={DEMO_COUPLE.id}
+          highlight={highlight}
         />
       </div>
     );
@@ -74,6 +81,7 @@ export default async function BudgetPage() {
         items={budgetItems || []}
         totalBudget={couple.budget_total}
         coupleId={couple.id}
+        highlight={highlight}
       />
     </div>
   );

@@ -4,7 +4,13 @@ import { ChecklistView } from '@/components/dashboard/ChecklistView';
 import { generateChecklist, type WeddingSize } from '@/lib/checklist-generator';
 import { isDemoMode, DEMO_COUPLE, DEMO_CHECKLIST } from '@/lib/demo-data';
 
-export default async function ChecklistPage() {
+export default async function ChecklistPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ highlight?: string }>;
+}) {
+  const highlight = (await searchParams)?.highlight;
+
   // Demo mode
   if (isDemoMode()) {
     const demoItems = DEMO_CHECKLIST.map((item) => ({
@@ -37,6 +43,7 @@ export default async function ChecklistPage() {
           items={demoItems}
           weddingDate={DEMO_COUPLE.wedding_date}
           coupleId={DEMO_COUPLE.id}
+          highlight={highlight}
         />
       </div>
     );
@@ -115,6 +122,7 @@ export default async function ChecklistPage() {
         items={(checklistItems || []).map((item) => ({ ...item, tags: item.tags ?? [] }))}
         weddingDate={couple.wedding_date}
         coupleId={user.id}
+        highlight={highlight}
       />
     </div>
   );

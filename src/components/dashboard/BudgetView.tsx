@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter, usePathname } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Trash2, Check, X, PiggyBank, Sparkles, Pencil } from 'lucide-react';
@@ -24,6 +25,7 @@ interface BudgetViewProps {
   items: BudgetItem[];
   totalBudget: number | null;
   coupleId: string;
+  highlight?: string;
 }
 
 const BUDGET_CATEGORIES = [
@@ -56,8 +58,23 @@ const BUDGET_CATEGORY_INTENT: Record<string, 'success' | 'warning' | 'danger' | 
   other: 'neutral',
 };
 
-export function BudgetView({ items: initialItems, totalBudget, coupleId }: BudgetViewProps) {
+export function BudgetView({ items: initialItems, totalBudget, coupleId, highlight }: BudgetViewProps) {
   const [items, setItems] = useState(initialItems);
+  const router = useRouter();
+  const pathname = usePathname();
+
+  // Scroll highlighted item into view and clean up URL param after animation
+  useEffect(() => {
+    if (!highlight) return;
+    const el = document.getElementById(`item-${highlight}`);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+    const timer = setTimeout(() => {
+      router.replace(pathname, { scroll: false });
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, [highlight, pathname, router]);
   const [showAddForm, setShowAddForm] = useState(false);
   const [newItem, setNewItem] = useState({
     category: 'venue',
@@ -361,7 +378,16 @@ export function BudgetView({ items: initialItems, totalBudget, coupleId }: Budge
               </Card.Header>
               <div className="divide-y">
                 {group.items.map((item) => (
-                  <div key={item.id}>
+                  <motion.div
+                    key={item.id}
+                    id={`item-${item.id}`}
+                    animate={
+                      highlight === item.id
+                        ? { backgroundColor: ['#FEF9C3', 'rgba(255,255,255,0)'] }
+                        : {}
+                    }
+                    transition={{ duration: 1.5 }}
+                  >
                     {/* Item row */}
                     <div className="px-4 py-3 flex items-center justify-between">
                       <div className="flex items-center gap-3 min-w-0 flex-1">
@@ -541,7 +567,7 @@ export function BudgetView({ items: initialItems, totalBudget, coupleId }: Budge
                         </motion.div>
                       )}
                     </AnimatePresence>
-                  </div>
+                  </motion.div>
                 ))}
               </div>
             </Card>

@@ -81,6 +81,20 @@ export function DashboardNav({ partner1, partner2, slug, onSearchOpen }: Dashboa
 
             {/* Actions */}
             <div className="flex items-center gap-2">
+              {onSearchOpen && (
+                <button
+                  onClick={onSearchOpen}
+                  className="flex items-center gap-1.5 px-3 py-2 text-sm text-[var(--color-text-light)] hover:text-[var(--color-primary)] transition-colors rounded-lg hover:bg-gray-50"
+                  aria-label="Hledat"
+                >
+                  <Search className="w-4 h-4" />
+                  <span>Hledat</span>
+                  <kbd className="text-[10px] px-1.5 py-0.5 rounded bg-gray-100 font-mono ml-1">
+                    ⌘K
+                  </kbd>
+                </button>
+              )}
+
               {slug && (
                 <Link
                   href={`/w/${slug}`}
@@ -116,14 +130,26 @@ export function DashboardNav({ partner1, partner2, slug, onSearchOpen }: Dashboa
             )}
           </Link>
 
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleLogout}
-            aria-label="Odhlásit se"
-            leadingIcon={<LogOut className="w-4 h-4" />}
-            className="text-[var(--color-text-light)] hover:text-red-600"
-          />
+          <div className="flex items-center gap-1">
+            {onSearchOpen && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onSearchOpen}
+                aria-label="Hledat"
+                leadingIcon={<Search className="w-4 h-4" />}
+                className="text-[var(--color-text-light)]"
+              />
+            )}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleLogout}
+              aria-label="Odhlásit se"
+              leadingIcon={<LogOut className="w-4 h-4" />}
+              className="text-[var(--color-text-light)] hover:text-red-600"
+            />
+          </div>
         </div>
       </nav>
 
