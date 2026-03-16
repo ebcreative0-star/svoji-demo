@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.1
 milestone_name: Polish & UX
 status: executing
-stopped_at: Completed 12-03-PLAN.md
-last_updated: "2026-03-16T19:18:13.173Z"
+stopped_at: Completed 12-02-PLAN.md
+last_updated: "2026-03-16T19:19:11.043Z"
 last_activity: 2026-03-16 -- phase 12 plan 01 complete (tags, date-utils, TagInput, migration)
 progress:
   total_phases: 6
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 11
-  completed_plans: 10
+  completed_plans: 11
   percent: 38
 ---
 
@@ -63,6 +63,9 @@ See PROJECT.md Key Decisions table for full list. Recent relevant decisions:
 - [Phase 12]: GuestsView: Pencil icon toggles edit row (click again = cancel), avoids separate cancel path
 - [Phase 12]: GuestsView empty state: shows only when guests.length === 0 (not filtered empty) -- filtered empty shows inline
 - [Phase 12-03]: tags optional in BudgetItem interface -- migration 009 may not be applied everywhere
+- [Phase 12-02]: coupleId as required prop on ChecklistView -- avoids fetching inside component
+- [Phase 12-02]: crypto.randomUUID() for optimistic insert temp ID, replaced with real DB ID on success
+- [Phase 12-02]: tags ?? [] normalization in checklist/page.tsx handles rows created before migration 009
 
 ### Roadmap Evolution
 
@@ -85,6 +88,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-16T19:18:13.171Z
-Stopped at: Completed 12-03-PLAN.md
+Last session: 2026-03-16T19:19:11.040Z
+Stopped at: Completed 12-02-PLAN.md
 Resume file: None
