@@ -164,5 +164,5 @@ Plans:
 | 11. Bug Fixes | v2.1 | 4/4 | Complete | 2026-03-14 |
 | 11.1 AI Actions & Batch Import | v2.1 | 3/3 | Complete | 2026-03-14 |
 | 12. Manual CRUD UI | v2.1 | 4/4 | Complete | 2026-03-16 |
-| 12.1 AI Update & Query Intents | 3/3 | Complete   | 2026-03-16 | - |
+| 12.1 AI Update & Query Intents | 3/3 | Complete    | 2026-03-16 | - |
 | 13. Platform Enhancements | v2.1 | 0/TBD | Not started | - |
