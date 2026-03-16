@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.1
 milestone_name: Polish & UX
 status: executing
-stopped_at: Completed 12.1-03 search modal plan
-last_updated: "2026-03-16T22:23:27.108Z"
+stopped_at: Completed 12.1-02 query intents plan
+last_updated: "2026-03-16T22:28:16.035Z"
 last_activity: 2026-03-16 -- phase 12 plan 01 complete (tags, date-utils, TagInput, migration)
 progress:
   total_phases: 7
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 14
-  completed_plans: 13
+  completed_plans: 14
   percent: 38
 ---
 
@@ -72,6 +72,8 @@ See PROJECT.md Key Decisions table for full list. Recent relevant decisions:
 - [Phase 12.1-03]: Highlight uses Framer Motion backgroundColor keyframe animation (FEF9C3 to transparent), URL param cleaned via router.replace after 2s
 - [Phase 12.1-03]: DashboardClientShell wraps DashboardNav + SearchModal + children so nav can receive onSearchOpen callback from client state
 - [Phase 12.1-03]: Highlight uses Framer Motion backgroundColor keyframe animation (FEF9C3 to transparent), URL param cleaned via router.replace after 2s
+- [Phase 12.1-ai-update-query]: Query intents use data.type='query' in ActionResult to distinguish from mutations in route.ts system prompt injection
+- [Phase 12.1-02]: DATA PRO ODPOVED system prompt injection for read-only query intents, separate from AKCE PROVEDENA mutation block
 
 ### Roadmap Evolution
 
@@ -94,6 +96,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-16T22:23:22.651Z
-Stopped at: Completed 12.1-03 search modal plan
+Last session: 2026-03-16T22:28:16.032Z
+Stopped at: Completed 12.1-02 query intents plan
 Resume file: None
