@@ -33,6 +33,12 @@ MOŽNÉ INTENTY:
 - guest_update: Změnit RSVP/detaily (params: { name: string, rsvp_status?: string, updates?: object })
 - guest_remove: Odstranit hosta (params: { name: string })
 
+**Dotazy na data (pouze cteni):**
+- checklist_query: Dotaz na stav checklistu (params: { filter?: 'overdue' | 'pending' | 'completed' | 'all' })
+- budget_query: Dotaz na stav rozpoctu (params: { filter?: 'unpaid' | 'paid' | 'all' })
+- guest_query: Dotaz na hosty (params: { filter?: 'confirmed' | 'pending' | 'declined' | 'all' })
+- status_overview: Celkovy prehled priprav -- cross-domain summary (params: {})
+
 **Informační intenty (pouze logování):**
 - vendor_search: Hledání dodavatele (params: { category: string, region?: string, budget_hint?: number })
 - advice_request: Obecná rada o svatbě
@@ -50,6 +56,7 @@ PRAVIDLA:
 - Žádné úvodní texty ani vysvětlení
 - Confidence: >0.9 = jasné, 0.7-0.9 = pravděpodobné, <0.7 = nejisté
 - Params musí obsahovat všechny extrahované informace z textu
+- PRAVIDLO: Dotazy 'kolik/co/kdo/jak' BEZ akce (pridej/smaz/uprav) = query intent. Dotazy s akci = action intent.
 - Pro vendor_search extrahuj: category (fotograf, catering, místo, DJ, květiny, atd.), region pokud zmíněn, budget_hint pokud zmíněn
 - Pro checklist_add/budget_add: title/name je text položky v češtině
 - Pro checklist_complete: title je přibližný název položky (nemusí přesně odpovídat)
@@ -187,7 +194,40 @@ Uzivatel: "Fotograf 25000, DJ 15000, kvetiny 8000"
 {"intent": "budget_add_multi", "confidence": 0.95, "params": {"items": [{"name": "fotograf", "amount": 25000, "category": "photo"}, {"name": "DJ", "amount": 15000, "category": "music"}, {"name": "kvetiny", "amount": 8000, "category": "flowers"}]}}
 
 Uzivatel: "Rozpocet: catering 80000, dort 12000, dekorace 15000"
-{"intent": "budget_add_multi", "confidence": 0.95, "params": {"items": [{"name": "catering", "amount": 80000, "category": "catering"}, {"name": "dort", "amount": 12000, "category": "cake"}, {"name": "dekorace", "amount": 15000, "category": "decor"}]}}`;
+{"intent": "budget_add_multi", "confidence": 0.95, "params": {"items": [{"name": "catering", "amount": 80000, "category": "catering"}, {"name": "dort", "amount": 12000, "category": "cake"}, {"name": "dekorace", "amount": 15000, "category": "decor"}]}}
+
+Uzivatel: "co mam v checklistu?"
+{"intent": "checklist_query", "confidence": 0.95, "params": {"filter": "all"}}
+
+Uzivatel: "co je po terminu?"
+{"intent": "checklist_query", "confidence": 0.95, "params": {"filter": "overdue"}}
+
+Uzivatel: "co mi zbyva?"
+{"intent": "checklist_query", "confidence": 0.95, "params": {"filter": "pending"}}
+
+Uzivatel: "kolik mam v rozpoctu?"
+{"intent": "budget_query", "confidence": 0.95, "params": {"filter": "all"}}
+
+Uzivatel: "kolik zbyvá zaplatit?"
+{"intent": "budget_query", "confidence": 0.95, "params": {"filter": "unpaid"}}
+
+Uzivatel: "co uz je zaplacene?"
+{"intent": "budget_query", "confidence": 0.95, "params": {"filter": "paid"}}
+
+Uzivatel: "kolik hostu potvrdilo?"
+{"intent": "guest_query", "confidence": 0.95, "params": {"filter": "confirmed"}}
+
+Uzivatel: "kdo jeste neodpovedel?"
+{"intent": "guest_query", "confidence": 0.95, "params": {"filter": "pending"}}
+
+Uzivatel: "jak jsem na tom?"
+{"intent": "status_overview", "confidence": 0.95, "params": {}}
+
+Uzivatel: "shrn mi stav priprav"
+{"intent": "status_overview", "confidence": 0.95, "params": {}}
+
+Uzivatel: "kolik toho jeste mam?"
+{"intent": "status_overview", "confidence": 0.95, "params": {}}`;
 
 /**
  * Classify user message intent using Kilo Gateway
@@ -290,6 +330,14 @@ export function isActionIntent(intent: string): boolean {
   ];
 
   return actionIntents.includes(intent);
+}
+
+/**
+ * Determine if intent is a query (read-only, returns data for system prompt)
+ */
+export function isQueryIntent(intent: string): boolean {
+  const queryIntents = ['checklist_query', 'budget_query', 'guest_query', 'status_overview'];
+  return queryIntents.includes(intent);
 }
 
 /**
