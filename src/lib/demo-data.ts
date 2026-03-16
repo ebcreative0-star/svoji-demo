@@ -52,15 +52,16 @@ export const DEMO_GUESTS: {
   dietary_requirements: string | null;
   rsvp_status: 'pending' | 'confirmed' | 'declined';
   notes: string | null;
+  tags: string[];
 }[] = [
-  { id: '1', name: 'Marie Novakova', email: 'marie@email.cz', phone: null, group_name: 'Rodina nevesty', plus_one: false, rsvp_status: 'confirmed', dietary_requirements: null, notes: null },
-  { id: '2', name: 'Jan Novak', email: 'jan@email.cz', phone: null, group_name: 'Rodina nevesty', plus_one: false, rsvp_status: 'confirmed', dietary_requirements: null, notes: null },
-  { id: '3', name: 'Petra Svobodova', email: 'petra@email.cz', phone: null, group_name: 'Pratele', plus_one: true, rsvp_status: 'confirmed', dietary_requirements: 'vegetarian', notes: null },
-  { id: '4', name: 'Martin Dvorak', email: 'martin@email.cz', phone: null, group_name: 'Pratele', plus_one: false, rsvp_status: 'confirmed', dietary_requirements: null, notes: null },
-  { id: '5', name: 'Lucie Kralova', email: 'lucie@email.cz', phone: null, group_name: 'Kolegove', plus_one: false, rsvp_status: 'pending', dietary_requirements: null, notes: null },
-  { id: '6', name: 'Tomas Maly', email: 'tomas@email.cz', phone: null, group_name: 'Rodina zenicha', plus_one: true, rsvp_status: 'confirmed', dietary_requirements: 'bezlepkove', notes: null },
-  { id: '7', name: 'Eva Velka', email: 'eva@email.cz', phone: null, group_name: 'Rodina zenicha', plus_one: false, rsvp_status: 'declined', dietary_requirements: null, notes: null },
-  { id: '8', name: 'Pavel Cerny', email: 'pavel@email.cz', phone: null, group_name: 'Pratele', plus_one: false, rsvp_status: 'pending', dietary_requirements: null, notes: null },
+  { id: '1', name: 'Marie Novakova', email: 'marie@email.cz', phone: null, group_name: 'Rodina nevesty', plus_one: false, rsvp_status: 'confirmed', dietary_requirements: null, notes: null, tags: [] },
+  { id: '2', name: 'Jan Novak', email: 'jan@email.cz', phone: null, group_name: 'Rodina nevesty', plus_one: false, rsvp_status: 'confirmed', dietary_requirements: null, notes: null, tags: [] },
+  { id: '3', name: 'Petra Svobodova', email: 'petra@email.cz', phone: null, group_name: 'Pratele', plus_one: true, rsvp_status: 'confirmed', dietary_requirements: 'vegetarian', notes: null, tags: [] },
+  { id: '4', name: 'Martin Dvorak', email: 'martin@email.cz', phone: null, group_name: 'Pratele', plus_one: false, rsvp_status: 'confirmed', dietary_requirements: null, notes: null, tags: [] },
+  { id: '5', name: 'Lucie Kralova', email: 'lucie@email.cz', phone: null, group_name: 'Kolegove', plus_one: false, rsvp_status: 'pending', dietary_requirements: null, notes: null, tags: [] },
+  { id: '6', name: 'Tomas Maly', email: 'tomas@email.cz', phone: null, group_name: 'Rodina zenicha', plus_one: true, rsvp_status: 'confirmed', dietary_requirements: 'bezlepkove', notes: null, tags: [] },
+  { id: '7', name: 'Eva Velka', email: 'eva@email.cz', phone: null, group_name: 'Rodina zenicha', plus_one: false, rsvp_status: 'declined', dietary_requirements: null, notes: null, tags: [] },
+  { id: '8', name: 'Pavel Cerny', email: 'pavel@email.cz', phone: null, group_name: 'Pratele', plus_one: false, rsvp_status: 'pending', dietary_requirements: null, notes: null, tags: [] },
 ];
 
 export const DEMO_CHAT: { id: string; role: 'user' | 'assistant'; content: string }[] = [

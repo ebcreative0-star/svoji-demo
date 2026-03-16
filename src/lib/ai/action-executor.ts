@@ -4,6 +4,7 @@
  */
 
 import { SupabaseClient } from '@supabase/supabase-js';
+import { parseCzechDate } from '@/lib/date-utils';
 
 export interface ActionResult {
   success: boolean;
@@ -25,9 +26,9 @@ export async function executeAction(
     switch (intent) {
       // Checklist actions
       case 'checklist_add':
-        return await addChecklistItem(supabase, coupleId, params as { title: string; category?: string });
+        return await addChecklistItem(supabase, coupleId, params as { title: string; category?: string; due_date?: string });
       case 'checklist_add_multi':
-        return await addChecklistItems(supabase, coupleId, params as { titles: string[]; category?: string });
+        return await addChecklistItems(supabase, coupleId, params as { titles: string[]; category?: string; due_date?: string });
       case 'checklist_complete':
         return await completeChecklistItem(supabase, coupleId, params as { title: string });
       case 'checklist_remove':
@@ -75,7 +76,7 @@ export async function executeAction(
 async function addChecklistItem(
   supabase: SupabaseClient,
   coupleId: string,
-  params: { title: string; category?: string }
+  params: { title: string; category?: string; due_date?: string }
 ): Promise<ActionResult> {
   const { title, category } = params;
 
@@ -100,7 +101,7 @@ async function addChecklistItem(
       title,
       category: category || 'other',
       description: null,
-      due_date: null,
+      due_date: params.due_date ? parseCzechDate(params.due_date) : null,
       priority: 'medium',
       completed: false,
       sort_order: nextSortOrder,
@@ -122,7 +123,7 @@ async function addChecklistItem(
 async function addChecklistItems(
   supabase: SupabaseClient,
   coupleId: string,
-  params: { titles: string[]; category?: string }
+  params: { titles: string[]; category?: string; due_date?: string }
 ): Promise<ActionResult> {
   const { titles, category } = params;
 
@@ -145,7 +146,7 @@ async function addChecklistItems(
     title: title.trim(),
     category: category || 'other',
     description: null,
-    due_date: null,
+    due_date: params.due_date ? parseCzechDate(params.due_date) : null,
     priority: 'medium',
     completed: false,
     sort_order: baseOrder + i + 1,
