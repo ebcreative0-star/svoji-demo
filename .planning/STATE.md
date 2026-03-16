@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v2.1
 milestone_name: Polish & UX
-status: completed
-stopped_at: Phase 12 context gathered
-last_updated: "2026-03-16T18:56:00.632Z"
-last_activity: 2026-03-14 -- phase 11 bug fixes complete (all 4 plans done)
+status: in-progress
+stopped_at: "Phase 12 Plan 1 of 4 complete"
+last_updated: "2026-03-16T19:12:00Z"
+last_activity: 2026-03-16 -- phase 12 plan 01 foundation layer complete
 progress:
   total_phases: 6
   completed_phases: 2
-  total_plans: 7
-  completed_plans: 7
-  percent: 33
+  total_plans: 11
+  completed_plans: 8
+  percent: 38
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-14)
 
 **Core value:** Couples can plan their entire wedding from one place with AI guidance
-**Current focus:** Phase 11 - Bug Fixes (v2.1 start)
+**Current focus:** Phase 12 - AI Smarts / First Run (Manual CRUD + Tags + Czech dates)
 
 ## Current Position
 
-Phase: 11 of 13 (Bug Fixes) -- COMPLETE
-Plan: 4 of 4 (all plans complete)
-Status: Phase complete, ready for Phase 12
-Last activity: 2026-03-14 -- phase 11 bug fixes complete (all 4 plans done)
+Phase: 12 of 13 (AI Smarts / Manual CRUD)
+Plan: 1 of 4 complete (foundation layer done)
+Status: In progress -- plans 02, 03, 04 remaining
+Last activity: 2026-03-16 -- phase 12 plan 01 complete (tags, date-utils, TagInput, migration)
 
-Progress: [███░░░░░░░] 33% (Phase 11 complete, Phases 12-13 remaining)
+Progress: [████░░░░░░] 38% (Phase 12 started, 3 plans remaining)
 
 ## Accumulated Context
 
@@ -55,6 +55,11 @@ See PROJECT.md Key Decisions table for full list. Recent relevant decisions:
 - [Phase 11.1-03]: Notes import executes immediately without confirmation -- no ask step per user decision
 - [Phase 11.1-03]: Notes paste heuristic: 3+ lines or 300+ chars -- lightweight, no extra API call
 - [Phase 11.1-03]: parseNotes falls through to normal classifyIntent on null return -- zero degradation
+- [Phase 12-01]: Tag colors: 8-color Tailwind palette, deterministic hash from char codes mod 8
+- [Phase 12-01]: Czech month diacritics: NFD normalize + strip combining chars before lookup (handles 'března', 'dubna', etc.)
+- [Phase 12-01]: TagInput suggestion dropdown uses onMouseDown (not onClick) to beat onBlur timing race
+- [Phase 12-01]: tags column is text[] not JSONB -- simpler PostgreSQL @> and ANY() operators
+- [Phase 12-01]: Migration 009 to be applied via Supabase Dashboard SQL Editor (same as 008)
 
 ### Roadmap Evolution
 
@@ -77,6 +82,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-16T18:56:00.626Z
-Stopped at: Phase 12 context gathered
-Resume file: .planning/phases/12-ai-smarts-first-run/12-CONTEXT.md
+Last session: 2026-03-16T19:12:00Z
+Stopped at: Completed 12-01-PLAN.md
+Resume file: .planning/phases/12-ai-smarts-first-run/12-02-PLAN.md
