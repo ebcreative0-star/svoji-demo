@@ -38,6 +38,7 @@
 - [x] **Phase 11: Bug Fixes** - Four targeted fixes to dashboard, mobile redirect, budget line items, and checklist countdown (gap closure in progress) (completed 2026-03-14)
 - [x] **Phase 11.1: AI Actions & Batch Import** - Fix AI tool execution, batch import for checklist/budget/guests, notes migration (completed 2026-03-14)
 - [x] **Phase 12: Manual CRUD UI** - Add/edit/delete for checklist, budget, and guests with tags and expand-in-row editing (completed 2026-03-16)
+- [ ] **Phase 12.1: AI Update & Query Intents** - Update intents, query intents, tag/category awareness, global search
 - [ ] **Phase 13: Platform Enhancements** - PWA installability and guest-facing wedding website customization system
 
 ## Phase Details
@@ -95,25 +96,32 @@ Plans:
 - [ ] 12-04-PLAN.md -- Guests edit: table-to-div refactor, expand-in-row edit, tags, empty state
 
 ### Phase 12.1: AI Update & Query Intents (INSERTED)
-**Goal**: AI chat can update existing items (not just create), answer data queries, and provide status overviews
+**Goal**: AI chat can update existing items (not just create), answer data queries, provide status overviews, understand tags/categories, and global search across all domains
 **Depends on**: Phase 12
-**Requirements**: INTENT-01, INTENT-02, INTENT-03, INTENT-04, INTENT-05, INTENT-06
+**Requirements**: INTENT-01, INTENT-02, INTENT-03, INTENT-04, INTENT-05, INTENT-06, INTENT-07, INTENT-08, INTENT-09, SEARCH-01
 **Success Criteria** (what must be TRUE):
-  1. User says "přidej datum k fotografovi" and AI updates the existing item instead of creating a duplicate
+  1. User says "pridej datum k fotografovi" and AI updates the existing item instead of creating a duplicate
   2. User says "zaplatil jsem fotografa 12000" and the budget item is marked as paid with actual_cost set
-  3. User asks "co mám v checklistu?" and AI responds with actual data from the database
+  3. User asks "co mam v checklistu?" and AI responds with actual data from the database
   4. User asks "jak jsem na tom?" and AI provides a cross-domain summary (checklist progress, budget status, guest RSVPs)
-**Plans**: TBD
+  5. User says "pridej catering do checklistu" and AI assigns correct category (vendors)
+  6. User presses Cmd+K and can search across all domains including by tag
+**Plans:** 3 plans
+
+Plans:
+- [ ] 12.1-01-PLAN.md -- Update intents (checklist_update, budget_mark_paid) + tag/category awareness
+- [ ] 12.1-02-PLAN.md -- Query intents (checklist_query, budget_query, guest_query, status_overview)
+- [ ] 12.1-03-PLAN.md -- Global Cmd+K search modal with cross-domain search and highlight
 
 ### Phase 12.2: AI Polish (INSERTED)
 **Goal**: AI asks follow-up questions before acting, pre-populates budget from onboarding, handles batch deletes and duplicate cleanup
 **Depends on**: Phase 12.1
-**Requirements**: CHAT-01, CHAT-03, INTENT-07, INTENT-08, INTENT-09, INTENT-10
+**Requirements**: CHAT-01, CHAT-03, INTENT-10
 **Success Criteria** (what must be TRUE):
   1. When user asks to add a budget item, AI asks at least one clarifying follow-up before inserting
   2. New user sees pre-populated budget categories derived from onboarding answers on first budget page visit
-  3. User can say "smaž fotograf a DJ z checklistu" and both items are removed in one action
-  4. User can say "smaž duplikáty" and AI detects and removes duplicate checklist items
+  3. User can say "smaz fotograf a DJ z checklistu" and both items are removed in one action
+  4. User can say "smaz duplikaty" and AI detects and removes duplicate checklist items
 **Plans**: TBD
 
 ### Phase 12.3: Dashboard Home (INSERTED)
@@ -154,6 +162,7 @@ Plans:
 | 9. Data Collection | v2.0 | 3/3 | Complete | 2026-03-12 |
 | 10. Integration Fix-ups | v2.0 | 1/1 | Complete | 2026-03-12 |
 | 11. Bug Fixes | v2.1 | 4/4 | Complete | 2026-03-14 |
-| 11.1 AI Actions & Batch Import | 3/3 | Complete    | 2026-03-14 | - |
-| 12. Manual CRUD UI | 4/4 | Complete    | 2026-03-16 | - |
+| 11.1 AI Actions & Batch Import | v2.1 | 3/3 | Complete | 2026-03-14 |
+| 12. Manual CRUD UI | v2.1 | 4/4 | Complete | 2026-03-16 |
+| 12.1 AI Update & Query Intents | v2.1 | 0/3 | Planning | - |
 | 13. Platform Enhancements | v2.1 | 0/TBD | Not started | - |
