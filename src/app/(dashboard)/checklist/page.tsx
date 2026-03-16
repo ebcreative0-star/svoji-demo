@@ -13,6 +13,7 @@ export default async function ChecklistPage() {
       sort_order: 0,
       completed_at: null,
       created_at: new Date().toISOString(),
+      tags: [] as string[],
     }));
 
     return (
@@ -35,6 +36,7 @@ export default async function ChecklistPage() {
         <ChecklistView
           items={demoItems}
           weddingDate={DEMO_COUPLE.wedding_date}
+          coupleId={DEMO_COUPLE.id}
         />
       </div>
     );
@@ -110,8 +112,9 @@ export default async function ChecklistPage() {
       </div>
 
       <ChecklistView
-        items={checklistItems || []}
+        items={(checklistItems || []).map((item) => ({ ...item, tags: item.tags ?? [] }))}
         weddingDate={couple.wedding_date}
+        coupleId={user.id}
       />
     </div>
   );
