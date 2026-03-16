@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.1
 milestone_name: Polish & UX
 status: executing
-stopped_at: Phase 12.1 context gathered
-last_updated: "2026-03-16T21:53:23.775Z"
+stopped_at: Completed 12.1-ai-update-query-01-PLAN.md
+last_updated: "2026-03-16T22:15:14.776Z"
 last_activity: 2026-03-16 -- phase 12 plan 01 complete (tags, date-utils, TagInput, migration)
 progress:
   total_phases: 7
   completed_phases: 3
-  total_plans: 11
-  completed_plans: 11
+  total_plans: 14
+  completed_plans: 12
   percent: 38
 ---
 
@@ -66,6 +66,8 @@ See PROJECT.md Key Decisions table for full list. Recent relevant decisions:
 - [Phase 12-02]: coupleId as required prop on ChecklistView -- avoids fetching inside component
 - [Phase 12-02]: crypto.randomUUID() for optimistic insert temp ID, replaced with real DB ID on success
 - [Phase 12-02]: tags ?? [] normalization in checklist/page.tsx handles rows created before migration 009
+- [Phase 12.1-ai-update-query]: updateChecklistItem does not filter by completed -- user may want to update completed items too
+- [Phase 12.1-ai-update-query]: markBudgetPaid upsert: creates new item if not found, preserves estimated_cost if found
 
 ### Roadmap Evolution
 
@@ -88,6 +90,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-16T21:53:23.766Z
-Stopped at: Phase 12.1 context gathered
-Resume file: .planning/phases/12.1-ai-update-query/12.1-CONTEXT.md
+Last session: 2026-03-16T22:15:14.774Z
+Stopped at: Completed 12.1-ai-update-query-01-PLAN.md
+Resume file: None
