@@ -58,6 +58,16 @@ export async function executeAction(
       case 'guest_remove':
         return await removeGuest(supabase, coupleId, params as { name: string });
 
+      // Query intents (read-only, return formatted context for system prompt)
+      case 'checklist_query':
+        return await queryChecklist(supabase, coupleId, params as { filter?: string });
+      case 'budget_query':
+        return await queryBudget(supabase, coupleId, params as { filter?: string });
+      case 'guest_query':
+        return await queryGuests(supabase, coupleId, params as { filter?: string });
+      case 'status_overview':
+        return await statusOverview(supabase, coupleId);
+
       default:
         return {
           success: false,
@@ -767,5 +777,245 @@ async function removeGuest(
     success: true,
     message: `Odstranil jsem ${guest.name} ze seznamu hostů`,
     data: { id: guest.id },
+  };
+}
+
+// Query handlers (read-only)
+
+async function queryChecklist(
+  supabase: SupabaseClient,
+  coupleId: string,
+  params: { filter?: string }
+): Promise<ActionResult> {
+  const filter = params.filter ?? 'all';
+  const today = new Date().toISOString().split('T')[0];
+
+  const { data: items, error } = await supabase
+    .from('checklist_items')
+    .select('title, completed, due_date, priority, tags')
+    .eq('couple_id', coupleId)
+    .order('due_date', { ascending: true });
+
+  if (error) {
+    return { success: false, message: 'Nepodarilo se nacist checklist', error: error.message };
+  }
+
+  const all = items ?? [];
+  const totalCount = all.length;
+  const completedCount = all.filter((i: { completed: boolean }) => i.completed).length;
+  const pendingCount = totalCount - completedCount;
+
+  let filtered: typeof all;
+  switch (filter) {
+    case 'overdue':
+      filtered = all.filter((i: { completed: boolean; due_date: string | null }) =>
+        !i.completed && i.due_date && i.due_date < today
+      );
+      break;
+    case 'pending':
+      filtered = all.filter((i: { completed: boolean }) => !i.completed);
+      break;
+    case 'completed':
+      filtered = all.filter((i: { completed: boolean }) => i.completed);
+      break;
+    default:
+      filtered = all;
+  }
+
+  const lines = filtered.slice(0, 15).map((i: { title: string; due_date: string | null; tags: string[] | null }) => {
+    const datePart = i.due_date ? ` (do ${i.due_date})` : '';
+    const tagPart = i.tags && i.tags.length > 0 ? ` [${i.tags.join(', ')}]` : '';
+    return `- ${i.title}${datePart}${tagPart}`;
+  });
+
+  const overdueSuffix = filter !== 'overdue'
+    ? `, ${all.filter((i: { completed: boolean; due_date: string | null }) => !i.completed && i.due_date && i.due_date < today).length} po terminu`
+    : '';
+
+  const header = `Checklist: ${completedCount} hotovych, ${pendingCount} nesplnenych${overdueSuffix}.`;
+  const contextString = filtered.length > 0
+    ? `${header}\n${lines.join('\n')}`
+    : `${header}\nZadne polozky pro tento filtr.`;
+
+  return {
+    success: true,
+    message: contextString,
+    data: { type: 'query', context: contextString },
+  };
+}
+
+async function queryBudget(
+  supabase: SupabaseClient,
+  coupleId: string,
+  params: { filter?: string }
+): Promise<ActionResult> {
+  const filter = params.filter ?? 'all';
+
+  const [itemsResult, coupleResult] = await Promise.all([
+    supabase
+      .from('budget_items')
+      .select('name, category, estimated_cost, actual_cost, paid, tags')
+      .eq('couple_id', coupleId),
+    supabase
+      .from('couples')
+      .select('budget_total')
+      .eq('id', coupleId)
+      .single(),
+  ]);
+
+  if (itemsResult.error) {
+    return { success: false, message: 'Nepodarilo se nacist rozpocet', error: itemsResult.error.message };
+  }
+
+  const all = itemsResult.data ?? [];
+  const budgetTotal: number | null = coupleResult.data?.budget_total ?? null;
+
+  const totalEstimated = all.reduce((sum: number, i: { estimated_cost: number | null }) => sum + (i.estimated_cost ?? 0), 0);
+  const totalPaid = all
+    .filter((i: { paid: boolean }) => i.paid)
+    .reduce((sum: number, i: { actual_cost: number | null; estimated_cost: number | null }) => sum + (i.actual_cost ?? i.estimated_cost ?? 0), 0);
+  const paidCount = all.filter((i: { paid: boolean }) => i.paid).length;
+  const unpaidCount = all.length - paidCount;
+  const paidPct = totalEstimated > 0 ? Math.round((totalPaid / totalEstimated) * 100) : 0;
+  const remaining = budgetTotal != null ? budgetTotal - totalPaid : totalEstimated - totalPaid;
+
+  let filtered: typeof all;
+  switch (filter) {
+    case 'unpaid':
+      filtered = all.filter((i: { paid: boolean }) => !i.paid);
+      break;
+    case 'paid':
+      filtered = all.filter((i: { paid: boolean }) => i.paid);
+      break;
+    default:
+      filtered = all;
+  }
+
+  const lines = filtered.slice(0, 15).map((i: { name: string; estimated_cost: number | null; actual_cost: number | null; paid: boolean; tags: string[] | null }) => {
+    const cost = i.paid ? (i.actual_cost ?? i.estimated_cost ?? 0) : (i.estimated_cost ?? 0);
+    const paidMark = i.paid ? ' [zaplaceno]' : '';
+    const tagPart = i.tags && i.tags.length > 0 ? ` [${i.tags.join(', ')}]` : '';
+    return `- ${i.name}: ${cost.toLocaleString('cs-CZ')} Kc${paidMark}${tagPart}`;
+  });
+
+  const remainingLine = budgetTotal != null
+    ? ` Rozpocet: ${budgetTotal.toLocaleString('cs-CZ')} Kc celkem, zbyva ${remaining.toLocaleString('cs-CZ')} Kc.`
+    : ` Odhadovano celkem: ${totalEstimated.toLocaleString('cs-CZ')} Kc, zbyva zaplatit: ${remaining.toLocaleString('cs-CZ')} Kc.`;
+
+  const header = `Rozpocet: ${totalEstimated.toLocaleString('cs-CZ')} Kc odhadovano, ${totalPaid.toLocaleString('cs-CZ')} Kc zaplaceno (${paidPct}%). ${paidCount} polozek zaplaceno, ${unpaidCount} nezaplaceno.${remainingLine}`;
+  const contextString = filtered.length > 0
+    ? `${header}\n${lines.join('\n')}`
+    : `${header}\nZadne polozky pro tento filtr.`;
+
+  return {
+    success: true,
+    message: contextString,
+    data: { type: 'query', context: contextString },
+  };
+}
+
+async function queryGuests(
+  supabase: SupabaseClient,
+  coupleId: string,
+  params: { filter?: string }
+): Promise<ActionResult> {
+  const filter = params.filter ?? 'all';
+
+  const { data: all, error } = await supabase
+    .from('guests')
+    .select('name, group_name, rsvp_status, plus_one, tags')
+    .eq('couple_id', coupleId);
+
+  if (error) {
+    return { success: false, message: 'Nepodarilo se nacist hosty', error: error.message };
+  }
+
+  const guests = all ?? [];
+  const totalCount = guests.length;
+  const confirmedCount = guests.filter((g: { rsvp_status: string }) => g.rsvp_status === 'confirmed').length;
+  const pendingCount = guests.filter((g: { rsvp_status: string }) => g.rsvp_status === 'pending').length;
+  const declinedCount = guests.filter((g: { rsvp_status: string }) => g.rsvp_status === 'declined').length;
+
+  let filtered: typeof guests;
+  switch (filter) {
+    case 'confirmed':
+      filtered = guests.filter((g: { rsvp_status: string }) => g.rsvp_status === 'confirmed');
+      break;
+    case 'pending':
+      filtered = guests.filter((g: { rsvp_status: string }) => g.rsvp_status === 'pending');
+      break;
+    case 'declined':
+      filtered = guests.filter((g: { rsvp_status: string }) => g.rsvp_status === 'declined');
+      break;
+    default:
+      filtered = guests;
+  }
+
+  const lines = filtered.slice(0, 15).map((g: { name: string; group_name: string | null; rsvp_status: string; plus_one: boolean; tags: string[] | null }) => {
+    const groupPart = g.group_name ? ` (${g.group_name})` : '';
+    const plusPart = g.plus_one ? ' +1' : '';
+    const tagPart = g.tags && g.tags.length > 0 ? ` [${g.tags.join(', ')}]` : '';
+    const status = g.rsvp_status === 'confirmed' ? 'potvrzeno' : g.rsvp_status === 'declined' ? 'odmítnuto' : 'ceka';
+    return `- ${g.name}${groupPart}${plusPart}: ${status}${tagPart}`;
+  });
+
+  const header = `Hoste: ${totalCount} celkem, ${confirmedCount} potvrzenych, ${pendingCount} cekajicich, ${declinedCount} odmitnutych.`;
+  const contextString = filtered.length > 0
+    ? `${header}\n${lines.join('\n')}`
+    : `${header}\nZadni hoste pro tento filtr.`;
+
+  return {
+    success: true,
+    message: contextString,
+    data: { type: 'query', context: contextString },
+  };
+}
+
+async function statusOverview(
+  supabase: SupabaseClient,
+  coupleId: string
+): Promise<ActionResult> {
+  const today = new Date().toISOString().split('T')[0];
+
+  const [checklistResult, budgetResult, guestsResult, coupleResult] = await Promise.all([
+    supabase.from('checklist_items').select('completed, due_date').eq('couple_id', coupleId),
+    supabase.from('budget_items').select('estimated_cost, actual_cost, paid').eq('couple_id', coupleId),
+    supabase.from('guests').select('rsvp_status').eq('couple_id', coupleId),
+    supabase.from('couples').select('budget_total').eq('id', coupleId).single(),
+  ]);
+
+  // Checklist summary
+  const checklistItems = checklistResult.data ?? [];
+  const totalTasks = checklistItems.length;
+  const doneTasks = checklistItems.filter((i: { completed: boolean }) => i.completed).length;
+  const overdueTasks = checklistItems.filter(
+    (i: { completed: boolean; due_date: string | null }) => !i.completed && i.due_date && i.due_date < today
+  ).length;
+  const donePercent = totalTasks > 0 ? Math.round((doneTasks / totalTasks) * 100) : 0;
+  const checklistLine = `Checklist: ${doneTasks}/${totalTasks} hotovo (${donePercent}%)${overdueTasks > 0 ? `, ${overdueTasks} po terminu` : ''}.`;
+
+  // Budget summary
+  const budgetItems = budgetResult.data ?? [];
+  const totalEstimated = budgetItems.reduce((s: number, i: { estimated_cost: number | null }) => s + (i.estimated_cost ?? 0), 0);
+  const totalPaid = budgetItems
+    .filter((i: { paid: boolean }) => i.paid)
+    .reduce((s: number, i: { actual_cost: number | null; estimated_cost: number | null }) => s + (i.actual_cost ?? i.estimated_cost ?? 0), 0);
+  const budgetTotal: number | null = coupleResult.data?.budget_total ?? null;
+  const remaining = budgetTotal != null ? budgetTotal - totalPaid : totalEstimated - totalPaid;
+  const budgetLine = `Rozpocet: ${totalEstimated.toLocaleString('cs-CZ')} Kc odhadovano, ${totalPaid.toLocaleString('cs-CZ')} Kc zaplaceno, zbyva ${remaining.toLocaleString('cs-CZ')} Kc${budgetTotal ? ` z ${budgetTotal.toLocaleString('cs-CZ')} Kc celkoveho rozpoctu` : ''}.`;
+
+  // Guest summary
+  const guestItems = guestsResult.data ?? [];
+  const totalGuests = guestItems.length;
+  const confirmedGuests = guestItems.filter((g: { rsvp_status: string }) => g.rsvp_status === 'confirmed').length;
+  const pendingGuests = guestItems.filter((g: { rsvp_status: string }) => g.rsvp_status === 'pending').length;
+  const guestLine = `Hoste: ${totalGuests} celkem, ${confirmedGuests} potvrzenych, ${pendingGuests} cekajicich.`;
+
+  const contextString = `Prehled priprav:\n${checklistLine}\n${budgetLine}\n${guestLine}`;
+
+  return {
+    success: true,
+    message: contextString,
+    data: { type: 'query', context: contextString },
   };
 }

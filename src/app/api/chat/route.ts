@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { createChatCompletion } from '@/lib/kilo';
-import { classifyIntent, isActionIntent, isDemandSignal } from '@/lib/ai/intent-classifier';
+import { classifyIntent, isActionIntent, isQueryIntent, isDemandSignal } from '@/lib/ai/intent-classifier';
 import { executeAction } from '@/lib/ai/action-executor';
 import { logDemandSignal, extractDemandSignal } from '@/lib/ai/demand-logger';
 import { checkAndIncrementChatLimit } from '@/lib/rate-limit';
@@ -330,6 +330,18 @@ export async function POST(request: NextRequest) {
 
         console.log('Action execution:', actionResult);
       }
+
+      // STEP 2b: Query intents (read-only, return data for system prompt injection)
+      if (!actionResult && isQueryIntent(intentResult.intent) && intentResult.confidence > 0.6) {
+        actionResult = await executeAction(
+          supabase,
+          coupleId,
+          intentResult.intent,
+          intentResult.params
+        );
+
+        console.log('[AI Pipeline] Query result:', intentResult.intent, actionResult?.success);
+      }
     }
 
     // STEP 3: Build system prompt with action context
@@ -342,6 +354,8 @@ export async function POST(request: NextRequest) {
 - Zprava: ${notesSummary}
 
 DULEZITE: Potvrdi co bylo pridano. Pouzij strucny format se shrnutim.`;
+    } else if (actionResult?.data?.type === 'query') {
+      systemPrompt += `\n\nDATA PRO ODPOVED:\n${actionResult.message}\n\nDULEZITE: Odpovez primo na zaklade techto dat. Nepouzivej **bold** markup. Pis cisty text s odrazkami a cisly.`;
     } else if (actionResult) {
       systemPrompt += `\n\nAKCE PROVEDENA:
 - Intent: ${intentResult.intent}
