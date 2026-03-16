@@ -37,7 +37,7 @@
 
 - [x] **Phase 11: Bug Fixes** - Four targeted fixes to dashboard, mobile redirect, budget line items, and checklist countdown (gap closure in progress) (completed 2026-03-14)
 - [x] **Phase 11.1: AI Actions & Batch Import** - Fix AI tool execution, batch import for checklist/budget/guests, notes migration (completed 2026-03-14)
-- [ ] **Phase 12: AI Smarts & First-Run** - Smarter chatbot with follow-up questions, personalized welcome message, and pre-populated budget from onboarding
+- [ ] **Phase 12: Manual CRUD UI** - Add/edit/delete for checklist, budget, and guests with tags and expand-in-row editing
 - [ ] **Phase 13: Platform Enhancements** - PWA installability and guest-facing wedding website customization system
 
 ## Phase Details
@@ -86,7 +86,13 @@ Plans:
   3. User can add and edit budget items (name, amount, category, paid status) from the budget page
   4. User can add and edit guests (name, group, RSVP, dietary, plus_one) from the guests page
   5. Czech date formats ("31.1.2026", "konec ledna") are parsed correctly throughout the app
-**Plans**: TBD
+**Plans:** 4 plans
+
+Plans:
+- [ ] 12-01-PLAN.md -- Foundation: tags migration, tag utils, TagInput component, Czech date parser
+- [ ] 12-02-PLAN.md -- Checklist CRUD: quick-add, expand-in-row edit, delete, empty state
+- [ ] 12-03-PLAN.md -- Budget edit: expand-in-row edit, tags on add form, empty state
+- [ ] 12-04-PLAN.md -- Guests edit: table-to-div refactor, expand-in-row edit, tags, empty state
 
 ### Phase 12.1: AI Update & Query Intents (INSERTED)
 **Goal**: AI chat can update existing items (not just create), answer data queries, and provide status overviews
@@ -137,5 +143,5 @@ Plans:
 | 10. Integration Fix-ups | v2.0 | 1/1 | Complete | 2026-03-12 |
 | 11. Bug Fixes | v2.1 | 4/4 | Complete | 2026-03-14 |
 | 11.1 AI Actions & Batch Import | 3/3 | Complete    | 2026-03-14 | - |
-| 12. AI Smarts & First-Run | v2.1 | 0/TBD | Not started | - |
+| 12. Manual CRUD UI | v2.1 | 0/4 | Planned | - |
 | 13. Platform Enhancements | v2.1 | 0/TBD | Not started | - |
