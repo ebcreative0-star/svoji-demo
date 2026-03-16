@@ -203,6 +203,7 @@ PRAVIDLA:
 - Bud strucny ale informativni
 - Nepouzivej emoji prehrane
 ${context.location && context.searchRadiusKm ? `- Pri doporucenych dodavatelich hledej v okruhu ${context.searchRadiusKm} km od ${context.location}` : ''}
+- Nepouzivej **tucne** oznaceni textu. Pis cisty text s odrazkami a cisly.
 
 AKCE A DATA:
 - System muze automaticky provadet akce (pridavani/upravy/mazani polozek) na zaklade tvych zprav

@@ -26,23 +26,27 @@ export async function executeAction(
     switch (intent) {
       // Checklist actions
       case 'checklist_add':
-        return await addChecklistItem(supabase, coupleId, params as { title: string; category?: string; due_date?: string });
+        return await addChecklistItem(supabase, coupleId, params as { title: string; category?: string; due_date?: string; tags?: string[] });
       case 'checklist_add_multi':
-        return await addChecklistItems(supabase, coupleId, params as { titles: string[]; category?: string; due_date?: string });
+        return await addChecklistItems(supabase, coupleId, params as { titles: string[]; category?: string; due_date?: string; tags?: string[] });
       case 'checklist_complete':
         return await completeChecklistItem(supabase, coupleId, params as { title: string });
       case 'checklist_remove':
         return await removeChecklistItem(supabase, coupleId, params as { title: string });
+      case 'checklist_update':
+        return await updateChecklistItem(supabase, coupleId, params as { title: string; updates: Record<string, any> });
 
       // Budget actions
       case 'budget_add':
-        return await addBudgetItem(supabase, coupleId, params as { name: string; amount: number; category?: string });
+        return await addBudgetItem(supabase, coupleId, params as { name: string; amount: number; category?: string; tags?: string[] });
       case 'budget_add_multi':
         return await addBudgetItems(supabase, coupleId, params as { items: { name: string; amount: number; category?: string }[] });
       case 'budget_update':
         return await updateBudgetItem(supabase, coupleId, params as { name: string; amount: number });
       case 'budget_remove':
         return await removeBudgetItem(supabase, coupleId, params as { name: string });
+      case 'budget_mark_paid':
+        return await markBudgetPaid(supabase, coupleId, params as { name: string; amount: number });
 
       // Guest actions
       case 'guest_add':
@@ -76,9 +80,9 @@ export async function executeAction(
 async function addChecklistItem(
   supabase: SupabaseClient,
   coupleId: string,
-  params: { title: string; category?: string; due_date?: string }
+  params: { title: string; category?: string; due_date?: string; tags?: string[] }
 ): Promise<ActionResult> {
-  const { title, category } = params;
+  const { title, category, tags } = params;
 
   if (!title) {
     return { success: false, message: 'Chybí název položky', error: 'Missing title' };
@@ -105,6 +109,7 @@ async function addChecklistItem(
       priority: 'medium',
       completed: false,
       sort_order: nextSortOrder,
+      tags: tags ?? null,
     })
     .select()
     .single();
@@ -123,9 +128,9 @@ async function addChecklistItem(
 async function addChecklistItems(
   supabase: SupabaseClient,
   coupleId: string,
-  params: { titles: string[]; category?: string; due_date?: string }
+  params: { titles: string[]; category?: string; due_date?: string; tags?: string[] }
 ): Promise<ActionResult> {
-  const { titles, category } = params;
+  const { titles, category, tags } = params;
 
   if (!titles || !Array.isArray(titles) || titles.length === 0) {
     return { success: false, message: 'Chybi nazvy polozek', error: 'Missing titles array' };
@@ -150,6 +155,7 @@ async function addChecklistItems(
     priority: 'medium',
     completed: false,
     sort_order: baseOrder + i + 1,
+    tags: tags ?? null,
   }));
 
   const { data, error } = await supabase
@@ -262,6 +268,82 @@ async function removeChecklistItem(
   };
 }
 
+async function updateChecklistItem(
+  supabase: SupabaseClient,
+  coupleId: string,
+  params: { title: string; updates: Record<string, any> }
+): Promise<ActionResult> {
+  const { title, updates } = params;
+
+  if (!title) {
+    return { success: false, message: 'Chybí název položky', error: 'Missing title' };
+  }
+
+  if (!updates || Object.keys(updates).length === 0) {
+    return { success: false, message: 'Chybí co aktualizovat', error: 'Missing updates' };
+  }
+
+  // Find item by title (case-insensitive partial match), any completion state
+  const { data: items } = await supabase
+    .from('checklist_items')
+    .select('*')
+    .eq('couple_id', coupleId)
+    .ilike('title', `%${title}%`);
+
+  if (!items || items.length === 0) {
+    return {
+      success: false,
+      message: `Nenašel jsem položku "${title}" v checklistu`,
+      error: 'Item not found',
+    };
+  }
+
+  if (items.length > 1) {
+    const list = items.map((i: { title: string }) => `"${i.title}"`).join(', ');
+    return {
+      success: false,
+      message: `Našel jsem ${items.length} položky: ${list}. Kterou myslíš?`,
+      error: 'Ambiguous',
+    };
+  }
+
+  const item = items[0];
+
+  // Build clean update object
+  const cleanUpdates: Record<string, any> = { ...updates };
+
+  // Handle due_date via parseCzechDate
+  if (cleanUpdates.due_date) {
+    const parsed = parseCzechDate(cleanUpdates.due_date);
+    cleanUpdates.due_date = parsed ?? cleanUpdates.due_date;
+  }
+
+  // Handle tags_append: merge with existing tags
+  if (cleanUpdates.tags_append) {
+    const existingTags: string[] = item.tags ?? [];
+    const appendTags: string[] = Array.isArray(cleanUpdates.tags_append) ? cleanUpdates.tags_append : [cleanUpdates.tags_append];
+    cleanUpdates.tags = [...new Set([...existingTags, ...appendTags])];
+    delete cleanUpdates.tags_append;
+  }
+
+  const { data, error } = await supabase
+    .from('checklist_items')
+    .update(cleanUpdates)
+    .eq('id', item.id)
+    .select()
+    .single();
+
+  if (error) {
+    return { success: false, message: 'Nepodařilo se aktualizovat položku', error: error.message };
+  }
+
+  return {
+    success: true,
+    message: `Aktualizoval jsem "${item.title}"`,
+    data,
+  };
+}
+
 // Budget actions
 
 const VALID_BUDGET_CATEGORIES = [
@@ -293,9 +375,9 @@ function normalizeBudgetCategory(category: string | undefined): string {
 async function addBudgetItem(
   supabase: SupabaseClient,
   coupleId: string,
-  params: { name: string; amount: number; category?: string }
+  params: { name: string; amount: number; category?: string; tags?: string[] }
 ): Promise<ActionResult> {
-  const { name, amount, category } = params;
+  const { name, amount, category, tags } = params;
 
   if (!name || amount == null || amount === undefined) {
     return { success: false, message: 'Chybí název nebo částka', error: 'Missing name or amount' };
@@ -313,6 +395,7 @@ async function addBudgetItem(
       actual_cost: null,
       paid: false,
       source: 'ai',
+      tags: tags ?? null,
     })
     .select()
     .single();
@@ -451,6 +534,71 @@ async function removeBudgetItem(
     success: true,
     message: `Smazal jsem "${item.name}" z rozpočtu`,
     data: { id: item.id },
+  };
+}
+
+async function markBudgetPaid(
+  supabase: SupabaseClient,
+  coupleId: string,
+  params: { name: string; amount: number }
+): Promise<ActionResult> {
+  const { name, amount } = params;
+
+  if (!name || amount == null) {
+    return { success: false, message: 'Chybí název nebo částka', error: 'Missing name or amount' };
+  }
+
+  // Find item by name
+  const { data: items } = await supabase
+    .from('budget_items')
+    .select('*')
+    .eq('couple_id', coupleId)
+    .ilike('name', `%${name}%`);
+
+  if (!items || items.length === 0) {
+    // Upsert: create new item and mark paid
+    const { data, error } = await supabase
+      .from('budget_items')
+      .insert({
+        couple_id: coupleId,
+        name,
+        category: normalizeBudgetCategory(name),
+        estimated_cost: amount,
+        actual_cost: amount,
+        paid: true,
+        source: 'ai',
+      })
+      .select()
+      .single();
+
+    if (error) {
+      return { success: false, message: 'Nepodařilo se přidat výdaj', error: error.message };
+    }
+
+    return {
+      success: true,
+      message: `Vytvořil jsem a označil "${name}" jako zaplaceno (${amount.toLocaleString('cs-CZ')} Kč)`,
+      data,
+    };
+  }
+
+  // Update first match -- preserve estimated_cost, only set actual_cost and paid
+  const item = items[0];
+  const { data, error } = await supabase
+    .from('budget_items')
+    .update({ paid: true, actual_cost: amount })
+    .eq('id', item.id)
+    .select()
+    .single();
+
+  if (error) {
+    return { success: false, message: 'Nepodařilo se označit jako zaplaceno', error: error.message };
+  }
+
+  return {
+    success: true,
+    message: `Označil jsem "${item.name}" jako zaplaceno (${amount.toLocaleString('cs-CZ')} Kč)`,
+    data,
   };
 }
 
