@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v2.1
 milestone_name: Polish & UX
-status: in-progress
-stopped_at: "Phase 12 Plan 1 of 4 complete"
-last_updated: "2026-03-16T19:12:00Z"
-last_activity: 2026-03-16 -- phase 12 plan 01 foundation layer complete
+status: executing
+stopped_at: Completed 12-03-PLAN.md
+last_updated: "2026-03-16T19:18:13.173Z"
+last_activity: 2026-03-16 -- phase 12 plan 01 complete (tags, date-utils, TagInput, migration)
 progress:
   total_phases: 6
   completed_phases: 2
   total_plans: 11
-  completed_plans: 8
+  completed_plans: 10
   percent: 38
 ---
 
@@ -60,6 +60,9 @@ See PROJECT.md Key Decisions table for full list. Recent relevant decisions:
 - [Phase 12-01]: TagInput suggestion dropdown uses onMouseDown (not onClick) to beat onBlur timing race
 - [Phase 12-01]: tags column is text[] not JSONB -- simpler PostgreSQL @> and ANY() operators
 - [Phase 12-01]: Migration 009 to be applied via Supabase Dashboard SQL Editor (same as 008)
+- [Phase 12]: GuestsView: Pencil icon toggles edit row (click again = cancel), avoids separate cancel path
+- [Phase 12]: GuestsView empty state: shows only when guests.length === 0 (not filtered empty) -- filtered empty shows inline
+- [Phase 12-03]: tags optional in BudgetItem interface -- migration 009 may not be applied everywhere
 
 ### Roadmap Evolution
 
@@ -82,6 +85,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-16T19:12:00Z
-Stopped at: Completed 12-01-PLAN.md
-Resume file: .planning/phases/12-ai-smarts-first-run/12-02-PLAN.md
+Last session: 2026-03-16T19:18:13.171Z
+Stopped at: Completed 12-03-PLAN.md
+Resume file: None
