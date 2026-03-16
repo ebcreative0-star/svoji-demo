@@ -143,5 +143,5 @@ Plans:
 | 10. Integration Fix-ups | v2.0 | 1/1 | Complete | 2026-03-12 |
 | 11. Bug Fixes | v2.1 | 4/4 | Complete | 2026-03-14 |
 | 11.1 AI Actions & Batch Import | 3/3 | Complete    | 2026-03-14 | - |
-| 12. Manual CRUD UI | 4/4 | Complete   | 2026-03-16 | - |
+| 12. Manual CRUD UI | 4/4 | Complete    | 2026-03-16 | - |
 | 13. Platform Enhancements | v2.1 | 0/TBD | Not started | - |
