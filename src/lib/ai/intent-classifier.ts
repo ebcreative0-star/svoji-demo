@@ -18,10 +18,12 @@ const CLASSIFICATION_SYSTEM_PROMPT = `Jsi klasifikator zámeru uživatelských z
 MOŽNÉ INTENTY:
 
 **Akce s daty (mění databázi):**
-- checklist_add: Přidat položku do checklistu (params: { title: string, category?: string })
+- checklist_add: Přidat novou položku do checklistu (params: { title: string, category?: string, tags?: string[] }). category je JEDNA Z: venue|attire|vendors|guests|decor|admin|ceremony|other. Mapovani: Fotograf/DJ/catering/floristka = vendors, Saty/oblek = attire, Misto/salonek/zamek = venue, Pozvanky/hoste = guests, Dekorace/kytky = decor, Doklady/smlouvy = admin, Obrad/ritualy = ceremony.
+- checklist_update: Aktualizovat existujici polozku v checklistu (params: { title: string, updates: { due_date?: string, priority?: string, category?: string, description?: string, tags_append?: string[] } })
 - checklist_complete: Označit položku jako hotovou (params: { title: string })
 - checklist_remove: Smazat položku (params: { title: string })
-- budget_add: Přidat výdaj (params: { name: string, amount: number, category?: string })
+- budget_add: Přidat výdaj (params: { name: string, amount: number, category?: string, tags?: string[] })
+- budget_mark_paid: Oznacit vydaj jako zaplaceny nebo zaznamenat platbu (params: { name: string, amount: number })
 - budget_update: Aktualizovat částku (params: { name: string, amount: number })
 - budget_remove: Smazat výdaj (params: { name: string })
 - checklist_add_multi: Pridat vice polozek do checklistu najednou (params: { titles: string[], category?: string })
@@ -59,6 +61,9 @@ PRAVIDLA:
 - DULEZITE: Pokud uzivatel zminuje castku A nazev polozky (jednu), VZDY klasifikuj jako budget_add s params { name, amount, category }. Bez castky klasifikuj jako advice_request.
 - DULEZITE: Pokud uzivatel chce neco smazat/zrusit/odstranit z rozpoctu, klasifikuj jako budget_remove.
 - Pro budget_add/budget_add_multi category pouzij jednu z: venue|catering|photo|music|flowers|attire|rings|decor|cake|transport|honeymoon|other
+- DULEZITE: Rozlisuj update vs create. "pridej [neco] K [polozce]" = checklist_update (predlozka K/k). "pridej [polozku]" = checklist_add. Klicova slova pro update: nastav, uprav, zmen, aktualizuj, pridej datum/tag/prioritu K.
+- DULEZITE: "zaplatil jsem [nazev] [castka]" nebo "zaplaceno [castka] za [nazev]" nebo "uhradil jsem" = budget_mark_paid (ne budget_add).
+- DULEZITE: Pro checklist_add: pokud nazev polozky odpovida Fotograf/DJ/catering/floristka, nastav category na "vendors". Misto/salonek/zamek = "venue". Saty/oblek = "attire". Dekorace/kytky = "decor". Doklady/smlouvy = "admin". Obrad = "ceremony".
 
 PRIKLADY:
 Uzivatel: "Odskrtni cirkus"
@@ -66,9 +71,6 @@ Uzivatel: "Odskrtni cirkus"
 
 Uzivatel: "Odskrtni fotografa"
 {"intent": "checklist_complete", "confidence": 0.95, "params": {"title": "fotograf"}}
-
-Uzivatel: "Pridej fotografa do checklistu"
-{"intent": "checklist_add", "confidence": 0.95, "params": {"title": "fotograf"}}
 
 Uzivatel: "Mame 50000 na catering"
 {"intent": "budget_add", "confidence": 0.95, "params": {"name": "catering", "amount": 50000}}
@@ -93,9 +95,6 @@ Uzivatel: "Pozveme Marka, Janu a Petra ze strany nevesty"
 
 Uzivatel: "Pridej Tomas a Lucii"
 {"intent": "guest_add_multi", "confidence": 0.95, "params": {"names": ["Tomas", "Lucie"]}}
-
-Uzivatel: "Pridej fotografa za 25000"
-{"intent": "budget_add", "confidence": 0.95, "params": {"name": "fotograf", "amount": 25000, "category": "photo"}}
 
 Uzivatel: "Rozpocet na kvetiny 8000"
 {"intent": "budget_add", "confidence": 0.95, "params": {"name": "kvetiny", "amount": 8000, "category": "flowers"}}
@@ -140,7 +139,37 @@ Uzivatel: "Fotograf je zarizenej"
 {"intent": "checklist_complete", "confidence": 0.95, "params": {"title": "fotograf"}}
 
 Uzivatel: "Zaplaceno 30000 za kvetiny"
-{"intent": "budget_add", "confidence": 0.95, "params": {"name": "kvetiny", "amount": 30000}}
+{"intent": "budget_mark_paid", "confidence": 0.95, "params": {"name": "kvetiny", "amount": 30000}}
+
+Uzivatel: "Zaplatil jsem fotografa 25000"
+{"intent": "budget_mark_paid", "confidence": 0.95, "params": {"name": "fotograf", "amount": 25000}}
+
+Uzivatel: "Uhradil jsem catering 80000"
+{"intent": "budget_mark_paid", "confidence": 0.95, "params": {"name": "catering", "amount": 80000}}
+
+Uzivatel: "Pridej datum 15. kvetna k fotografovi"
+{"intent": "checklist_update", "confidence": 0.95, "params": {"title": "fotograf", "updates": {"due_date": "15. kvetna"}}}
+
+Uzivatel: "Nastav prioritu fotografa na vysoka"
+{"intent": "checklist_update", "confidence": 0.95, "params": {"title": "fotograf", "updates": {"priority": "high"}}}
+
+Uzivatel: "Zmen kategorii fotografa na vendors"
+{"intent": "checklist_update", "confidence": 0.95, "params": {"title": "fotograf", "updates": {"category": "vendors"}}}
+
+Uzivatel: "Pridej tag urgent k fotografovi"
+{"intent": "checklist_update", "confidence": 0.95, "params": {"title": "fotograf", "updates": {"tags_append": ["urgent"]}}}
+
+Uzivatel: "Pridej fotografa s tagem dodavatel"
+{"intent": "checklist_add", "confidence": 0.95, "params": {"title": "fotograf", "category": "vendors", "tags": ["dodavatel"]}}
+
+Uzivatel: "Pridej fotografa do checklistu"
+{"intent": "checklist_add", "confidence": 0.95, "params": {"title": "fotograf", "category": "vendors"}}
+
+Uzivatel: "Pridej catering do checklistu"
+{"intent": "checklist_add", "confidence": 0.95, "params": {"title": "catering", "category": "vendors"}}
+
+Uzivatel: "Pridej fotografa za 25000"
+{"intent": "budget_add", "confidence": 0.95, "params": {"name": "fotograf", "amount": 25000, "category": "photo"}}
 
 Uzivatel: "Na muziku davame 15000"
 {"intent": "budget_add", "confidence": 0.95, "params": {"name": "muzika", "amount": 15000}}
@@ -248,10 +277,12 @@ export function isActionIntent(intent: string): boolean {
     'checklist_add_multi',
     'checklist_complete',
     'checklist_remove',
+    'checklist_update',
     'budget_add',
     'budget_add_multi',
     'budget_update',
     'budget_remove',
+    'budget_mark_paid',
     'guest_add',
     'guest_add_multi',
     'guest_update',
