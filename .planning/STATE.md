@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.1
 milestone_name: Polish & UX
 status: executing
-stopped_at: Phase 12.1.1 context gathered
-last_updated: "2026-03-18T13:42:24.505Z"
+stopped_at: Completed 12.1.1-01-PLAN.md
+last_updated: "2026-03-18T14:08:12.264Z"
 last_activity: 2026-03-16 -- phase 12 plan 01 complete (tags, date-utils, TagInput, migration)
 progress:
   total_phases: 8
   completed_phases: 4
-  total_plans: 16
-  completed_plans: 16
+  total_plans: 18
+  completed_plans: 17
   percent: 38
 ---
 
@@ -79,6 +79,8 @@ See PROJECT.md Key Decisions table for full list. Recent relevant decisions:
 - [Phase 12.1-04]: Post-processing strip in route.ts as defense-in-depth -- removes markdown/emoji even if AI ignores instructions
 - [Phase 12.1-ai-update-query]: actionPerformed flag: notesImported OR (actionResult.success && type !== 'query') -- covers all mutation cases including notes import
 - [Phase 12.1-ai-update-query]: router.refresh() with 500ms delay after AI mutation so user reads response before dashboard data refreshes
+- [Phase 12.1.1-01]: --conditions react-server tsx flag bypasses server-only guard in test runner without modifying production code
+- [Phase 12.1.1-01]: 420 utterances across 21 intents -- full diacritics + plain variants exceeds 150+ target
 
 ### Roadmap Evolution
 
@@ -102,6 +104,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-18T13:42:24.491Z
-Stopped at: Phase 12.1.1 context gathered
-Resume file: .planning/phases/12.1.1-nlp-js-intent-classifier/12.1.1-CONTEXT.md
+Last session: 2026-03-18T14:08:12.261Z
+Stopped at: Completed 12.1.1-01-PLAN.md
+Resume file: None
