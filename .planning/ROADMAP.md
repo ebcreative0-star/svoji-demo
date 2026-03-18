@@ -106,7 +106,7 @@ Plans:
   4. User asks "jak jsem na tom?" and AI provides a cross-domain summary (checklist progress, budget status, guest RSVPs)
   5. User says "pridej catering do checklistu" and AI assigns correct category (vendors)
   6. User presses Cmd+K and can search across all domains including by tag
-**Plans:** 3/3 plans complete
+**Plans:** 4/5 plans executed
 
 Plans:
 - [ ] 12.1-01-PLAN.md -- Update intents (checklist_update, budget_mark_paid) + tag/category awareness
@@ -164,5 +164,5 @@ Plans:
 | 11. Bug Fixes | v2.1 | 4/4 | Complete | 2026-03-14 |
 | 11.1 AI Actions & Batch Import | v2.1 | 3/3 | Complete | 2026-03-14 |
 | 12. Manual CRUD UI | v2.1 | 4/4 | Complete | 2026-03-16 |
-| 12.1 AI Update & Query Intents | 3/3 | Complete    | 2026-03-16 | - |
+| 12.1 AI Update & Query Intents | 4/5 | In Progress|  | - |
 | 13. Platform Enhancements | v2.1 | 0/TBD | Not started | - |
