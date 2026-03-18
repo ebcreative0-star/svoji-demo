@@ -323,7 +323,11 @@ export async function classifyIntent(
     const nlp = getNlpClassifier();
     const nlpResult = await nlp.classify(message);
 
-    if (nlpResult.confidence >= 0.5) {
+    // NLP.js returns intent "None" (with score 1) when no training utterance matches.
+    // Treat "None" as no-match regardless of confidence score.
+    const isNoneIntent = nlpResult.intent === 'None' || nlpResult.intent === 'none';
+
+    if (!isNoneIntent && nlpResult.confidence >= 0.5) {
       console.log(
         `[Intent Classifier] NLP.js classified: ${nlpResult.intent} (${nlpResult.confidence.toFixed(3)})`
       );
@@ -335,9 +339,10 @@ export async function classifyIntent(
       };
     }
 
-    console.log(
-      `[Intent Classifier] NLP.js low confidence (${nlpResult.confidence.toFixed(3)}), falling back to Haiku`
-    );
+    const reason = isNoneIntent
+      ? 'no match (None intent)'
+      : `low confidence (${nlpResult.confidence.toFixed(3)})`;
+    console.log(`[Intent Classifier] NLP.js ${reason}, falling back to Haiku`);
   } catch (nlpError) {
     console.error('[Intent Classifier] NLP.js failed, falling back to Haiku:', nlpError);
   }
