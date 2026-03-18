@@ -1,6 +1,16 @@
 import { addDays, addWeeks, endOfMonth, parse, isValid, format } from 'date-fns';
 import { cs } from 'date-fns/locale';
 
+const CZECH_WORD_NUMBERS: Record<string, number> = {
+  jeden: 1, jedna: 1, jedno: 1,
+  dva: 2, dve: 2, dvou: 2,
+  tri: 3, trech: 3,
+  ctyri: 4, ctyr: 4,
+  pet: 5, peti: 5,
+  sest: 6, sesti: 6,
+  sedm: 7, osm: 8, devet: 9, deset: 10,
+};
+
 const CZECH_MONTHS: Record<string, number> = {
   ledna: 0,
   unora: 1,
@@ -89,11 +99,31 @@ export function parseCzechDate(input: string | undefined): string | null {
     return format(addDays(today, n), 'yyyy-MM-dd');
   }
 
+  // Relative: 'za [word] dni/dnu/dny' (Czech word numbers)
+  const dniWordMatch = lower.match(/^za\s+(\S+)\s+dn[íiuy]?$/);
+  if (dniWordMatch) {
+    const word = dniWordMatch[1].normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+    const n = CZECH_WORD_NUMBERS[word];
+    if (n !== undefined) {
+      return format(addDays(today, n), 'yyyy-MM-dd');
+    }
+  }
+
   // Relative: 'za N tyden/tydny/tydnu/tydnech' (also handles 'týden', 'týdny')
   const tydnyMatch = lower.match(/^za\s+(\d+)\s+t[yý]dn[eyu]?[nch]*$/);
   if (tydnyMatch) {
     const n = parseInt(tydnyMatch[1], 10);
     return format(addWeeks(today, n), 'yyyy-MM-dd');
+  }
+
+  // Relative: 'za [word] tyden/tydny/tydnu' (Czech word numbers)
+  const tydnyWordMatch = lower.match(/^za\s+(\S+)\s+t[yý]dn[eyu]?[nch]*$/);
+  if (tydnyWordMatch) {
+    const word = tydnyWordMatch[1].normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+    const n = CZECH_WORD_NUMBERS[word];
+    if (n !== undefined) {
+      return format(addWeeks(today, n), 'yyyy-MM-dd');
+    }
   }
 
   // Month end: 'konec [month]'

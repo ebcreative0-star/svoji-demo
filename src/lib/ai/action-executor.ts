@@ -325,7 +325,15 @@ async function updateChecklistItem(
   // Handle due_date via parseCzechDate
   if (cleanUpdates.due_date) {
     const parsed = parseCzechDate(cleanUpdates.due_date);
-    cleanUpdates.due_date = parsed ?? cleanUpdates.due_date;
+    if (parsed) {
+      cleanUpdates.due_date = parsed;
+    } else {
+      return {
+        success: false,
+        message: `Nerozumim datumu "${cleanUpdates.due_date}". Zkus format jako "28. brezna" nebo "za 2 tydny".`,
+        error: 'Unparseable date',
+      };
+    }
   }
 
   // Handle tags_append: merge with existing tags
