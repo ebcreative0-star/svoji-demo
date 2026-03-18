@@ -1,10 +1,14 @@
 /**
  * Intent Classifier
- * Uses Kilo Gateway with cheaper/faster model to classify user intents
+ * Uses NLP.js as primary classifier with Kilo Gateway (Haiku) as fallback
+ * for low-confidence results (< 0.5).
+ *
+ * Zero API cost for ~95% of classifications; deterministic, < 50ms latency on warm path.
  */
+import { getNlpClassifier } from './nlp-classifier';
 
 const KILO_BASE_URL = 'https://api.kilo.ai/api/gateway';
-// Use faster/cheaper model for classification
+// Use faster/cheaper model for classification (fallback only)
 const CLASSIFICATION_MODEL = 'anthropic/claude-haiku-4.5';
 
 export interface IntentResult {
@@ -208,7 +212,7 @@ Uzivatel: "co mi zbyva?"
 Uzivatel: "kolik mam v rozpoctu?"
 {"intent": "budget_query", "confidence": 0.95, "params": {"filter": "all"}}
 
-Uzivatel: "kolik zbyvá zaplatit?"
+Uzivatel: "kolik zbývá zaplatit?"
 {"intent": "budget_query", "confidence": 0.95, "params": {"filter": "unpaid"}}
 
 Uzivatel: "co uz je zaplacene?"
@@ -230,58 +234,115 @@ Uzivatel: "kolik toho jeste mam?"
 {"intent": "status_overview", "confidence": 0.95, "params": {}}`;
 
 /**
- * Keyword-based fallback classifier for commonly misclassified intents.
- * Runs BEFORE Haiku to catch clear-cut cases via regex.
+ * Extract params from NLP.js result for a given intent.
+ * Best-effort extraction -- Sonnet further refines params in the chat response.
+ * The key job of NLP.js is getting the intent right; params are supplementary.
  */
-function keywordFallback(message: string): IntentResult | null {
-  const lower = message.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+function extractParams(intent: string, entities: any[], message: string): Record<string, any> {
+  const params: Record<string, any> = {};
 
-  // Guest queries: "kolik hostu", "kdo potvrdil", "kdo neodpovedel"
-  if (/kolik\s+host[uu]/.test(lower) || /kdo\s+(potvrdil|neodpovedel|prijde|neprijde)/.test(lower)) {
-    const filter = /potvrdil|prijde/.test(lower) ? 'confirmed'
-                 : /neodpovedel|cek/.test(lower) ? 'pending'
-                 : /odmit|neprijde/.test(lower) ? 'declined'
-                 : 'all';
-    return { intent: 'guest_query', confidence: 0.95, params: { filter } };
+  // Budget intents: extract amount via regex, extract name from entities or message text
+  if (intent === 'budget_add' || intent === 'budget_mark_paid' || intent === 'budget_update') {
+    const amountMatch = message.match(/\b(\d[\d\s]*)\b/);
+    if (amountMatch) {
+      params.amount = parseInt(amountMatch[1].replace(/\s/g, ''), 10);
+    }
+    // Try to get name from entities first
+    const nameEntity = entities.find((e: any) => e.type === 'trim' || e.entity === 'name');
+    if (nameEntity) {
+      params.name = nameEntity.sourceText ?? nameEntity.utteranceText ?? nameEntity.option;
+    } else {
+      // Fallback: strip common prefixes and numbers to get the item name
+      const namePart = message
+        .replace(/\b\d[\d\s]*\b/g, '')
+        .replace(/^(zaplatil jsem|zaplaceno za|uhradil jsem|pridej do rozpoctu|pridej|přidej)\s*/i, '')
+        .replace(/\s+(do\s+rozpoctu|za\s+\S+)\s*$/i, '')
+        .trim();
+      if (namePart) params.name = namePart;
+    }
   }
 
-  // Checklist queries: "co mam v checklistu", "co mi zbyva", "co je po terminu"
-  if (/co\s+(mam|je)\s+(v\s+)?checklist/.test(lower) || /co\s+mi\s+zbyva/.test(lower)) {
-    const filter = /po\s+termin/.test(lower) ? 'overdue' : /zbyva/.test(lower) ? 'pending' : 'all';
-    return { intent: 'checklist_query', confidence: 0.95, params: { filter } };
+  // Checklist intents: extract title from entities or message text
+  if (
+    intent === 'checklist_add' ||
+    intent === 'checklist_complete' ||
+    intent === 'checklist_remove' ||
+    intent === 'checklist_update'
+  ) {
+    const titleEntity = entities.find((e: any) => e.type === 'trim' || e.entity === 'title');
+    if (titleEntity) {
+      params.title = titleEntity.sourceText ?? titleEntity.utteranceText ?? titleEntity.option;
+    } else {
+      // Strip common prefixes to get the item title
+      const titlePart = message
+        .replace(/^(pridej|přidej|odskrtni|odšrktni|oznac|označ|smaz|smaž|zrus|zruš)\s*/i, '')
+        .replace(/\s+(do\s+checklistu|jako\s+hotov\w+|z\s+checklistu)\s*$/i, '')
+        .trim();
+      if (titlePart) params.title = titlePart;
+    }
   }
 
-  // Budget queries: "kolik mam v rozpoctu", "kolik zbyva zaplatit"
-  if (/kolik\s+(mam\s+)?v\s+rozpoc/.test(lower) || /kolik\s+zbyva\s+zaplatit/.test(lower)) {
-    const filter = /zaplatit|nezaplacen/.test(lower) ? 'unpaid' : /zaplacen/.test(lower) ? 'paid' : 'all';
-    return { intent: 'budget_query', confidence: 0.95, params: { filter } };
+  // Query intents: determine filter from message keywords
+  if (intent === 'checklist_query') {
+    const lower = message.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    if (/po\s+termin/.test(lower)) params.filter = 'overdue';
+    else if (/zbyva|nesplnen/.test(lower)) params.filter = 'pending';
+    else if (/hotov|splnen|dokoncen/.test(lower)) params.filter = 'completed';
+    else params.filter = 'all';
   }
 
-  // Status overview: "jak jsem na tom", "shrn stav", "prehled priprav"
-  if (/jak\s+(jsem|jsi)\s+na\s+tom/.test(lower) || /shrn.*stav/.test(lower) || /prehled\s+priprav/.test(lower)) {
-    return { intent: 'status_overview', confidence: 0.95, params: {} };
+  if (intent === 'budget_query') {
+    const lower = message.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    if (/zaplatit|nezaplacen/.test(lower)) params.filter = 'unpaid';
+    else if (/zaplacen/.test(lower)) params.filter = 'paid';
+    else params.filter = 'all';
   }
 
-  // Checklist update: "pridej datum/tag/prioritu K [item]", "nastav", "uprav", "zmen"
-  if (/(pridej|nastav|uprav|zmen)\s+.*(datum|tag|priorit[ua]|kategorii?)\s+(k|u)\s+/i.test(lower)) {
-    return { intent: 'checklist_update', confidence: 0.9, params: {} };
+  if (intent === 'guest_query') {
+    const lower = message.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    if (/potvrdi|prijde/.test(lower)) params.filter = 'confirmed';
+    else if (/neodpovedel|ceka/.test(lower)) params.filter = 'pending';
+    else if (/odmit|neprijde/.test(lower)) params.filter = 'declined';
+    else params.filter = 'all';
   }
 
-  // Budget mark paid: "zaplatil jsem", "zaplaceno ... za", "uhradil jsem"
-  if (/(zaplatil|uhradil)\s+jsem/.test(lower) || /zaplaceno\s+\d/.test(lower)) {
-    return { intent: 'budget_mark_paid', confidence: 0.9, params: {} };
-  }
-
-  return null;
+  return params;
 }
 
 /**
- * Classify user message intent using Kilo Gateway
+ * Classify user message intent.
+ * NLP.js is the primary classifier (no API call, deterministic, < 50ms).
+ * Falls back to Kilo Gateway (Haiku) only when NLP.js confidence < 0.5.
  */
 export async function classifyIntent(
   message: string,
   conversationContext?: string[]
 ): Promise<IntentResult> {
+  // --- Primary: NLP.js ---
+  try {
+    const nlp = getNlpClassifier();
+    const nlpResult = await nlp.classify(message);
+
+    if (nlpResult.confidence >= 0.5) {
+      console.log(
+        `[Intent Classifier] NLP.js classified: ${nlpResult.intent} (${nlpResult.confidence.toFixed(3)})`
+      );
+      const params = extractParams(nlpResult.intent, nlpResult.entities, message);
+      return {
+        intent: nlpResult.intent,
+        confidence: nlpResult.confidence,
+        params,
+      };
+    }
+
+    console.log(
+      `[Intent Classifier] NLP.js low confidence (${nlpResult.confidence.toFixed(3)}), falling back to Haiku`
+    );
+  } catch (nlpError) {
+    console.error('[Intent Classifier] NLP.js failed, falling back to Haiku:', nlpError);
+  }
+
+  // --- Fallback: Kilo Gateway (Haiku) ---
   const apiKey = process.env.KILO_API_KEY;
 
   if (!apiKey) {
@@ -291,13 +352,6 @@ export async function classifyIntent(
       confidence: 0,
       params: {},
     };
-  }
-
-  // Run keyword fallback before calling Haiku
-  const fallback = keywordFallback(message);
-  if (fallback) {
-    console.log('[Intent Classifier] Keyword fallback matched:', fallback.intent);
-    return fallback;
   }
 
   const contextStr = conversationContext?.length
@@ -347,23 +401,6 @@ Klasifikuj záměr a vrať JSON.`;
     // Validate result structure
     if (!result.intent || typeof result.confidence !== 'number') {
       throw new Error('Invalid classification result structure');
-    }
-
-    // Secondary safety net: override low-confidence non-action intents when message
-    // matches known query/action patterns that Haiku consistently misclassifies
-    const lowerMsg = message.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-    if (result.confidence < 0.8 && (result.intent === 'advice_request' || result.intent === 'small_talk')) {
-      if (/kolik\s+host/.test(lowerMsg)) {
-        result.intent = 'guest_query';
-        result.confidence = 0.9;
-        result.params = { filter: 'all' };
-      } else if (/(zaplatil|uhradil)\s+jsem/.test(lowerMsg)) {
-        result.intent = 'budget_mark_paid';
-        result.confidence = 0.85;
-      } else if (/(pridej|nastav|uprav|zmen).*\s+(k|u)\s+\S/.test(lowerMsg)) {
-        result.intent = 'checklist_update';
-        result.confidence = 0.85;
-      }
     }
 
     return result;
