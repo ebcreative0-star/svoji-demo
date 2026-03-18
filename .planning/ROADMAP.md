@@ -113,6 +113,23 @@ Plans:
 - [ ] 12.1-02-PLAN.md -- Query intents (checklist_query, budget_query, guest_query, status_overview)
 - [ ] 12.1-03-PLAN.md -- Global Cmd+K search modal with cross-domain search and highlight
 
+### Phase 12.1.1: NLP.js Intent Classifier (INSERTED)
+**Goal**: Replace Haiku API classifier with locally-trained NLP.js model for deterministic, free, fast intent classification with Czech language support. Train on existing 50+ examples from intent-classifier.ts. Keep Sonnet for chat responses only.
+**Depends on**: Phase 12.1
+**Requirements**: INTENT-01, INTENT-02, INTENT-03, INTENT-04, INTENT-05, INTENT-06
+**Success Criteria** (what must be TRUE):
+  1. "pridej datum k fotografovi" consistently classifies as checklist_update (not advice_request)
+  2. "zaplatil jsem kameramana 15000" consistently classifies as budget_mark_paid
+  3. "co mam v checklistu?" consistently classifies as checklist_query
+  4. "kolik hostu potvrdilo?" consistently classifies as guest_query
+  5. No Haiku API calls for intent classification (zero cost for classification)
+  6. Classification latency < 50ms (local inference)
+**Plans**: 2 plans
+
+Plans:
+- [ ] 12.1.1-01-PLAN.md -- NLP.js classifier module + training corpus + test scaffold
+- [ ] 12.1.1-02-PLAN.md -- Integration into intent-classifier.ts + Haiku fallback wiring
+
 ### Phase 12.2: AI Polish (INSERTED)
 **Goal**: AI asks follow-up questions before acting, pre-populates budget from onboarding, handles batch deletes and duplicate cleanup
 **Depends on**: Phase 12.1
