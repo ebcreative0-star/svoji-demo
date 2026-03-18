@@ -3,11 +3,11 @@ gsd_state_version: 1.0
 milestone: v2.1
 milestone_name: Polish & UX
 status: executing
-stopped_at: "Completed 12.1-05 client-side revalidation after AI mutations (checkpoint: awaiting human verify)"
-last_updated: "2026-03-18T10:02:35.358Z"
+stopped_at: Phase 12.1.1 context gathered
+last_updated: "2026-03-18T13:42:24.505Z"
 last_activity: 2026-03-16 -- phase 12 plan 01 complete (tags, date-utils, TagInput, migration)
 progress:
-  total_phases: 7
+  total_phases: 8
   completed_phases: 4
   total_plans: 16
   completed_plans: 16
@@ -83,6 +83,7 @@ See PROJECT.md Key Decisions table for full list. Recent relevant decisions:
 ### Roadmap Evolution
 
 - Phase 11.1 inserted after Phase 11: AI Actions & Batch Import (URGENT) - AI tool execution broken, batch import needed for checklist/budget/guests, notes migration feature
+- Phase 12.1.1 inserted after Phase 12.1: NLP.js Intent Classifier (URGENT) - Haiku classifier unreliable for Czech, misclassifies update/query intents. Replace with locally-trained NLP.js for deterministic, free, fast classification.
 
 ### Pending Todos
 
@@ -101,6 +102,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-18T10:02:35.355Z
-Stopped at: Completed 12.1-05 client-side revalidation after AI mutations (checkpoint: awaiting human verify)
-Resume file: None
+Last session: 2026-03-18T13:42:24.491Z
+Stopped at: Phase 12.1.1 context gathered
+Resume file: .planning/phases/12.1.1-nlp-js-intent-classifier/12.1.1-CONTEXT.md
