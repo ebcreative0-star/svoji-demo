@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { motion } from 'framer-motion';
 import { Send, Loader2, Bot, User } from 'lucide-react';
@@ -35,6 +36,7 @@ interface ChatInterfaceProps {
 }
 
 export function ChatInterface({ couple, initialMessages, dataState }: ChatInterfaceProps) {
+  const router = useRouter();
   const [messages, setMessages] = useState<Message[]>(initialMessages);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -126,6 +128,12 @@ export function ChatInterface({ couple, initialMessages, dataState }: ChatInterf
         created_at: new Date().toISOString(),
       };
       setMessages((prev) => [...prev, assistantMsg]);
+
+      if (data.actionPerformed) {
+        setTimeout(() => {
+          router.refresh();
+        }, 500);
+      }
     } catch (error) {
       console.error('Chat error:', error);
       // Přidat chybovou zprávu

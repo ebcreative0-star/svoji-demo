@@ -415,7 +415,13 @@ DŮLEŽITÉ: Potvrď tuto akci ve své odpovědi uživateli. ${actionResult.succ
       }
     }
 
-    return NextResponse.json({ message: assistantMessage });
+    const notesImported = notesSummary !== null;
+    const actionPerformed = notesImported || (actionResult?.success === true && actionResult?.data?.type !== 'query');
+    return NextResponse.json({
+      message: assistantMessage,
+      actionPerformed,
+      intent: actionPerformed ? (notesImported ? 'notes_import' : intentResult.intent) : undefined,
+    });
   } catch (error) {
     console.error('Chat API error:', error);
     return NextResponse.json(
