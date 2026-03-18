@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.1
 milestone_name: Polish & UX
 status: executing
-stopped_at: Completed 12.1.1-01-PLAN.md
-last_updated: "2026-03-18T14:08:12.264Z"
+stopped_at: Completed 12.1.1-02-PLAN.md
+last_updated: "2026-03-18T14:13:51.580Z"
 last_activity: 2026-03-16 -- phase 12 plan 01 complete (tags, date-utils, TagInput, migration)
 progress:
   total_phases: 8
-  completed_phases: 4
+  completed_phases: 5
   total_plans: 18
-  completed_plans: 17
+  completed_plans: 18
   percent: 38
 ---
 
@@ -81,6 +81,8 @@ See PROJECT.md Key Decisions table for full list. Recent relevant decisions:
 - [Phase 12.1-ai-update-query]: router.refresh() with 500ms delay after AI mutation so user reads response before dashboard data refreshes
 - [Phase 12.1.1-01]: --conditions react-server tsx flag bypasses server-only guard in test runner without modifying production code
 - [Phase 12.1.1-01]: 420 utterances across 21 intents -- full diacritics + plain variants exceeds 150+ target
+- [Phase 12.1.1-02]: NLP.js intent=None with score=1 requires explicit guard -- isNoneIntent check prevents None from bypassing Haiku fallback
+- [Phase 12.1.1-02]: extractParams() is best-effort -- Sonnet further refines params; NLP.js job is intent accuracy not param completeness
 
 ### Roadmap Evolution
 
@@ -104,6 +106,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-18T14:08:12.261Z
-Stopped at: Completed 12.1.1-01-PLAN.md
+Last session: 2026-03-18T14:13:51.577Z
+Stopped at: Completed 12.1.1-02-PLAN.md
 Resume file: None
