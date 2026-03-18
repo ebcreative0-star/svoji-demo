@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.1
 milestone_name: Polish & UX
 status: executing
-stopped_at: Completed 12.1-04 AI pipeline bug fixes (gap closure)
-last_updated: "2026-03-18T10:00:17.977Z"
+stopped_at: "Completed 12.1-05 client-side revalidation after AI mutations (checkpoint: awaiting human verify)"
+last_updated: "2026-03-18T10:02:35.358Z"
 last_activity: 2026-03-16 -- phase 12 plan 01 complete (tags, date-utils, TagInput, migration)
 progress:
   total_phases: 7
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 16
-  completed_plans: 15
+  completed_plans: 16
   percent: 38
 ---
 
@@ -77,6 +77,8 @@ See PROJECT.md Key Decisions table for full list. Recent relevant decisions:
 - [Phase 12.1-04]: CZECH_WORD_NUMBERS map with NFD normalization handles diacritics at lookup time
 - [Phase 12.1-04]: keywordFallback runs before Haiku to avoid API latency for common patterns, confidence-override as secondary safety net
 - [Phase 12.1-04]: Post-processing strip in route.ts as defense-in-depth -- removes markdown/emoji even if AI ignores instructions
+- [Phase 12.1-ai-update-query]: actionPerformed flag: notesImported OR (actionResult.success && type !== 'query') -- covers all mutation cases including notes import
+- [Phase 12.1-ai-update-query]: router.refresh() with 500ms delay after AI mutation so user reads response before dashboard data refreshes
 
 ### Roadmap Evolution
 
@@ -99,6 +101,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-18T10:00:17.974Z
-Stopped at: Completed 12.1-04 AI pipeline bug fixes (gap closure)
+Last session: 2026-03-18T10:02:35.355Z
+Stopped at: Completed 12.1-05 client-side revalidation after AI mutations (checkpoint: awaiting human verify)
 Resume file: None
