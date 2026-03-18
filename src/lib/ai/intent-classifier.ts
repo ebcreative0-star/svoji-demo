@@ -230,6 +230,52 @@ Uzivatel: "kolik toho jeste mam?"
 {"intent": "status_overview", "confidence": 0.95, "params": {}}`;
 
 /**
+ * Keyword-based fallback classifier for commonly misclassified intents.
+ * Runs BEFORE Haiku to catch clear-cut cases via regex.
+ */
+function keywordFallback(message: string): IntentResult | null {
+  const lower = message.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
+  // Guest queries: "kolik hostu", "kdo potvrdil", "kdo neodpovedel"
+  if (/kolik\s+host[uu]/.test(lower) || /kdo\s+(potvrdil|neodpovedel|prijde|neprijde)/.test(lower)) {
+    const filter = /potvrdil|prijde/.test(lower) ? 'confirmed'
+                 : /neodpovedel|cek/.test(lower) ? 'pending'
+                 : /odmit|neprijde/.test(lower) ? 'declined'
+                 : 'all';
+    return { intent: 'guest_query', confidence: 0.95, params: { filter } };
+  }
+
+  // Checklist queries: "co mam v checklistu", "co mi zbyva", "co je po terminu"
+  if (/co\s+(mam|je)\s+(v\s+)?checklist/.test(lower) || /co\s+mi\s+zbyva/.test(lower)) {
+    const filter = /po\s+termin/.test(lower) ? 'overdue' : /zbyva/.test(lower) ? 'pending' : 'all';
+    return { intent: 'checklist_query', confidence: 0.95, params: { filter } };
+  }
+
+  // Budget queries: "kolik mam v rozpoctu", "kolik zbyva zaplatit"
+  if (/kolik\s+(mam\s+)?v\s+rozpoc/.test(lower) || /kolik\s+zbyva\s+zaplatit/.test(lower)) {
+    const filter = /zaplatit|nezaplacen/.test(lower) ? 'unpaid' : /zaplacen/.test(lower) ? 'paid' : 'all';
+    return { intent: 'budget_query', confidence: 0.95, params: { filter } };
+  }
+
+  // Status overview: "jak jsem na tom", "shrn stav", "prehled priprav"
+  if (/jak\s+(jsem|jsi)\s+na\s+tom/.test(lower) || /shrn.*stav/.test(lower) || /prehled\s+priprav/.test(lower)) {
+    return { intent: 'status_overview', confidence: 0.95, params: {} };
+  }
+
+  // Checklist update: "pridej datum/tag/prioritu K [item]", "nastav", "uprav", "zmen"
+  if (/(pridej|nastav|uprav|zmen)\s+.*(datum|tag|priorit[ua]|kategorii?)\s+(k|u)\s+/i.test(lower)) {
+    return { intent: 'checklist_update', confidence: 0.9, params: {} };
+  }
+
+  // Budget mark paid: "zaplatil jsem", "zaplaceno ... za", "uhradil jsem"
+  if (/(zaplatil|uhradil)\s+jsem/.test(lower) || /zaplaceno\s+\d/.test(lower)) {
+    return { intent: 'budget_mark_paid', confidence: 0.9, params: {} };
+  }
+
+  return null;
+}
+
+/**
  * Classify user message intent using Kilo Gateway
  */
 export async function classifyIntent(
@@ -245,6 +291,13 @@ export async function classifyIntent(
       confidence: 0,
       params: {},
     };
+  }
+
+  // Run keyword fallback before calling Haiku
+  const fallback = keywordFallback(message);
+  if (fallback) {
+    console.log('[Intent Classifier] Keyword fallback matched:', fallback.intent);
+    return fallback;
   }
 
   const contextStr = conversationContext?.length
@@ -294,6 +347,23 @@ Klasifikuj záměr a vrať JSON.`;
     // Validate result structure
     if (!result.intent || typeof result.confidence !== 'number') {
       throw new Error('Invalid classification result structure');
+    }
+
+    // Secondary safety net: override low-confidence non-action intents when message
+    // matches known query/action patterns that Haiku consistently misclassifies
+    const lowerMsg = message.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    if (result.confidence < 0.8 && (result.intent === 'advice_request' || result.intent === 'small_talk')) {
+      if (/kolik\s+host/.test(lowerMsg)) {
+        result.intent = 'guest_query';
+        result.confidence = 0.9;
+        result.params = { filter: 'all' };
+      } else if (/(zaplatil|uhradil)\s+jsem/.test(lowerMsg)) {
+        result.intent = 'budget_mark_paid';
+        result.confidence = 0.85;
+      } else if (/(pridej|nastav|uprav|zmen).*\s+(k|u)\s+\S/.test(lowerMsg)) {
+        result.intent = 'checklist_update';
+        result.confidence = 0.85;
+      }
     }
 
     return result;
