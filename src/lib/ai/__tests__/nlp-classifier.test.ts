@@ -3,7 +3,7 @@
  * Tests for the standalone NLP.js intent classifier module.
  * Covers INTENT-01 through INTENT-06.
  *
- * Run with: npx tsx src/lib/ai/__tests__/nlp-classifier.test.ts
+ * Run with: npx tsx --conditions react-server src/lib/ai/__tests__/nlp-classifier.test.ts
  */
 
 import assert from 'node:assert/strict';
