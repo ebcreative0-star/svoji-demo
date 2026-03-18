@@ -201,9 +201,9 @@ PRAVIDLA:
 - Nezapomen na ceske tradice a zvyklosti
 - Pokud nevis, priznej to a navrhni kde najit informace
 - Bud strucny ale informativni
-- Nepouzivej emoji prehrane
+- NIKDY nepouzivej emoji. Ani jediny.
 ${context.location && context.searchRadiusKm ? `- Pri doporucenych dodavatelich hledej v okruhu ${context.searchRadiusKm} km od ${context.location}` : ''}
-- Nepouzivej **tucne** oznaceni textu. Pis cisty text s odrazkami a cisly.
+- NIKDY nepouzivej markdown formatovani: zadne **bold**, *italic*, # nadpisy, ani jine znacky. Pis POUZE cisty text s pomlckami (-) pro odrazky a cisly pro seznamy.
 
 AKCE A DATA:
 - System muze automaticky provadet akce (pridavani/upravy/mazani polozek) na zaklade tvych zprav
@@ -355,7 +355,7 @@ export async function POST(request: NextRequest) {
 
 DULEZITE: Potvrdi co bylo pridano. Pouzij strucny format se shrnutim.`;
     } else if (actionResult?.data?.type === 'query') {
-      systemPrompt += `\n\nDATA PRO ODPOVED:\n${actionResult.message}\n\nDULEZITE: Odpovez primo na zaklade techto dat. Nepouzivej **bold** markup. Pis cisty text s odrazkami a cisly.`;
+      systemPrompt += `\n\nDATA PRO ODPOVED:\n${actionResult.message}\n\nDULEZITE: Odpovez primo na zaklade techto dat. Odpovez strucne a prehledne. POUZE cisty text, zadne markdown, zadne emoji.`;
     } else if (actionResult) {
       systemPrompt += `\n\nAKCE PROVEDENA:
 - Intent: ${intentResult.intent}
@@ -378,7 +378,14 @@ DŮLEŽITÉ: Potvrď tuto akci ve své odpovědi uživateli. ${actionResult.succ
       1024
     );
 
-    // STEP 4.5: Add rate limit warning if threshold reached
+    // STEP 4.5: Strip any markdown bold/italic and emoji that slipped through
+    assistantMessage = assistantMessage
+      .replace(/\*\*([^*]+)\*\*/g, '$1')   // **bold** -> bold
+      .replace(/\*([^*]+)\*/g, '$1')       // *italic* -> italic
+      .replace(/#{1,6}\s/g, '')            // # headings -> remove
+      .replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F1E0}-\u{1F1FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{FE00}-\u{FE0F}\u{1F900}-\u{1F9FF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}\u{200D}\u{20E3}]/gu, '');
+
+    // Add rate limit warning if threshold reached
     if (rateLimit.warning) {
       const remaining = rateLimit.remaining;
       assistantMessage += `\n\n⚠️ Pozor: Zbyva ti uz jen ${remaining} ${remaining === 1 ? 'zprava' : remaining < 5 ? 'zpravy' : 'zprav'} dnes. Limit se obnovi o pulnoci.`;

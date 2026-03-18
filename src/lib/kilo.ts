@@ -81,7 +81,7 @@ export async function createChatCompletion(
         model: KILO_MODEL,
         messages: kiloMessages,
         max_tokens: maxTokens,
-        temperature: 1.0,
+        temperature: 0.7,
       }),
     });
 

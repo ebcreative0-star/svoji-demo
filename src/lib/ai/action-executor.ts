@@ -830,11 +830,23 @@ async function queryChecklist(
       filtered = all;
   }
 
-  const lines = filtered.slice(0, 15).map((i: { title: string; due_date: string | null; tags: string[] | null }) => {
-    const datePart = i.due_date ? ` (do ${i.due_date})` : '';
-    const tagPart = i.tags && i.tags.length > 0 ? ` [${i.tags.join(', ')}]` : '';
-    return `- ${i.title}${datePart}${tagPart}`;
-  });
+  let lines: string[];
+  if (filtered.length > 30) {
+    // Group by category for large lists to avoid overwhelming context
+    const byCategory: Record<string, string[]> = {};
+    for (const i of filtered as { title: string; due_date: string | null; tags: string[] | null; category?: string }[]) {
+      const cat = (i as any).category ?? 'other';
+      if (!byCategory[cat]) byCategory[cat] = [];
+      byCategory[cat].push(i.title);
+    }
+    lines = Object.entries(byCategory).map(([cat, titles]) => `${cat}: ${titles.join(', ')}`);
+  } else {
+    lines = filtered.map((i: { title: string; due_date: string | null; tags: string[] | null }) => {
+      const datePart = i.due_date ? ` (do ${i.due_date})` : '';
+      const tagPart = i.tags && i.tags.length > 0 ? ` [${i.tags.join(', ')}]` : '';
+      return `- ${i.title}${datePart}${tagPart}`;
+    });
+  }
 
   const overdueSuffix = filter !== 'overdue'
     ? `, ${all.filter((i: { completed: boolean; due_date: string | null }) => !i.completed && i.due_date && i.due_date < today).length} po terminu`
@@ -899,7 +911,7 @@ async function queryBudget(
       filtered = all;
   }
 
-  const lines = filtered.slice(0, 15).map((i: { name: string; estimated_cost: number | null; actual_cost: number | null; paid: boolean; tags: string[] | null }) => {
+  const lines = filtered.map((i: { name: string; estimated_cost: number | null; actual_cost: number | null; paid: boolean; tags: string[] | null }) => {
     const cost = i.paid ? (i.actual_cost ?? i.estimated_cost ?? 0) : (i.estimated_cost ?? 0);
     const paidMark = i.paid ? ' [zaplaceno]' : '';
     const tagPart = i.tags && i.tags.length > 0 ? ` [${i.tags.join(', ')}]` : '';
@@ -959,7 +971,7 @@ async function queryGuests(
       filtered = guests;
   }
 
-  const lines = filtered.slice(0, 15).map((g: { name: string; group_name: string | null; rsvp_status: string; plus_one: boolean; tags: string[] | null }) => {
+  const lines = filtered.map((g: { name: string; group_name: string | null; rsvp_status: string; plus_one: boolean; tags: string[] | null }) => {
     const groupPart = g.group_name ? ` (${g.group_name})` : '';
     const plusPart = g.plus_one ? ' +1' : '';
     const tagPart = g.tags && g.tags.length > 0 ? ` [${g.tags.join(', ')}]` : '';
